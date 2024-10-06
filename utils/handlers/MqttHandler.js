@@ -1,7 +1,7 @@
 const mqtt = require("mqtt");
 
-const config = require("./config");
-const topics = require("./topics");
+const config = require("../config");
+const topics = require("../topics");
 
 const url = `mqtts://${config.MQTT_HOST}:${config.MQTT_PORT}`;
 console.log(url);
