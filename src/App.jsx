@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import {socket} from './WebSockets/socket'
+import {socket} from './webSockets/socket'
 
 function App() {
 
