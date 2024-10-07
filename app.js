@@ -2,8 +2,8 @@ const express = require("express");
 const http = require("http");
 const cors = require("cors");
 
-const MqttHandler = require("./utils/MqttHandler");
-const WebSocketHandler = require("./utils/WebSocketHandler");
+const MqttHandler = require("./utils/handlers/MqttHandler");
+const WebSocketHandler = require("./utils/handlers/WebSocketHandler");
 
 const app = express();
 
