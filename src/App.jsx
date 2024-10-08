@@ -5,7 +5,7 @@ import "./App.css";
 import VerticalTankModel2Pales from "./components/tank-models/VerticalTankModel2Pales";
 import HorizontalTankModel2Pales from "./components/tank-models/HorizontalTankModel2Pales";
 
-import Temperature from "./components/SensorData/Temperature";
+import TankTemperatures from "./components/sensorData/TankTemperatures";
 import Gyroscope from "./components/sensorData/Gyroscope";
 import MilkQuantity from "./components/sensorData/MilkQuantity";
 
@@ -74,7 +74,7 @@ function App() {
           </Canvas>
         </div>
         <div className="data-container">
-          <Temperature />
+          <TankTemperatures />
           <Gyroscope />
           <MilkQuantity />
         </div>
