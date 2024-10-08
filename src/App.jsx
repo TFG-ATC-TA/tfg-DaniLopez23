@@ -35,7 +35,7 @@ function App() {
 
   return (
     <div className="container">
-      <div classname="content-container">
+      <div className="content-container">
         <div className="canvas-container">
           <Canvas id="three-canvas">
             <ambientLight intensity={0.6} />

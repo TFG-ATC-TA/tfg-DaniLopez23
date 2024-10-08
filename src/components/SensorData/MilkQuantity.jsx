@@ -7,7 +7,7 @@ const MilkQuantity = () => {
   useEffect(() => {
     const onMilkQuantity = (data) => {
       console.log(data);
-      setMilkQuantity(data);
+      setMilkQuantityData(data);
     };
 
     socket.on("synthetic-farm-1/tank_distance", onMilkQuantity);
@@ -19,7 +19,7 @@ const MilkQuantity = () => {
 
   return (
     <>
-      {milkQuantityData ? (
+      {milkQuantityData !== 0 ? (
         <div>
           <p>Milk quantity Data: (Last update: {milkQuantityData.readableDate})</p>
           <p>Milk quantity {milkQuantityData.milkQuantity} %</p>
