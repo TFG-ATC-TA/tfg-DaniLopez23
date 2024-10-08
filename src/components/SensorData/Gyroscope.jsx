@@ -1,4 +1,4 @@
-import { socket } from "../WebSockets/Socket";
+import { socket } from "../../webSockets/socket";
 import { useState, useEffect } from "react";
 
 const Gyroscope = () => {
