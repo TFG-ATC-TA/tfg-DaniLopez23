@@ -6,6 +6,7 @@ const Gyroscope = () => {
 
   useEffect(() => {
     const onGyroscopeData = (data) => {
+      console.log(data);
       setGyroscopeData(data);
     };
 
