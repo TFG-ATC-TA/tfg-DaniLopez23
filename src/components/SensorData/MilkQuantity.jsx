@@ -2,12 +2,12 @@ import { socket } from "../../webSockets/socket";
 import { useState, useEffect } from "react";
 
 const MilkQuantity = () => {
-  const [milkQuantity, setMilkQuantity] = useState(0);
+  const [milkQuantityData, setMilkQuantityData] = useState(0);
 
   useEffect(() => {
     const onMilkQuantity = (data) => {
       console.log(data);
-      setMilkQuantity(data.message);
+      setMilkQuantityData(data);
     };
 
     socket.on("synthetic-farm-1/tank_distance", onMilkQuantity);
@@ -18,13 +18,16 @@ const MilkQuantity = () => {
   }, []);
 
   return (
-    <div>
-      <p>
-        {milkQuantity === 0
-          ? "Milk quantity: no data received yet"
-          : `Milk quantity: ${milkQuantity}`}
-      </p>
-    </div>
+    <>
+      {milkQuantityData !== 0 ? (
+        <div>
+          <p>Milk quantity Data: (Last update: {milkQuantityData.readableDate})</p>
+          <p>Milk quantity {milkQuantityData.milkQuantity} %</p>
+        </div>
+      ) : (
+        <p>Milk quantity Data: no data received yet</p>
+      )}
+    </>
   );
 };
 
