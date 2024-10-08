@@ -2,8 +2,9 @@ import React, { useState, Suspense, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Plane } from "@react-three/drei";
 import "./App.css";
+
 import VerticalTankModel2Pales from "./components/tank-models/VerticalTankModel2Pales";
-import HorizontalTankModel2Pales from "./components/tank-models/HorizontalTankModel2Pales";
+import HorizontalTankModel2Blades from "./components/tank-models/HorizontalTankModel2Blades";
 
 import TankTemperatures from "./components/sensorData/TankTemperatures";
 import Gyroscope from "./components/sensorData/Gyroscope";
@@ -48,7 +49,7 @@ function App() {
 
             <Suspense fallback={null}>
               {/* <VerticalTankModel2Pales milkQuantity={milkQuantity} speed={speed} /> */}
-              <HorizontalTankModel2Pales
+              <HorizontalTankModel2Blades
                 milkQuantity={milkQuantity}
                 speed={speed}
               />
