@@ -22,7 +22,7 @@ const MilkQuantity = () => {
       {milkQuantityData !== 0 ? (
         <div>
           <p>Milk quantity Data: (Last update: {milkQuantityData.readableDate})</p>
-          <p>Milk quantity {milkQuantityData.milkQuantity} %</p>
+          <p>{milkQuantityData.milkQuantity} %</p>
         </div>
       ) : (
         <p>Milk quantity Data: no data received yet</p>
