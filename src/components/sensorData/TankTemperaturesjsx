@@ -1,0 +1,36 @@
+import { socket } from "../../webSockets/socket";
+import { useState, useEffect } from "react";
+
+const TankTemperatures = () => {
+  const [temperatures, setTemperatures] = useState(0);
+
+  useEffect(() => {
+    const onTemperature = (data) => {
+      console.log(data);
+      setTemperature(data);
+    };
+
+    socket.on("synthetic-farm-1/tank_temperature_probes", onTemperature);
+
+    return () => {
+      socket.off("synthetic-farm-1/tank_temperature_probes", onTemperature);
+    };
+  }, []);
+
+  return (
+    <>
+      {gyroscopeData ? (
+        <div>
+          <p>Tank temperatures Data: (Last update: {temperatures.readableDate})</p>
+          <p>Submerged temperature {temperatures} Cº</p>
+          <p>Submerged temperature {temperatures} Cº</p>
+          <p>Submerged temperature {temperatures} Cº</p>
+        </div>
+      ) : (
+        <p>Tank temperatures Data: no data received yet</p>
+      )}
+    </>
+  );
+};
+
+export default TankTemperatures;
