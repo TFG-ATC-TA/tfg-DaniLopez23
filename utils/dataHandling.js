@@ -2,7 +2,34 @@ const topics = require("./topics");
 
 const TANK_HEIGHT = 4000; // 2000 mm ; 2m
 
-const getTankTemperatureData = (rawData) => {};
+const getTankTemperaturesData = (rawData) => {
+  try {
+    const dataObject = JSON.parse(rawData);
+
+    let lastObject = dataObject[dataObject.length - 1];
+
+    const date = new Date(lastObject.timestamp * 1000);
+    const readableDate = date.toLocaleString();
+
+
+    const result = {
+      readableDate: readableDate,
+      submerged_temperature: lastObject.fields.submerged_temperature,
+      surface_temperature: lastObject.fields.surface_temperature,
+      over_surface_temperature: lastObject.fields.over_surface_temperature,
+    }
+
+    console.log("Last object ", lastObject);
+    console.log("Result ", result);
+
+    return result;
+  } catch (error) {
+    console.log(
+      "ERROR WHILE PARSING MESSAGE (STRING) TO JSON (OBJECT) : ",
+      error
+    );
+  }
+};
 
 const getGyroscopeData = (rawData) => {
   try {
@@ -42,8 +69,6 @@ const getMilkQuantityData = (rawData) => {
       milkQuantity: milkQuantity,
     };
 
-    console.log("Last object ", lastObject);
-    console.log("Result ", result);
     return result;
   } catch (error) {
     console.log(
@@ -70,7 +95,7 @@ const processData = (topic, rawData) => {
       break;
     case topics[1]:
       console.log(`Received ${topics[1] + topic} `);
-      processedData = getTankTemperatureData(rawData);
+      processedData = getTankTemperaturesData(rawData);
       break;
     case topics[2]:
       console.log(`Received ${topics[2] + topic} `);
