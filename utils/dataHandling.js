@@ -9,12 +9,11 @@ const getGyroscopeData = (rawData) => {
     let lastObject = dataObject[dataObject.length - 1];
 
     const date = new Date(lastObject.timestamp * 1000);
-    const readableDate = date.toLocaleString(); 
+    const readableDate = date.toLocaleString();
 
     lastObject.readableDate = readableDate;
 
     return lastObject;
-
   } catch (error) {
     console.log(
       "ERROR WHILE PARSING MESSAGE (STRING) TO JSON (OBJECT) : ",
@@ -24,12 +23,32 @@ const getGyroscopeData = (rawData) => {
 };
 
 const getMilkQuantityData = (rawData) => {
-  return rawData;
+  try {
+    const dataObject = JSON.parse(rawData);
+
+    let lastObject = dataObject[dataObject.length - 1];
+
+    const date = new Date(lastObject.timestamp * 1000);
+    const readableDate = date.toLocaleString();
+
+    lastObject.readableDate = readableDate;
+    console.log("Last Object : ", lastObject);
+    return lastObject;
+  } catch (error) {
+    console.log(
+      "ERROR WHILE PARSING MESSAGE (STRING) TO JSON (OBJECT) : ",
+      error
+    );
+  }
 };
 
 const getAirQualityData = (rawData) => {
   return rawData;
 };
+
+const getWeightData = (rawData) => {
+  return rawData;
+}
 
 const processData = (topic, rawData) => {
   let processedData = null;
@@ -50,6 +69,11 @@ const processData = (topic, rawData) => {
       console.log(`Received ${topics[3] + topic} `);
       processedData = getAirQualityData(rawData);
       break;
+    case topics[4]:
+      console.log(`Received ${topics[4] + topic} `);
+      processedData = getWeightData(rawData);
+      break;
+    case topics[5]:
     default:
   }
 

@@ -5,9 +5,9 @@ const brokerTopics = [
     `${farmId}/tank_temperature_probes`,
     `${farmId}/tank_distance`,
     `${farmId}/air_quality`,
+    `${farmId}/weight`,
     `${farmId}/magnetic_switch`,
     `${farmId}/encoder`,
-    `${farmId}/weight`,
     `${farmId}/board_temperature`,
     `${farmId}/board_status`,
 ]    
