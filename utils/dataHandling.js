@@ -1,5 +1,7 @@
 const topics = require("./topics");
 
+const TANK_HEIGHT = 4000; // 2000 mm ; 2m
+
 const getTankTemperatureData = (rawData) => {};
 
 const getGyroscopeData = (rawData) => {
@@ -31,9 +33,18 @@ const getMilkQuantityData = (rawData) => {
     const date = new Date(lastObject.timestamp * 1000);
     const readableDate = date.toLocaleString();
 
-    lastObject.readableDate = readableDate;
-    console.log("Last Object : ", lastObject);
-    return lastObject;
+    // Calcula el porcentaje de leche en el tanque
+    const milkQuantity = (lastObject.fields.range / TANK_HEIGHT) * 100;
+
+    // Crea el nuevo objeto con readableDate y milkQuantity
+    const result = {
+      readableDate: readableDate,
+      milkQuantity: milkQuantity,
+    };
+
+    console.log("Last object ", lastObject);
+    console.log("Result ", result);
+    return result;
   } catch (error) {
     console.log(
       "ERROR WHILE PARSING MESSAGE (STRING) TO JSON (OBJECT) : ",
@@ -48,13 +59,13 @@ const getAirQualityData = (rawData) => {
 
 const getWeightData = (rawData) => {
   return rawData;
-}
+};
 
 const processData = (topic, rawData) => {
   let processedData = null;
   switch (topic) {
     case topics[0]:
-      console.log(`Received ${typeof rawData} `);
+      console.log(`Received ${topics[0] + topic} `);
       processedData = getGyroscopeData(rawData);
       break;
     case topics[1]:
