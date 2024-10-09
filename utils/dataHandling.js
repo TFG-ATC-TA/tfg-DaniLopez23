@@ -85,6 +85,11 @@ const getAirQualityData = (rawData) => {
   const date = new Date(lastObject.timestamp * 1000);
   const readableDate = date.toLocaleString();
 
+  result = {
+    readableDate: readableDate,
+    airQuality: lastObject.fields,
+  };
+
   return rawData;
 };
 
@@ -111,7 +116,7 @@ const getMagneticSwitchData = (rawData) => {
 
   const date = new Date(lastObject.timestamp * 1000);
   const readableDate = date.toLocaleString();
-  
+
   const result = {
     readableDate: readableDate,
     status: lastObject.fields.state,
@@ -148,7 +153,23 @@ const getBoardTemperatureData = (rawData) => {
     readableDate: readableDate,
     temperature: lastObject.fields.temperature,
   };
-  
+
+  return result;
+};
+
+const getBoardStatusData = (rawData) => {
+  const dataObject = JSON.parse(rawData);
+
+  let lastObject = dataObject[dataObject.length - 1];
+
+  const date = new Date(lastObject.timestamp * 1000);
+  const readableDate = date.toLocaleString();
+
+  const result = {
+    readableDate: readableDate,
+    status: lastObject.fields.status,
+  };
+
   return result;
 };
 
@@ -156,15 +177,15 @@ const processData = (topic, rawData) => {
   let processedData = null;
   switch (topic) {
     case topics[0]:
-      console.log(`Received ${topics[0] + topic} `);
+      console.log(`Received ${topic} `);
       processedData = getGyroscopeData(rawData);
       break;
     case topics[1]:
-      console.log(`Received ${topics[1] + topic} `);
+      console.log(`Received ${topic} `);
       processedData = getTankTemperaturesData(rawData);
       break;
     case topics[2]:
-      console.log(`Received ${topics[2] + topic} `);
+      console.log(`Received ${topic} `);
       processedData = getMilkQuantityData(rawData);
       break;
     case topics[3]:
@@ -178,15 +199,23 @@ const processData = (topic, rawData) => {
     case topics[5]:
       console.log(`Received ${topic} `);
       processedData = getMagneticSwitchData(rawData);
+      break;
+
     case topics[6]:
       console.log(`Received ${topic} `);
       processedData = getEncoderData(rawData);
+      break;
+
     case topics[7]:
       console.log(`Received ${topic} `);
       processedData = getBoardTemperatureData(rawData);
+      break;
+
     case topics[8]:
       console.log(`Received ${topic} `);
       processedData = getBoardStatusData(rawData);
+
+      break;
     default:
       console.log("Topic not found");
   }
