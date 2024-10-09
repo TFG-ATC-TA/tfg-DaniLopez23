@@ -31,7 +31,7 @@ function App() {
       setGyroscopeData, 
       setMilkQuantityData, 
       setTankTemperaturesData,
-      setSwitchStatus
+      setSwitchStatus 
     );
   
     // Limpiamos los listeners al desmontar el componente
@@ -54,7 +54,7 @@ function App() {
             <Suspense fallback={null}>
               {/* <VerticalTankModel2Pales milkQuantity={milkQuantity} speed={speed} /> */}
               <HorizontalTankModel2Blades
-                milkQuantity={milkQuantityData}
+                milkQuantityData={milkQuantityData}
                 encoderData={encoderData}
                 gyroscopeData={gyroscopeData}
                 switchStatus={switchStatus}

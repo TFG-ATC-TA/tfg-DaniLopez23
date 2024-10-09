@@ -8,13 +8,21 @@ import { useGLTF } from '@react-three/drei'
 
 export default function HorizontalTankModel2Blades(props) {
   const { nodes, materials } = useGLTF('/horizontalTankModel/2Pales/HorizontalTankModel2Blades.glb')
+  console.log(props);
+  const getVisibleMilkCilinder = (quantity) => {
+    if (quantity >= 0 && quantity < 12.5) return null;
+    if (quantity >= 12.5 && quantity < 37.5) return <mesh geometry={nodes.MilkCilinder25.geometry} material={materials['MilkMaterial.001']} position={[-0.026, 2.389, -0.096]} scale={[2.531, 2.531, 2.615]} />
+    if (quantity >= 37.5 && quantity < 62.5) return <mesh geometry={nodes.MilkCilinder50.geometry} material={materials['MilkMaterial.001']} position={[-0.026, 2.389, -0.096]} scale={[2.531, 2.531, 2.615]} />
+    if (quantity >= 62.5 && quantity < 87.5) return <mesh geometry={nodes.MilkCilinder75.geometry} material={materials['MilkMaterial.001']} position={[-0.026, 2.389, -0.096]} scale={[2.531, 2.531, 2.615]} />
+    if (quantity >= 87.5 && quantity <= 100) return <mesh geometry={nodes.MilkCilinder100.geometry} material={materials['MilkMaterial.001']} position={[-0.026, 2.389, -0.096]} scale={[2.531, 2.531, 2.615]} />
+    
+    return "Invalid value";
+  };
+
   return (
     <group {...props} dispose={null}>
       <mesh geometry={nodes.Blade2.geometry} material={materials.BladeMaterial} position={[0, 1.529, 0.918]} scale={-0.148} />
-      <mesh geometry={nodes.MilkCilinder25.geometry} material={materials['MilkMaterial.001']} position={[-0.026, 2.389, -0.096]} scale={[2.531, 2.531, 2.615]} />
-      {/* <mesh geometry={nodes.MilkCilinder50.geometry} material={materials['MilkMaterial.001']} position={[-0.026, 2.389, -0.096]} scale={[2.531, 2.531, 2.615]} />
-      <mesh geometry={nodes.MilkCilinder75.geometry} material={materials['MilkMaterial.001']} position={[-0.026, 2.389, -0.096]} scale={[2.531, 2.531, 2.615]} />
-      <mesh geometry={nodes.MilkCilinder100.geometry} material={materials['MilkMaterial.001']} position={[-0.026, 2.389, -0.096]} scale={[2.531, 2.531, 2.615]} /> */}
+      {getVisibleMilkCilinder(props.milkQuantityData.milkQuantity)}
       {/* <mesh geometry={nodes.Plano.geometry} material={nodes.Plano.material} position={[2, 2, -0.014]} scale={5.276} /> */}
       <mesh geometry={nodes.TankCilinder.geometry} material={materials.TankMaterial} position={[0.002, 2.043, 0.008]} scale={1.113} />
       <mesh geometry={nodes.Blade1.geometry} material={materials.BladeMaterial} position={[0, 1.529, -0.982]} scale={-0.148} />

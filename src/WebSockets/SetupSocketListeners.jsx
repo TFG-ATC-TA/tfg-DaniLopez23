@@ -3,7 +3,8 @@ export const setupSocketListeners = (
   setEncoderData,
   setGyroscopeData,
   setMilkQuantityData,
-  setTankTemperaturesData
+  setTankTemperaturesData,
+  setSwitchStatus
 ) => {
   const onConnect = () => {
     console.log("Connected to server");
