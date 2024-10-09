@@ -6,16 +6,24 @@ Command: npx gltfjsx@6.5.0 .\public\horizontalTankModel\2Pales\HorizontalTankMod
 import React from 'react'
 import { useGLTF } from '@react-three/drei'
 import { useSpring, animated } from '@react-spring/three';
+import { cos } from 'three/webgpu';
 
 export default function HorizontalTankModel2Blades(props) {
   const { nodes, materials } = useGLTF('/horizontalTankModel/2Pales/HorizontalTankModel2Blades.glb')
+  
+  
   console.log(props);
 
   const getRotationDuration = (encoderData) => {
     if (encoderData === null) return 0; 
     const minDuration = 1000; 
     const maxDuration = 10000;
-    return minDuration + ((maxDuration - minDuration) * (100 - encoderData) / 100); //just test for data integration
+    const minRPM = 0;
+    const maxRPM = 100;
+    const rpm = encoderData;
+    const duration = (rpm - minRPM) * (maxDuration - minDuration) / (maxRPM - minRPM) + minDuration;
+    console.log(duration);
+    return duration
   };
 
   const getVisibleMilkCilinder = (quantity) => {
@@ -27,7 +35,6 @@ export default function HorizontalTankModel2Blades(props) {
     
     return "Invalid value";
   };
-  
   
   const rotationBlade1 = useSpring({
     loop: true,
@@ -43,6 +50,11 @@ export default function HorizontalTankModel2Blades(props) {
     config: { duration: getRotationDuration(props.encoderData.value) },
   });
   
+  const { rotation: rotationHatch } = useSpring({
+    to: { rotation: props.switchStatus ? [Math.PI / 2, 0, 0] : [0, 0, 0] },
+    config: { duration: 1000 },
+  });
+
   return (
     <group {...props} dispose={null}>
       <animated.mesh geometry={nodes.Blade2.geometry} material={materials.BladeMaterial} position={[0, 1.529, 0.918]} scale={-0.148} rotation={rotationBlade1.rotation} />
@@ -50,7 +62,7 @@ export default function HorizontalTankModel2Blades(props) {
       {getVisibleMilkCilinder(props.milkQuantityData.milkQuantity)}
       {/* <mesh geometry={nodes.Plano.geometry} material={nodes.Plano.material} position={[2, 2, -0.014]} scale={5.276} /> */}
       <mesh geometry={nodes.TankCilinder.geometry} material={materials.TankMaterial} position={[0.002, 2.043, 0.008]} scale={1.113} />
-      <mesh geometry={nodes.Hatch.geometry} material={materials.HatchMaterial} position={[0, 3.257, 0]} scale={0.019} />
+      <animated.mesh geometry={nodes.Hatch.geometry} material={materials.HatchMaterial} position={[0, 3.257, 0]} scale={0.019} rotation={rotationHatch} />
     </group>
   )
 }

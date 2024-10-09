@@ -17,7 +17,7 @@ import { socket } from "./webSockets/socket";
 
 function App() {
 
-  const [encoderData, setEncoderData] = useState(null);
+  const [encoderData, setEncoderData] = useState(0);
   const [gyroscopeData, setGyroscopeData] = useState(null);
   const [milkQuantityData, setMilkQuantityData] = useState(0);
   const [tankTemperaturesData, setTankTemperaturesData] = useState(0);
