@@ -21,8 +21,8 @@ const Encoder = () => {
     <>
       {encoderData ? (
         <div>
-          <p>Encoder Data: (Last Update: {encoderData.redeableDate})</p>
-          <p>{encoderData.rpm} rad/s</p>
+          <p>Encoder Data: (Last Update: {encoderData.readableDate})</p>
+          <p>{encoderData.value} rad/s</p>
         </div>
       ) : (
         <p>Encoder Data: no data received yet</p>

@@ -21,7 +21,10 @@ const MagneticSwitch = () => {
     <>
       {switchStatus !== null ? (
         <div>
-          <p>Switch status: {switchStatus === 0 ? "Closed" : "Opened"}</p>
+          <p>
+            Switch Status: (Last update: {switchStatus.readableDate})
+          </p>
+          <p>{switchStatus === 0 ? "Closed" : "Opened"}</p>
         </div>
       ) : (
         <p>Switch Status: no data received yet</p>
