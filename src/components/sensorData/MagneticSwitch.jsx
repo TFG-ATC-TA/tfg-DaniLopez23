@@ -19,7 +19,7 @@ const MagneticSwitch = () => {
 
   return (
     <>
-      {switchStatus === null ? (
+      {switchStatus !== null ? (
         <div>
           <p>Switch status: {switchStatus === 0 ? "Closed" : "Opened"}</p>
         </div>
