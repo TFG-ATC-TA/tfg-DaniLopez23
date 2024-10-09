@@ -1,21 +1,21 @@
 import { socket } from "../../webSockets/socket";
 import { useState, useEffect } from "react";
 
-const MilkQuantity = () => {
-  const [milkQuantityData, setMilkQuantityData] = useState(0);
+const MilkQuantity = ({milkQuantityData}) => {
+  // const [milkQuantityData, setMilkQuantityData] = useState(0);
 
-  useEffect(() => {
-    const onMilkQuantity = (data) => {
-      console.log(data);
-      setMilkQuantityData(data);
-    };
+  // useEffect(() => {
+  //   const onMilkQuantity = (data) => {
+  //     console.log(data);
+  //     setMilkQuantityData(data);
+  //   };
 
-    socket.on("synthetic-farm-1/tank_distance", onMilkQuantity);
+  //   socket.on("synthetic-farm-1/tank_distance", onMilkQuantity);
 
-    return () => {
-      socket.off("synthetic-farm-1/tank_distance", onMilkQuantity);
-    };
-  }, []);
+  //   return () => {
+  //     socket.off("synthetic-farm-1/tank_distance", onMilkQuantity);
+  //   };
+  // }, []);
 
   return (
     <>

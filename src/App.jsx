@@ -12,28 +12,30 @@ import MilkQuantity from "./components/sensorData/MilkQuantity";
 import MagneticSwitch from "./components/sensorData/MagneticSwitch";
 import Encoder from "./components/sensorData/Encoder";
 
+import { setupSocketListeners } from "./WebSockets/SetupSocketListeners";
 import { socket } from "./webSockets/socket";
 
 function App() {
-  const [speed, setSpeed] = useState(1);
-  const [milkQuantity, setmilkQuantity] = useState(0);
+
+  const [encoderData, setEncoderData] = useState(null);
+  const [gyroscopeData, setGyroscopeData] = useState(null);
+  const [milkQuantityData, setMilkQuantityData] = useState(0);
+  const [tankTemperaturesData, setTankTemperaturesData] = useState(0);
+  const [switchStatus, setSwitchStatus] = useState(null);
 
   useEffect(() => {
-    const onConnect = () => {
-      console.log("Connected to server");
-    };
-
-    const onDisconnect = () => {
-      console.log("Disconnected from server");
-    };
-
-    socket.on("connect", onConnect);
-    socket.on("disconnect", onDisconnect);
-
-    return () => {
-      socket.off("connect", onConnect);
-      socket.off("disconnect", onDisconnect);
-    };
+    // Llamamos a la función que configura los listeners del WebSocket
+    const cleanup = setupSocketListeners(
+      socket, 
+      setEncoderData, 
+      setGyroscopeData, 
+      setMilkQuantityData, 
+      setTankTemperaturesData,
+      setSwitchStatus
+    );
+  
+    // Limpiamos los listeners al desmontar el componente
+    return cleanup;
   }, []);
 
   return (
@@ -52,8 +54,11 @@ function App() {
             <Suspense fallback={null}>
               {/* <VerticalTankModel2Pales milkQuantity={milkQuantity} speed={speed} /> */}
               <HorizontalTankModel2Blades
-                milkQuantity={milkQuantity}
-                speed={speed}
+                milkQuantity={milkQuantityData}
+                encoderData={encoderData}
+                gyroscopeData={gyroscopeData}
+                switchStatus={switchStatus}
+                tankTemperaturesData={tankTemperaturesData}
               />
 
               {/* Suelo */}
@@ -77,24 +82,12 @@ function App() {
           </Canvas>
         </div>
         <div className="data-container">
-          <TankTemperatures />
-          <Gyroscope />
-          <MilkQuantity />
-          <MagneticSwitch />
-          <Encoder />
+          <TankTemperatures tankTemperaturesData={tankTemperaturesData}/>
+          <Gyroscope gyroscopeData={gyroscopeData}/>
+          <MilkQuantity milkQuantityData={milkQuantityData}/>
+          <MagneticSwitch switchStatus={switchStatus}/>
+          <Encoder encoderData={encoderData}/>
         </div>
-      </div>
-      <div className="controls-container">
-        <button onClick={() => setSpeed(speed + 0.1)}>+ velocidad palas</button>
-        <button onClick={() => setSpeed(speed - 0.1)}>- velocidad palas</button>
-        <input
-          type="range"
-          min={0}
-          max={100}
-          step={25}
-          value={milkQuantity}
-          onChange={(e) => setmilkQuantity(parseFloat(e.target.value))}
-        />
       </div>
     </div>
   );
