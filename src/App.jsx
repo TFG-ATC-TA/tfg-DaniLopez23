@@ -8,6 +8,7 @@ import HorizontalTankModel2Pales from "./components/tank-models/HorizontalTankMo
 import TankTemperatures from "./components/sensorData/TankTemperatures";
 import Gyroscope from "./components/sensorData/Gyroscope";
 import MilkQuantity from "./components/sensorData/MilkQuantity";
+import MagneticSwitch from "./components/sensorData/MagneticSwitch";
 
 import { socket } from "./webSockets/socket";
 
@@ -77,6 +78,8 @@ function App() {
           <TankTemperatures />
           <Gyroscope />
           <MilkQuantity />
+          <MagneticSwitch />
+          
         </div>
       </div>
       <div className="controls-container">
