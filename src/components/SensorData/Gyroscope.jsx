@@ -1,21 +1,21 @@
 import { socket } from "../../webSockets/socket";
 import { useState, useEffect } from "react";
 
-const Gyroscope = () => {
-  const [gyroscopeData, setGyroscopeData] = useState(0);
+const Gyroscope = ({gyroscopeData}) => {
+  // const [gyroscopeData, setGyroscopeData] = useState(0);
 
-  useEffect(() => {
-    const onGyroscopeData = (data) => {
-      console.log(data);
-      setGyroscopeData(data);
-    };
+  // useEffect(() => {
+  //   const onGyroscopeData = (data) => {
+  //     console.log(data);
+  //     setGyroscopeData(data);
+  //   };
 
-    socket.on("synthetic-farm-1/6_dof_imu", onGyroscopeData);
+  //   socket.on("synthetic-farm-1/6_dof_imu", onGyroscopeData);
 
-    return () => {
-      socket.off("synthetic-farm-1/6_dof_imu", onGyroscopeData);
-    };
-  }, []);
+  //   return () => {
+  //     socket.off("synthetic-farm-1/6_dof_imu", onGyroscopeData);
+  //   };
+  // }, []);
 
   return (
     <div>
