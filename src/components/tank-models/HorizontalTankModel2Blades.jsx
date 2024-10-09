@@ -12,10 +12,10 @@ export default function HorizontalTankModel2Blades(props) {
   console.log(props);
 
   const getRotationDuration = (encoderData) => {
-    if (encoderData === null) return 0; // 1 segundo
-    const minDuration = 1000; // 1 segundo
-    const maxDuration = 10000; // 10 segundos
-    return minDuration + ((maxDuration - minDuration) * (100 - encoderData) / 100);
+    if (encoderData === null) return 0; 
+    const minDuration = 1000; 
+    const maxDuration = 10000;
+    return minDuration + ((maxDuration - minDuration) * (100 - encoderData) / 100); //just test for data integration
   };
 
   const getVisibleMilkCilinder = (quantity) => {
@@ -33,14 +33,14 @@ export default function HorizontalTankModel2Blades(props) {
     loop: true,
     to: { rotation: [0, Math.PI * 2, 0] },
     from: { rotation: [0, 0, 0] },
-    config: { duration: getRotationDuration(props.encoderData) },
+    config: { duration: getRotationDuration(props.encoderData.value) },
   });
 
   const rotationBlade2 = useSpring({
     loop: true,
     to: { rotation: [0, -Math.PI * 2, 0] },
     from: { rotation: [0, 0, 0] },
-    config: { duration: getRotationDuration(props.encoderData) },
+    config: { duration: getRotationDuration(props.encoderData.value) },
   });
   
   return (
