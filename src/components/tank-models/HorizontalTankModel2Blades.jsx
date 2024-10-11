@@ -22,7 +22,6 @@ export default function HorizontalTankModel2Blades(props) {
     const maxRPM = 100;
     const rpm = encoderData;
     const duration = (rpm - minRPM) * (maxDuration - minDuration) / (maxRPM - minRPM) + minDuration;
-    console.log(duration);
     return duration
   };
 
