@@ -13,13 +13,9 @@ const sensorSchema = new mongoose.Schema({
     type: Number,
     required: false,
   },
-  sensorUnit: {
-    type: String,
+  boardId: {
+    type: Number,
     required: false,
-  },
-  board: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Board",
   },
 });
 
