@@ -1,9 +1,25 @@
 const mongoose = require("mongoose");
 
 const sensorSchema = new mongoose.Schema({
-  sensorID: {
+  sensorId: {
     type: String,
     required: true,
+  },
+  sensorType: {
+    type: String,
+    required: true,
+  },
+  sensorValue: {
+    type: Number,
+    required: false,
+  },
+  sensorUnit: {
+    type: String,
+    required: false,
+  },
+  board: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Board",
   },
 });
 
