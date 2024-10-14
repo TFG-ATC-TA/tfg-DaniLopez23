@@ -1,23 +1,27 @@
 const mongoose = require("mongoose");
 
-const tankSchema = new mongoose.Schema({
-  height: {
-    type: Number,
+const farmSchema = new mongoose.Schema({
+  farmID: {
+    type: String,
     required: true,
   },
-  capacity: {
-    type: Number,
+  farmName: {
+    type: String,
     required: true,
   },
-  sensors: [
+  farmLocation: {
+    type: String,
+    required: true,
+  },
+  tanks: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Sensor",
+      ref: "Tank",
     },
   ],
 });
 
-tankSchema.set("toJSON", {
+farmSchema.set("toJSON", {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString();
     delete returnedObject._id;
@@ -25,6 +29,4 @@ tankSchema.set("toJSON", {
   },
 });
 
-module.exports = mongoose.model("Tank", tankSchema);
-
-
+module.exports = mongoose.model("Farm", farmSchema);
