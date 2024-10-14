@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const farmSchema = new mongoose.Schema({
-  farmID: {
+  farmId: {
     type: String,
     required: true,
   },
