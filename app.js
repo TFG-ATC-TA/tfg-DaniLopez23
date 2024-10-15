@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const MONGO_URI = config.MONGO_URI;
 
 const farmRouter = require("./controllers/Farm"); 
+const tankRouter = require("./controllers/Tank");
 
 const MqttHandler = require("./utils/handlers/MqttHandler");
 const WebSocketHandler = require("./utils/handlers/WebSocketHandler");
@@ -35,10 +36,8 @@ webSocketHandler.init();
 const mqttClient = new MqttHandler();
 mqttClient.connect();
 
-
-
 app.use("/farms", farmRouter);
-
+app.use("/tanks", tankRouter);
 
 // Establece el manejador para los mensajes entrantes
 mqttClient.onMessage((topic, message) => {

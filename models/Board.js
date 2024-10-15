@@ -11,7 +11,7 @@ const boardSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
-      sensorType: {
+      type: {
         type: String,
         required: true,
       },

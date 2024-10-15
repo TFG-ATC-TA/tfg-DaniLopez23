@@ -7,8 +7,13 @@ const tankSchema = new mongoose.Schema({
   },
   tankStations: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Sensor",
+      name: {
+        type: String,
+      },
+      board: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Board",
+      },
     },
   ],
 });
