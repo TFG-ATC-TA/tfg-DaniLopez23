@@ -5,14 +5,6 @@ const farmSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  farmName: {
-    type: String,
-    required: true,
-  },
-  farmLocation: {
-    type: String,
-    required: true,
-  },
   tanks: [
     {
       type: mongoose.Schema.Types.ObjectId,

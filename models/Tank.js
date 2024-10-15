@@ -1,15 +1,11 @@
 const mongoose = require("mongoose");
 
 const tankSchema = new mongoose.Schema({
-  height: {
-    type: Number,
+  tankName: {
+    type: String,
     required: true,
   },
-  capacity: {
-    type: Number,
-    required: true,
-  },
-  sensors: [
+  tankStations: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Sensor",
