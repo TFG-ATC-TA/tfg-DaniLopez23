@@ -9,16 +9,7 @@ const MQTT_PORT = process.env.MQTT_PORT
 const MQTT_USERNAME = process.env.MQTT_USERNAME
 const MQTT_PASSWORD = process.env.MQTT_PASSWORD
 
-const FARM_ID = "farm-01"
-
-const TOPICS = {
-  TEMPERATURE: `${FARM_ID}/tank_temperature_probes`,
-  GYROSCOPE: `${FARM_ID}/6_dof_imu`,
-  PRESSURE: 'pressure',
-  LIGHT: 'light',
-  SOUND: 'sound',
-  MOTION: 'motion'
-}
+const MONGO_URI = process.env.MONGO_URL
 
 module.exports = {
   PORT,
@@ -29,5 +20,5 @@ module.exports = {
   MQTT_PORT,
   MQTT_USERNAME,
   MQTT_PASSWORD,
-  TOPICS
+  MONGO_URI
 }
