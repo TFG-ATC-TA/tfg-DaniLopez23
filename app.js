@@ -8,6 +8,7 @@ const MONGO_URI = config.MONGO_URI;
 
 const farmRouter = require("./controllers/Farm"); 
 const tankRouter = require("./controllers/Tank");
+const boardRouter = require("./controllers/Board");
 
 const MqttHandler = require("./utils/handlers/MqttHandler");
 const WebSocketHandler = require("./utils/handlers/WebSocketHandler");
@@ -38,6 +39,7 @@ mqttClient.connect();
 
 app.use("/farms", farmRouter);
 app.use("/tanks", tankRouter);
+app.use("/boards", boardRouter);
 
 // Establece el manejador para los mensajes entrantes
 mqttClient.onMessage((topic, message) => {
