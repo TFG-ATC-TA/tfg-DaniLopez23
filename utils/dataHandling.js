@@ -1,4 +1,16 @@
-const topics = require("./topics");
+const getTopics = require("./farmConfig");
+
+let topics = null;
+
+const initializeTopics = async () => {
+  try {
+    topics = await getTopics();
+  } catch (error) {
+    console.error("Error initializing topics:", error);
+  }
+};
+
+initializeTopics();
 
 const TANK_HEIGHT = 4000; // 2000 mm ; 2m
 
@@ -173,54 +185,33 @@ const getBoardStatusData = (rawData) => {
   return result;
 };
 
+// Define a mapping object to associate each topic with its processing function
+const topicHandlers = {
+  "synthetic-farm-1/6_dof_imu": getGyroscopeData,
+  "synthetic-farm-1/tank_temperatures": getTankTemperaturesData,
+  "synthetic-farm-1/tank_distance": getMilkQuantityData,
+  "synthetic-farm-1/air_quality": getAirQualityData,
+  "synthetic-farm-1/weight": getWeightData,
+  "synthetic-farm-1/magnetic_switch": getMagneticSwitchData,
+  "synthetic-farm-1/encoder": getEncoderData,
+  "synthetic-farm-1/board_temperature": getBoardTemperatureData,
+  "synthetic-farm-1/board_status": getBoardStatusData,
+};
+
 const processData = (topic, rawData) => {
-  let processedData = null;
-  switch (topic) {
-    case topics[0]:
-      console.log(`Received ${topic} `);
-      processedData = getGyroscopeData(rawData);
-      break;
-    case topics[1]:
-      console.log(`Received ${topic} `);
-      processedData = getTankTemperaturesData(rawData);
-      break;
-    case topics[2]:
-      console.log(`Received ${topic} `);
-      processedData = getMilkQuantityData(rawData);
-      break;
-    case topics[3]:
-      console.log(`Received ${topic} `);
-      processedData = getAirQualityData(rawData);
-      break;
-    case topics[4]:
-      console.log(`Received ${topic} `);
-      processedData = getWeightData(rawData);
-      break;
-    case topics[5]:
-      console.log(`Received ${topic} `);
-      processedData = getMagneticSwitchData(rawData);
-      break;
-
-    case topics[6]:
-      console.log(`Received ${topic} `);
-      processedData = getEncoderData(rawData);
-      break;
-
-    case topics[7]:
-      console.log(`Received ${topic} `);
-      processedData = getBoardTemperatureData(rawData);
-      break;
-
-    case topics[8]:
-      console.log(`Received ${topic} `);
-      processedData = getBoardStatusData(rawData);
-
-      break;
-    default:
-      console.log("Topic not found");
+  if (!topics) {
+    console.log("Topics not initialized yet");
+    return null;
   }
 
-  return processedData;
+  const handler = topicHandlers[topic];
+  if (handler) {
+    console.log(`Processing... ${handler.name} `);
+    return handler(rawData);
+  } else {
+    console.log("Topic not found");
+    return null;
+  }
 };
 
 module.exports = { processData };
