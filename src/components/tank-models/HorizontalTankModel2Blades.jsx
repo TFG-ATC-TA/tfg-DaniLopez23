@@ -1,19 +1,21 @@
-import React, { useState, useEffect } from 'react'
-import { useGLTF, Html, Line } from '@react-three/drei'
+import React from 'react'
+import { useGLTF, Html, Billboard, Line } from '@react-three/drei'
 import { useSpring, animated } from '@react-spring/three'
-import { useFrame } from '@react-three/fiber'
 
+// Componente para etiquetas con fondo, que siempre miran hacia la cámara
 const Tag = ({ children, position }) => (
-  <Html position={position}>
-    <div className="bg-white bg-opacity-80 text-black p-2 rounded-lg shadow-lg text-sm transition-all duration-300 hover:bg-opacity-100">
-      {children}
-    </div>
-  </Html>
+  <Billboard position={position}>
+    <Html distanceFactor={10}>
+      <div className="bg-white bg-opacity-90 text-black px-2 py-1 rounded shadow-lg text-sm whitespace-nowrap">
+        {children}
+      </div>
+    </Html>
+  </Billboard>
 )
 
+// Componente principal del tanque
 export default function HorizontalTankModel2Blades(props) {
   const { nodes, materials } = useGLTF('/horizontalTankModel/2Pales/HorizontalTankModel2Blades.glb')
-  const [hovered, setHovered] = useState(null)
 
   const getRotationDuration = (encoderData) => {
     if (encoderData === null) return 0
@@ -65,21 +67,21 @@ export default function HorizontalTankModel2Blades(props) {
         />
       )
 
-    return "Invalid value"
+    return null
   }
 
   const rotationBlade1 = useSpring({
     loop: true,
     to: { rotation: [0, Math.PI * 2, 0] },
     from: { rotation: [0, 0, 0] },
-    config: { duration: getRotationDuration(props.encoderData.value) },
+    config: { duration: getRotationDuration(props.encoderData) },
   })
 
   const rotationBlade2 = useSpring({
     loop: true,
     to: { rotation: [0, -Math.PI * 2, 0] },
     from: { rotation: [0, 0, 0] },
-    config: { duration: getRotationDuration(props.encoderData.value) },
+    config: { duration: getRotationDuration(props.encoderData) },
   })
 
   const { rotation: rotationHatch } = useSpring({
@@ -87,22 +89,9 @@ export default function HorizontalTankModel2Blades(props) {
     config: { duration: 1000 },
   })
 
-  const [tagOpacity, setTagOpacity] = useState(0)
-  useEffect(() => {
-    const timer = setTimeout(() => setTagOpacity(1), 1000)
-    return () => clearTimeout(timer)
-  }, [])
-
-  useFrame(() => {
-    if (hovered) {
-      setTagOpacity(1)
-    } else {
-      setTagOpacity((prev) => Math.max(prev - 0.02, 0.3))
-    }
-  })
-
   return (
-    <group {...props} dispose={null} onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}>
+    <group {...props} dispose={null}>
+      {/* Palas del tanque */}
       <animated.mesh
         geometry={nodes.Blade2.geometry}
         material={materials.BladeMaterial}
@@ -117,13 +106,19 @@ export default function HorizontalTankModel2Blades(props) {
         scale={-0.148}
         rotation={rotationBlade2.rotation}
       />
+      
+      {/* Nivel de leche */}
       {getVisibleMilkCilinder(props.milkQuantityData.milkQuantity)}
+
+      {/* Cilindro del tanque */}
       <mesh
         geometry={nodes.TankCilinder.geometry}
         material={materials.TankMaterial}
         position={[0.002, 2.043, 0.008]}
         scale={1.113}
       />
+
+      {/* Trampilla */}
       <animated.mesh
         geometry={nodes.Hatch.geometry}
         material={materials.HatchMaterial}
@@ -132,17 +127,21 @@ export default function HorizontalTankModel2Blades(props) {
         rotation={rotationHatch}
       />
 
-      <group style={{ opacity: tagOpacity }} className="transition-opacity duration-300">
-        <Tag position={[0, 2, 1.5]}>
-          Blade Speed: {props.encoderData.value} RPM
-        </Tag>
-        <Tag position={[0, 1, -2]}>
-          Milk Level: {props.milkQuantityData.milkQuantity}%
-        </Tag>
-        <Tag position={[0, 3.5, 0]}>
-          Hatch: {props.switchStatus ? 'Open' : 'Closed'}
-        </Tag>
-      </group>
+      {/* Etiquetas */}
+      <Line points={[[0, 3.5, 0], [1.5, 3.5, 0]]} color="black" lineWidth={1} />
+      <Tag position={[1.5, 3.5, 0]}>
+        Hatch: {props.switchStatus ? 'Open' : 'Closed'}
+      </Tag>
+
+      <Line points={[[0, 2.5, 0], [1.5, 2.5, 0]]} color="black" lineWidth={1} />
+      <Tag position={[1.5, 2.5, 0]}>
+        Blade Speed: {props.encoderData.value} RPM
+      </Tag>
+
+      <Line points={[[0, 1.5, 0], [1.5, 1.5, 0]]} color="black" lineWidth={1} />
+      <Tag position={[1.5, 1.5, 0]}>
+        Milk Level: {props.milkQuantityData.milkQuantity}%
+      </Tag>
     </group>
   )
 }

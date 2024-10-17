@@ -1,34 +1,31 @@
-import { socket } from "../../webSockets/socket";
-import { useState, useEffect } from "react";
+import React from "react"
+import { Droplet } from "lucide-react"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 
-const MilkQuantity = ({milkQuantityData}) => {
-  // const [milkQuantityData, setMilkQuantityData] = useState(0);
-
-  // useEffect(() => {
-  //   const onMilkQuantity = (data) => {
-  //     console.log(data);
-  //     setMilkQuantityData(data);
-  //   };
-
-  //   socket.on("synthetic-farm-1/tank_distance", onMilkQuantity);
-
-  //   return () => {
-  //     socket.off("synthetic-farm-1/tank_distance", onMilkQuantity);
-  //   };
-  // }, []);
-
+const MilkQuantity = ({ milkQuantityData }) => {
   return (
-    <>
-      {milkQuantityData !== 0 ? (
-        <div>
-          <p>Milk quantity Data: (Last update: {milkQuantityData.readableDate})</p>
-          <p>{milkQuantityData.milkQuantity} %</p>
-        </div>
-      ) : (
-        <p>Milk quantity Data: no data received yet</p>
-      )}
-    </>
-  );
-};
+    <Card className="w-full">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">Milk Quantity</CardTitle>
+        <Droplet className="h-4 w-4 text-muted-foreground" />
+      </CardHeader>
+      <CardContent>
+        {milkQuantityData !== 0 ? (
+          <div className="text-sm">
+            <p className="text-xs text-muted-foreground mb-2">
+              Last update: {milkQuantityData.readableDate}
+            </p>
+            <div className="flex items-center justify-center">
+              <span className="text-2xl font-bold">{milkQuantityData.milkQuantity}</span>
+              <span className="text-lg ml-1">%</span>
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">No data received yet</p>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
 
-export default MilkQuantity;
+export default MilkQuantity
