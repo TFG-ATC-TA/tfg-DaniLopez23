@@ -32,7 +32,7 @@ export default function App() {
   const [milkQuantityData, setMilkQuantityData] = useState(0);
   const [encoderData, setEncoderData] = useState(0);
   const [gyroscopeData, setGyroscopeData] = useState(null);
-  const [switchStatus, setSwitchStatus] = useState(false);
+  const [switchStatus, setSwitchStatus] = useState(null);
   const [tankTemperaturesData, setTankTemperaturesData] = useState(0);
 
   useEffect(() => {
