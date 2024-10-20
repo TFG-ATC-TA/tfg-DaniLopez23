@@ -48,13 +48,11 @@ export default function App() {
   }, []);
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <div className="w-1/2 p-4">
+    <div className="flex flex-col lg:flex-row h-screen bg-gray-100">
+      {/* Parte del modelo 3D */}
+      <div className="w-full lg:w-3/4 h-1/2 lg:h-full p-4">
         <h1 className="text-3xl font-bold mb-4">Digital Twin - Milk Tank</h1>
-        <div
-          className="bg-white rounded-lg shadow-lg overflow-hidden"
-          style={{ height: "calc(100% - 4rem)" }}
-        >
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden h-full">
           <Canvas>
             <ambientLight intensity={0.6} />
             <directionalLight
@@ -89,11 +87,13 @@ export default function App() {
           </Canvas>
         </div>
       </div>
-      <div className="w-1/2 p-4">
+
+      {/* Parte de los datos de los sensores */}
+      <div className="w-full lg:w-1/4 h-1/2 lg:h-full p-4">
         <h2 className="text-2xl font-bold mb-4">Sensor Data</h2>
-        <ScrollArea className="h-[calc(100vh-8rem)]">
+        <ScrollArea className="h-full">
           <div className="pr-4">
-            <TankTemperatures></TankTemperatures>
+            <TankTemperatures />
             <MilkQuantity milkQuantityData={milkQuantityData} />
             <Encoder encoderData={encoderData} />
             <MagneticSwitch switchStatus={switchStatus} />
