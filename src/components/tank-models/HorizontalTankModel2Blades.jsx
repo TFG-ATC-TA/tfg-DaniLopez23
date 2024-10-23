@@ -138,10 +138,7 @@ export default function HorizontalTankModel2Blades(props) {
         text={`Hatch: ${props.switchStatus}`}
       />
 
-      <CallOutText
-        position={[0, 3.6, 0]}
-        text={`Air Quality: ${props.switchStatus}`}
-      />
+      
     </group>
   );
 }

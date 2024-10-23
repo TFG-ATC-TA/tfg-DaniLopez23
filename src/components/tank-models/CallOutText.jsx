@@ -1,7 +1,7 @@
 import React from 'react';
-import { Html, Line, Circle } from '@react-three/drei';
+import { Html } from '@react-three/drei';
 
-const CallOutText = ({ position, targetPosition, text, radius = 0.1 }) => {
+const CallOutText = ({ position, text}) => {
   return (
     <>
       <Html 

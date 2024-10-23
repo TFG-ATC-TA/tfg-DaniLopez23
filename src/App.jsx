@@ -12,29 +12,14 @@ import MilkQuantity from "./components/sensorData/MilkQuantity";
 import MagneticSwitch from "./components/sensorData/MagneticSwitch";
 import Gyroscope from "./components/sensorData/Gyroscope";
 import AirQuality from "./components/sensorData/AirQuality";
-function SensorCard({ title, value, unit, details }) {
-  return (
-    <Card className="mb-4">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold mb-1">
-          {value} {unit}
-        </div>
-        <p className="text-sm text-muted-foreground">{details}</p>
-      </CardContent>
-    </Card>
-  );
-}
-
+import CallOutText from "./components/tank-models/CallOutText";
 export default function App() {
   const [milkQuantityData, setMilkQuantityData] = useState(0);
   const [encoderData, setEncoderData] = useState(0);
   const [gyroscopeData, setGyroscopeData] = useState(null);
   const [switchStatus, setSwitchStatus] = useState(null);
   const [tankTemperaturesData, setTankTemperaturesData] = useState(0);
-
+  const [airQualityData, setAirQualityData] = useState(null);
   useEffect(() => {
     const cleanup = setupSocketListeners(
       socket,
@@ -84,6 +69,10 @@ export default function App() {
                 maxPolarAngle={Math.PI / 1.2 / 2}
               />
             </Suspense>
+            <CallOutText
+              position={[0, 3.6, 3]}
+              text={`Air Quality: ${airQualityData}`}
+            />
           </Canvas>
         </div>
       </div>
@@ -98,7 +87,7 @@ export default function App() {
             <Encoder encoderData={encoderData} />
             <MagneticSwitch switchStatus={switchStatus} />
             <Gyroscope gyroscopeData={gyroscopeData} />
-            <AirQuality />
+            <AirQuality airQualityData={airQualityData} />
           </div>
         </ScrollArea>
       </div>
