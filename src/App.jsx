@@ -11,7 +11,7 @@ import TankTemperatures from "./components/sensorData/TankTemperatures";
 import MilkQuantity from "./components/sensorData/MilkQuantity";
 import MagneticSwitch from "./components/sensorData/MagneticSwitch";
 import Gyroscope from "./components/sensorData/Gyroscope";
-
+import AirQuality from "./components/sensorData/AirQuality";
 function SensorCard({ title, value, unit, details }) {
   return (
     <Card className="mb-4">
@@ -98,6 +98,7 @@ export default function App() {
             <Encoder encoderData={encoderData} />
             <MagneticSwitch switchStatus={switchStatus} />
             <Gyroscope gyroscopeData={gyroscopeData} />
+            <AirQuality />
           </div>
         </ScrollArea>
       </div>

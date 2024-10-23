@@ -2,20 +2,15 @@ import React from 'react';
 import { Html, Line, Circle } from '@react-three/drei';
 
 const CallOutText = ({ position, targetPosition, text, radius = 0.1 }) => {
-  // Calcular un punto ajustado para que la línea termine en el borde del círculo
-  const adjustedTargetPosition = [
-    targetPosition[0],
-    targetPosition[1],
-    targetPosition[2] + radius,  // Ajustamos la Z para que la línea toque el borde
-  ];
-
-  // Punto intermedio para hacer dos líneas
-  const midPosition = [position[0], adjustedTargetPosition[1], adjustedTargetPosition[2]]; 
-
   return (
     <>
-      {/* Etiqueta flotante con sombra y transparencia */}
-      <Html position={position} center>
+      <Html 
+        position={position} 
+        center 
+        occlude 
+        transform={false} 
+        distanceFactor={5}
+      >
         <div style={{ 
           padding: '5px 15px', 
           backgroundColor: 'rgba(235, 233, 233, 0.2)', // Fondo translúcido

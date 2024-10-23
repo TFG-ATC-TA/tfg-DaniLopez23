@@ -123,22 +123,24 @@ export default function HorizontalTankModel2Blades(props) {
       {/* CallOutText */}
       <CallOutText
         position={[0, 3.7, 0.92]} // Ajusta la posición más cerca del objeto
-        targetPosition={[0, 3.5, 0.92]}
         text={`RPM: ${props.encoderData} rad/s`}
         radius={0.05}
       />
 
       <CallOutText
         position={[0, 3.7, -0.92]} // Ajusta la posición más cerca del objeto
-        targetPosition={[0, 3.6, 0.92]}
         text={`RPM: ${props.encoderData} rad/s`}
         radius={0.05}
       />
-      
+
       <CallOutText
         position={[0, 3.6, 0]}
-        targetPosition={[0, 3.5, 0]}
         text={`Hatch: ${props.switchStatus}`}
+      />
+
+      <CallOutText
+        position={[0, 3.6, 0]}
+        text={`Air Quality: ${props.switchStatus}`}
       />
     </group>
   );
