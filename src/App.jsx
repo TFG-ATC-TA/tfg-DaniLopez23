@@ -69,10 +69,6 @@ export default function App() {
                 maxPolarAngle={Math.PI / 1.2 / 2}
               />
             </Suspense>
-            <CallOutText
-              position={[0, 3.6, 3]}
-              text={`Air Quality: ${airQualityData}`}
-            />
           </Canvas>
         </div>
       </div>
