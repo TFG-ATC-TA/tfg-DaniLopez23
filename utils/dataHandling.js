@@ -102,7 +102,9 @@ const getAirQualityData = (rawData) => {
     airQuality: lastObject.fields,
   };
 
-  return rawData;
+  console.log("Air quality data: ", result);
+
+  return result;
 };
 
 const getWeightData = (rawData) => {
