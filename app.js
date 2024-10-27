@@ -49,13 +49,4 @@ mqttClient.onMessage((topic, message) => {
   webSocketHandler.emit(topic, processedData); // Emitir a todos los clientes
 });
 
-// Desconectar el cliente MQTT cuando el servidor se cierra
-process.on("SIGINT", () => {
-  mqttClient.disconnect();
-  server.close(() => {
-    console.log("Server closed");
-    process.exit(0);
-  });
-});
-
 module.exports = { app, server };
