@@ -1,7 +1,7 @@
 import React, { useState, Suspense, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Plane } from "@react-three/drei";
-import HorizontalTankModel2Blades from "./components/tank-models/HorizontalTankModel2Blades";
+import HorizontalTank2BladesModel from "./components/tank-models/HorizontalTank2BladesModel";   
 import { setupSocketListeners } from "./WebSockets/SetupSocketListeners";
 import { socket } from "./webSockets/socket";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,14 +12,16 @@ import MilkQuantity from "./components/sensorData/MilkQuantity";
 import MagneticSwitch from "./components/sensorData/MagneticSwitch";
 import Gyroscope from "./components/sensorData/Gyroscope";
 import AirQuality from "./components/sensorData/AirQuality";
-import CallOutText from "./components/tank-models/CallOutText";
+
 export default function App() {
-  const [milkQuantityData, setMilkQuantityData] = useState(0);
-  const [encoderData, setEncoderData] = useState(0);
+  const [milkQuantityData, setMilkQuantityData] = useState(null);
+  const [encoderData, setEncoderData] = useState(null);
   const [gyroscopeData, setGyroscopeData] = useState(null);
   const [switchStatus, setSwitchStatus] = useState(null);
-  const [tankTemperaturesData, setTankTemperaturesData] = useState(0);
+  const [tankTemperaturesData, setTankTemperaturesData] = useState(null);
   const [airQualityData, setAirQualityData] = useState(null);
+  const [weightData, setWeightData] = useState(null);
+
   useEffect(() => {
     const cleanup = setupSocketListeners(
       socket,
@@ -27,7 +29,9 @@ export default function App() {
       setGyroscopeData,
       setMilkQuantityData,
       setTankTemperaturesData,
-      setSwitchStatus
+      setSwitchStatus,
+      setWeightData,
+      setAirQualityData
     );
     return cleanup;
   }, []);
@@ -35,7 +39,7 @@ export default function App() {
   return (
     <div className="flex flex-col lg:flex-row h-screen bg-gray-100">
       {/* Parte del modelo 3D */}
-      <div className="w-full lg:w-3/4 h-1/2 lg:h-full p-4">
+      <div className="w-full">
         <h1 className="text-3xl font-bold mb-4">Digital Twin - Milk Tank</h1>
         <div className="bg-white rounded-lg shadow-lg overflow-hidden h-full">
           <Canvas>
@@ -47,17 +51,19 @@ export default function App() {
             />
             <directionalLight position={[-10, -10, -10]} intensity={0.5} />
             <Suspense fallback={null}>
-              <HorizontalTankModel2Blades
+              <HorizontalTank2BladesModel
                 milkQuantityData={milkQuantityData}
                 encoderData={encoderData}
                 gyroscopeData={gyroscopeData}
                 switchStatus={switchStatus}
                 tankTemperaturesData={tankTemperaturesData}
+                weightData={weightData}
+                airQualityData={airQualityData}
               />
               <Plane
                 rotation={[-Math.PI / 2, 0, 0]}
                 position={[0, 0, 0]}
-                args={[10, 10]}
+                args={[15, 15]}
                 receiveShadow
               >
                 <meshStandardMaterial attach="material" color="gray" />
@@ -74,7 +80,7 @@ export default function App() {
       </div>
 
       {/* Parte de los datos de los sensores */}
-      <div className="w-full lg:w-1/4 h-1/2 lg:h-full p-4">
+      {/* <div className="w-full lg:w-1/4 h-1/2 lg:h-full p-4">
         <h2 className="text-2xl font-bold mb-4">Sensor Data</h2>
         <ScrollArea className="h-full">
           <div className="pr-4">
@@ -86,7 +92,7 @@ export default function App() {
             <AirQuality airQualityData={airQualityData} />
           </div>
         </ScrollArea>
-      </div>
+      </div> */}
     </div>
   );
 }
