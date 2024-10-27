@@ -8,7 +8,7 @@ const DataItem = ({ icon, label, value, unit }) => (
       {icon}
       <span className="text-xs ml-1">{label}:</span>
     </div>
-    <span className="text-xs font-medium">{value.toFixed(2)} {unit}</span>
+    <span className="text-xs font-medium">{value} {unit}</span>
   </div>
 );
 

@@ -32,7 +32,7 @@ export const setupSocketListeners = (
   };
 
   const onTankTemperature = (data) => {
-    console.log(data);
+    // console.log(data);
     setTankTemperaturesData(data);
   };
 
@@ -47,7 +47,7 @@ export const setupSocketListeners = (
   };
 
   const onAirQualityData = (data) => {
-    // console.log(data);
+   console.log(data);
     setAirQualityData(data);
   }
 
