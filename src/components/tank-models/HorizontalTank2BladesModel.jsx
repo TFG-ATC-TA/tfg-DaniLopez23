@@ -4,6 +4,7 @@ import { useSpring, animated } from "@react-spring/three";
 import CallOutText from "./CallOutText";
 import CallOutTextTemperatures from "./CallOutTextTemperatures";
 import CallOutTextMilkQuantity from "./CallOutTextMilkQuantity";
+import CallOutTextAirQuality from "./CallOutTextAirQuality";
 
 export default function HorizontalTank2BladesModel({
   encoderData,
@@ -197,15 +198,20 @@ export default function HorizontalTank2BladesModel({
         } `}
       />
       <CallOutTextTemperatures
-        position={[-1.2, 1.8, -3.2]}
+        position={[-1.2, 1.8, -3.8]}
         overSurface={tankTemperaturesData?.over_surface_temperature}
         onSurface={tankTemperaturesData?.surface_temperature}
         underSurface={tankTemperaturesData?.submerged_temperature}
       />
-
+      
       <CallOutTextMilkQuantity
-        position={[-1.2, 1.8, -4.8]}
+        position={[-1.2, 1.8, -5.4]}
         quantity={milkQuantityData?.milkQuantity}
+      />
+
+      <CallOutTextAirQuality
+        position={[3.7, 2.8, 4.8]}
+        data={airQualityData}
       />
     </group>
   );

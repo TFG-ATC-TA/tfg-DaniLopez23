@@ -58,6 +58,7 @@ export default function App() {
                 switchStatus={switchStatus}
                 tankTemperaturesData={tankTemperaturesData}
                 weightData={weightData}
+                airQualityData={airQualityData}
               />
               <Plane
                 rotation={[-Math.PI / 2, 0, 0]}

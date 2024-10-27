@@ -11,18 +11,18 @@ const CallOutTextTemperatures = ({ position, overSurface, onSurface, underSurfac
           <span className="text-sm font-bold">Milk Temperatures</span>
         </div>
         <div className="space-y-1">
-          <div className="flex justify-between">
+          {overSurface ? <div className="flex justify-between">
             <span className="text-xs">Over Surface:</span>
             <span className="text-xs font-medium">{overSurface}°C</span>
-          </div>
-          <div className="flex justify-between">
+          </div> : <span className="text-xs">No data available</span>}
+          {onSurface ? <div className="flex justify-between">
             <span className="text-xs">On Surface:</span>
             <span className="text-xs font-medium">{onSurface}°C</span>
-          </div>
-          <div className="flex justify-between">
+          </div> : <span className="text-xs">No data available</span>}
+          {underSurface ? <div className="flex justify-between">
             <span className="text-xs">Under Surface:</span>
             <span className="text-xs font-medium">{underSurface}°C</span>
-          </div>
+          </div> : <span className="text-xs">No data available</span>}
         </div>
       </div>
     </Html>
