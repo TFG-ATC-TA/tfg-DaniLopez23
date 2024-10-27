@@ -2,18 +2,21 @@ import React from "react";
 import { useGLTF } from "@react-three/drei";
 import { useSpring, animated } from "@react-spring/three";
 import CallOutText from "./CallOutText";
+import CallOutTextTemperatures from "./CallOutTextTemperatures";
+import CallOutTextMilkQuantity from "./CallOutTextMilkQuantity";
 
 export default function HorizontalTank2BladesModel({
-  encoderData = 0,
-  milkQuantityData = { milkQuantity: 0 },
-  switchStatus = { status: false },
-  ...props
+  encoderData,
+  milkQuantityData,
+  switchStatus,
+  weightData,
+  gyroscopeData,
+  tankTemperaturesData,
+  airQualityData,
 }) {
   const { nodes, materials } = useGLTF(
     "/horizontalTankModel/2Pales/HorizontalTank2BladesModel.glb"
   );
-
-  console.log(switchStatus);
 
   const getRotationDuration = (encoderData) => {
     if (encoderData === null || encoderData <= 0) return 0; // Duración máxima si encoderData es nulo o menor o igual a cero
@@ -76,25 +79,26 @@ export default function HorizontalTank2BladesModel({
     loop: true,
     to: { rotation: [0, Math.PI * 2, 0] },
     from: { rotation: [0, 0, 0] },
-    config: { duration: getRotationDuration(props.encoderData) },
+    config: { duration: getRotationDuration(encoderData?.value ?? 0) },
   });
 
   const rotationBlade2 = useSpring({
     loop: true,
     to: { rotation: [0, -Math.PI * 2, 0] },
     from: { rotation: [0, 0, 0] },
-    config: { duration: getRotationDuration(props.encoderData) },
+    config: { duration: getRotationDuration(encoderData?.value ?? 0) },
   });
 
   const { rotation: rotationHatch } = useSpring({
     to: {
-      rotation: switchStatus.status ? [-Math.PI / 2, 0, 0] : [0, 0, 0],
+      rotation:
+        switchStatus?.status || false ? [-Math.PI / 2, 0, 0] : [0, 0, 0],
     },
     config: { duration: 1000 },
   });
 
   return (
-    <group {...props} dispose={null}>
+    <group dispose={null}>
       {/* Palas del tanque */}
       <animated.mesh
         geometry={nodes.Blade2.geometry}
@@ -112,7 +116,7 @@ export default function HorizontalTank2BladesModel({
       />
 
       {/* Nivel de leche */}
-      {getVisibleMilkCilinder(milkQuantityData.milkQuantity)}
+      {getVisibleMilkCilinder(milkQuantityData?.milkQuantity ?? 0)}
 
       {/* Cilindro del tanque */}
       <mesh
@@ -168,21 +172,40 @@ export default function HorizontalTank2BladesModel({
       {/* CallOutText */}
       <CallOutText
         position={[0, 2.9, 0.92]}
-        text={`RPM: ${encoderData.value} rad/s`}
+        text={`RPM: ${encoderData?.value} rad/s`}
         radius={0.05}
       />
       <CallOutText
         position={[0, 2.9, -0.92]}
-        text={`RPM: ${encoderData.value} rad/s`}
+        text={`RPM: ${encoderData?.value} rad/s`}
         radius={0.05}
       />
       <CallOutText
         position={[0, 2.9, 0]}
-        text={`Hatch: ${switchStatus.status ? "Open" : "Closed"}`}
+        text={`Hatch: ${
+          switchStatus == null
+            ? "No Data"
+            : switchStatus.status
+            ? "Open"
+            : "Closed"
+        }`}
       />
       <CallOutText
-        position={[1.7, 1, 3.2]}
-        text={`Weight: ${switchStatus.status ? "Open" : "Closed"}`}
+        position={[1.7, 0.8, 3.2]}
+        text={`Weight: ${
+          weightData == null ? "No Data" : weightData.weight + "kg"
+        } `}
+      />
+      <CallOutTextTemperatures
+        position={[-1.2, 1.8, -3.2]}
+        overSurface={tankTemperaturesData?.over_surface_temperature}
+        onSurface={tankTemperaturesData?.surface_temperature}
+        underSurface={tankTemperaturesData?.submerged_temperature}
+      />
+
+      <CallOutTextMilkQuantity
+        position={[-1.2, 1.8, -4.8]}
+        quantity={milkQuantityData?.milkQuantity}
       />
     </group>
   );

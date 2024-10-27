@@ -10,7 +10,7 @@ const MilkQuantity = ({ milkQuantityData }) => {
         <Droplet className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        {milkQuantityData !== 0 ? (
+        {milkQuantityData !== null ? (
           <div className="text-sm">
             <p className="text-xs text-muted-foreground mb-2">
               Last update: {milkQuantityData.readableDate}

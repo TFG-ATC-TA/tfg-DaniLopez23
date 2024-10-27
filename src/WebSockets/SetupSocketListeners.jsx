@@ -4,7 +4,9 @@ export const setupSocketListeners = (
   setGyroscopeData,
   setMilkQuantityData,
   setTankTemperaturesData,
-  setSwitchStatus
+  setSwitchStatus,
+  setWeightData,
+  setAirQualityData
 ) => {
   const onConnect = () => {
     console.log("Connected to server");
@@ -30,14 +32,24 @@ export const setupSocketListeners = (
   };
 
   const onTankTemperature = (data) => {
-    // console.log(data);
+    console.log(data);
     setTankTemperaturesData(data);
   };
+
+  const onWeightData = (data) => {
+    // console.log(data);
+    setWeightData(data);
+  }
 
   const onSwitch = (data) => {
     // console.log(data);
     setSwitchStatus(data);
   };
+
+  const onAirQualityData = (data) => {
+    // console.log(data);
+    setAirQualityData(data);
+  }
 
   // Conectarse a los eventos del WebSocket
   socket.on("connect", onConnect);
@@ -47,6 +59,8 @@ export const setupSocketListeners = (
   socket.on("synthetic-farm-1/tank_distance", onMilkQuantityData);
   socket.on("synthetic-farm-1/tank_temperature_probes", onTankTemperature);
   socket.on("synthetic-farm-1/magnetic_switch", onSwitch);
+  socket.on("synthetic-farm-1/weight", onWeightData);
+  socket.on("synthetic-farm-1/air_quality", onAirQualityData);
 
   return () => {
     // Función de limpieza para desuscribirse de los eventos
@@ -57,5 +71,7 @@ export const setupSocketListeners = (
     socket.off("synthetic-farm-1/tank_distance", onMilkQuantityData);
     socket.off("synthetic-farm-1/tank_temperature_probes", onTankTemperature);
     socket.off("synthetic-farm-1/magnetic_switch", onSwitch);
+    socket.off("synthetic-farm-1/weight", onWeightData);
+    socket.off("synthetic-farm-1/air_quality", onAirQualityData);
   };
 };
