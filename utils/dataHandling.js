@@ -190,7 +190,7 @@ const getBoardStatusData = (rawData) => {
 // Define a mapping object to associate each topic with its processing function
 const topicHandlers = {
   "synthetic-farm-1/6_dof_imu": getGyroscopeData,
-  "synthetic-farm-1/tank_temperatures": getTankTemperaturesData,
+  "synthetic-farm-1/tank_temperature_probes": getTankTemperaturesData,
   "synthetic-farm-1/tank_distance": getMilkQuantityData,
   "synthetic-farm-1/air_quality": getAirQualityData,
   "synthetic-farm-1/weight": getWeightData,
