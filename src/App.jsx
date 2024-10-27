@@ -1,7 +1,7 @@
 import React, { useState, Suspense, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Plane } from "@react-three/drei";
-import HorizontalTankModel2Blades from "./components/tank-models/HorizontalTankModel2Blades";
+import HorizontalTank2BladesModel from "./components/tank-models/HorizontalTank2BladesModel";   
 import { setupSocketListeners } from "./WebSockets/SetupSocketListeners";
 import { socket } from "./webSockets/socket";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,12 +12,12 @@ import MilkQuantity from "./components/sensorData/MilkQuantity";
 import MagneticSwitch from "./components/sensorData/MagneticSwitch";
 import Gyroscope from "./components/sensorData/Gyroscope";
 import AirQuality from "./components/sensorData/AirQuality";
-import CallOutText from "./components/tank-models/CallOutText";
+
 export default function App() {
   const [milkQuantityData, setMilkQuantityData] = useState(0);
   const [encoderData, setEncoderData] = useState(0);
   const [gyroscopeData, setGyroscopeData] = useState(null);
-  const [switchStatus, setSwitchStatus] = useState(null);
+  const [switchStatus, setSwitchStatus] = useState(0);
   const [tankTemperaturesData, setTankTemperaturesData] = useState(0);
   const [airQualityData, setAirQualityData] = useState(null);
   useEffect(() => {
@@ -47,7 +47,7 @@ export default function App() {
             />
             <directionalLight position={[-10, -10, -10]} intensity={0.5} />
             <Suspense fallback={null}>
-              <HorizontalTankModel2Blades
+              <HorizontalTank2BladesModel
                 milkQuantityData={milkQuantityData}
                 encoderData={encoderData}
                 gyroscopeData={gyroscopeData}
