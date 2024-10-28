@@ -8,9 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 
 import { getFarm } from "./services/farm";
-import { Home, Server, Wifi, WifiOff } from "lucide-react";
+import { Home, Server, Wifi, WifiOff, Droplet, Thermometer, Milk, LogOut } from "lucide-react";
 
 export default function App() {
   const [milkQuantityData, setMilkQuantityData] = useState(null);
@@ -51,9 +52,14 @@ export default function App() {
   useEffect(() => {
     getFarm().then((data) => {
       if (Array.isArray(data) && data.length > 0) {
-        setFarmData(data[0]);
-        if (data[0].tanks && data[0].tanks.length > 0) {
-          setSelectedTank(data[0].tanks[0]);
+        const farm = data[0];
+        const tanksWithStations = farm.tanks.map(tank => ({
+          ...tank,
+          boardIDs: tank.tankStations.map(station => station.boardId)
+        }));
+        setFarmData({ ...farm, tanks: tanksWithStations });
+        if (tanksWithStations.length > 0) {
+          setSelectedTank(tanksWithStations[0]);
         }
       } else {
         console.error("No data found");
@@ -63,85 +69,83 @@ export default function App() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-100">
-      {/* Top Bar: Farm Information and Server Status */}
-      <div className="bg-white p-5 shadow-md flex justify-between items-center">
-        <div className="flex items-center space-x-4">
-          <Home className="text-xl" />
-          <div>
-            <h2 className="text-xl font-bold">Farm Information</h2>
-            {farmData ? (
-              <div className="flex space-x-4">
-                <p>
-                  <strong>Id:</strong> {farmData.farmId}
-                </p>
-                <p>
-                  <strong>Location:</strong> {farmData.location}
-                </p>
-                <p>
-                  <strong>Number of Tanks:</strong>{" "}
-                  {farmData && farmData.tanks ? farmData.tanks.length : 0}
-                </p>
-              </div>
-            ) : (
-              <p>Loading farm data...</p>
-            )}
-          </div>
-        </div>
-        <div className="flex items-center space-x-4">
-          <div>
-            <h2 className="text-xl font-bold flex items-center">
-              <Server className="mr-2" />
-              Server Status
-            </h2>
-            <div className="mt-2 flex items-center">
-              {serverStatus === "connected" ? (
-                <>
-                  <Wifi className="mr-2 text-green-500" />
-                  <Badge
-                    variant="outline"
-                    className="bg-green-100 text-green-800"
-                  >
-                    Connected
-                  </Badge>
-                </>
-              ) : serverStatus === "disconnected" ? (
-                <>
-                  <WifiOff className="mr-2 text-red-500" />
-                  <Badge variant="outline" className="bg-red-100 text-red-800">
-                    Disconnected
-                  </Badge>
-                </>
+      {/* Header: Farm Information, Server Status, and Exit Button */}
+      <div className="bg-white p-6 shadow-md flex justify-between items-center">
+        <div className="flex items-center space-x-8">
+          <div className="flex items-center space-x-3">
+            <Home className="text-2xl text-primary" />
+            <div>
+              <h2 className="text-2xl font-bold">Farm Information</h2>
+              {farmData ? (
+                <div className="flex space-x-4 text-sm">
+                  <p>
+                    <strong>Id:</strong> {farmData.farmId}
+                  </p>
+                  <p>
+                    <strong>Location:</strong> {farmData.location}
+                  </p>
+                  <p>
+                    <strong>Tanks:</strong>{" "}
+                    {farmData && farmData.tanks ? farmData.tanks.length : 0}
+                  </p>
+                </div>
               ) : (
-                <>
-                  <Wifi className="mr-2 text-yellow-500 animate-pulse" />
-                  <Badge
-                    variant="outline"
-                    className="bg-yellow-100 text-yellow-800"
-                  >
-                    Connecting
-                  </Badge>
-                </>
+                <p className="text-sm text-muted-foreground">Loading farm data...</p>
               )}
             </div>
           </div>
+          <div className="flex items-center space-x-3">
+            <Server className="text-2xl text-primary" />
+            <div>
+              <h2 className="text-2xl font-bold">Server Status</h2>
+              <div className="flex items-center mt-1">
+                {serverStatus === "connected" ? (
+                  <>
+                    <Wifi className="mr-2 text-green-500" />
+                    <Badge variant="outline" className="bg-green-100 text-green-800">
+                      Connected
+                    </Badge>
+                  </>
+                ) : serverStatus === "disconnected" ? (
+                  <>
+                    <WifiOff className="mr-2 text-red-500" />
+                    <Badge variant="outline" className="bg-red-100 text-red-800">
+                      Disconnected
+                    </Badge>
+                  </>
+                ) : (
+                  <>
+                    <Wifi className="mr-2 text-yellow-500 animate-pulse" />
+                    <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
+                      Connecting
+                    </Badge>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
+        <Button variant="outline" size="lg" className="space-x-2">
+          <LogOut className="h-5 w-5" />
+          <span>Exit</span>
+        </Button>
       </div>
 
-      {/* Main Content: Sidebar and 3D Model */}
+      {/* Main Content: Sidebar, Tank Information, and 3D Model */}
       <div className="flex flex-grow">
         {/* Sidebar */}
-        <div className="w-64 m-4 bg-white shadow-md">
+        <div className="w-64 m-2 bg-white shadow-md rounded-lg">
           <div className="p-4">
             <h2 className="text-xl font-bold mb-4">Tanks</h2>
-            <ScrollArea className="h-[calc(100vh-8rem)]">
+            <ScrollArea className="h-[calc(100vh-12rem)]">
               {farmData.tanks &&
                 farmData.tanks.map((tank) => (
                   <Button
                     key={tank.id}
                     className={`w-full mb-2 ${
                       selectedTank && selectedTank.id === tank.id
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-200"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-secondary"
                     }`}
                     onClick={() => setSelectedTank(tank)}
                   >
@@ -152,34 +156,72 @@ export default function App() {
           </div>
         </div>
 
-        {/* 3D Model */}
-        <div className="flex-grow p-4">
-          <div className="w-full h-full bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="flex-grow flex flex-col m-2">
+          {/* Tank Information */}
+          <Card className="mb-1 bg-white shadow-md">
+            <CardContent className="m-2">
+              {selectedTank ? (
+                <div className="grid grid-cols-5">
+                  <div className="space-y-2">
+                    <p className="font-semibold">Tank Name</p>
+                    <p>{selectedTank.tankName}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="font-semibold">Capacity</p>
+                    <p>{selectedTank.capacity} liters</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="font-semibold">Height</p>
+                    <p>{milkQuantityData ? `${milkQuantityData.milkQuantity}%` : 'N/A'}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="font-semibold">Weight:</p>
+                    <p>{weightData ? `${weightData.weight} kg` : 'N/A'}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="font-semibold">Status:</p>
+                    <Badge variant={switchStatus ? "success" : "secondary"}>
+                      {switchStatus ? 'Working' : 'Stopped'}
+                    </Badge>
+                  </div>
+                </div>
+              ) : (
+                <p>No tank selected</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* 3D Model */}
+          <div className="flex-grow bg-white rounded-lg shadow-md overflow-hidden">
             <Canvas>
               <ambientLight intensity={0.6} />
-              
               <directionalLight position={[-10, -10, -10]} intensity={0.5} />
               <Suspense fallback={null}>
-                {/* For each tank map farm.tanks and add an id for each station that has the tank (e.g --> boardIDs = [ 00,01,02]) */}
-                <HorizontalTank2BladesModel
-                  milkQuantityData={milkQuantityData}
-                  encoderData={encoderData}
-                  gyroscopeData={gyroscopeData}
-                  switchStatus={switchStatus}
-                  tankTemperaturesData={tankTemperaturesData}
-                  weightData={weightData}
-                  airQualityData={airQualityData}
-                />
+                {farmData.tanks && farmData.tanks.map((tank) => (
+                  <HorizontalTank2BladesModel
+                    key={tank.id}
+                    tankId={tank.id}
+                    boardIDs={tank.boardIDs}
+                    milkQuantityData={milkQuantityData}
+                    encoderData={encoderData}
+                    gyroscopeData={gyroscopeData}
+                    switchStatus={switchStatus}
+                    tankTemperaturesData={tankTemperaturesData}
+                    weightData={weightData}
+                    airQualityData={airQualityData}
+                    isSelected={selectedTank && selectedTank.id === tank.id}
+                  />
+                ))}
                 <Plane
                   rotation={[-Math.PI / 2, 0, 0]}
-                  position={[0, -0.01, 0]} // Un poco por debajo para evitar z-fighting
-                  args={[30, 30]} // Más grande para un entorno más espacioso
+                  position={[0, -0.01, 0]}
+                  args={[30, 30]}
                   receiveShadow
                 >
                   <meshStandardMaterial
                     roughness={0.2}
                     metalness={0.1}
-                    color="#95a5a6" // Ajusta el color para que combine con el entorno
+                    color="#95a5a6"
                   />
                 </Plane>
                 <OrbitControls
