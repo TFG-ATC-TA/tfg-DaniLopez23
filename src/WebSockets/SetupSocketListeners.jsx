@@ -32,7 +32,7 @@ export const setupSocketListeners = (
   };
 
   const onTankTemperature = (data) => {
-    console.log(data);
+    // console.log(data);
     setTankTemperaturesData(data);
   };
 

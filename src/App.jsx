@@ -1,17 +1,17 @@
 import React, { useState, Suspense, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Plane } from "@react-three/drei";
-import HorizontalTank2BladesModel from "./components/tank-models/HorizontalTank2BladesModel";   
+import HorizontalTank2BladesModel from "./components/tank-models/HorizontalTank2BladesModel";
 import { setupSocketListeners } from "./WebSockets/SetupSocketListeners";
 import { socket } from "./webSockets/socket";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import Encoder from "./components/sensorData/Encoder";
-import TankTemperatures from "./components/sensorData/TankTemperatures";
-import MilkQuantity from "./components/sensorData/MilkQuantity";
-import MagneticSwitch from "./components/sensorData/MagneticSwitch";
-import Gyroscope from "./components/sensorData/Gyroscope";
-import AirQuality from "./components/sensorData/AirQuality";
+import { Separator } from "@/components/ui/separator";
+
+import { getFarm } from "./services/farm";
+import { Home, Server, Wifi, WifiOff, Droplet, Thermometer, Milk, LogOut } from "lucide-react";
 
 export default function App() {
   const [milkQuantityData, setMilkQuantityData] = useState(null);
@@ -21,6 +21,11 @@ export default function App() {
   const [tankTemperaturesData, setTankTemperaturesData] = useState(null);
   const [airQualityData, setAirQualityData] = useState(null);
   const [weightData, setWeightData] = useState(null);
+
+  const [farmData, setFarmData] = useState({});
+  const [serverStatus, setServerStatus] = useState("connecting");
+  const [selectedTank, setSelectedTank] = useState(null);
+  const [isRealTime, setIsRealTime] = useState(true);
 
   useEffect(() => {
     const cleanup = setupSocketListeners(
@@ -33,66 +38,213 @@ export default function App() {
       setWeightData,
       setAirQualityData
     );
-    return cleanup;
+
+    socket.on("connect", () => setServerStatus("connected"));
+    socket.on("disconnect", () => setServerStatus("disconnected"));
+
+    return () => {
+      cleanup();
+      socket.off("connect");
+      socket.off("disconnect");
+    };
   }, []);
 
+  useEffect(() => {
+    getFarm().then((data) => {
+      if (Array.isArray(data) && data.length > 0) {
+        const farm = data[0];
+        
+        setFarmData(farm);
+        if (farm.tanks.length > 0) {
+          setSelectedTank(farm.tanks[0]);
+        }
+      } else {
+        console.error("No data found");
+      }
+    });
+  }, []);
+
+  const checkDataIsFromTank = (data, tankStations) => {
+    if (data == null) return false;
+    if (tankStations == null || tankStations.length === 0) return false;
+
+    const boardIds = tankStations.map((station) => station.board.boardId);
+    console.log(`${data.measurement} ${data.tags.board_id} - ${boardIds}`);
+    if (boardIds.includes(data.tags.board_id)) {
+      return true;
+    } else {
+      return false;
+    }
+  } 
+
   return (
-    <div className="flex flex-col lg:flex-row h-screen bg-gray-100">
-      {/* Parte del modelo 3D */}
-      <div className="w-full">
-        <h1 className="text-3xl font-bold mb-4">Digital Twin - Milk Tank</h1>
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden h-full">
-          <Canvas>
-            <ambientLight intensity={0.6} />
-            <directionalLight
-              position={[10, 10, 10]}
-              intensity={1.5}
-              castShadow
-            />
-            <directionalLight position={[-10, -10, -10]} intensity={0.5} />
-            <Suspense fallback={null}>
-              <HorizontalTank2BladesModel
-                milkQuantityData={milkQuantityData}
-                encoderData={encoderData}
-                gyroscopeData={gyroscopeData}
-                switchStatus={switchStatus}
-                tankTemperaturesData={tankTemperaturesData}
-                weightData={weightData}
-                airQualityData={airQualityData}
-              />
-              <Plane
-                rotation={[-Math.PI / 2, 0, 0]}
-                position={[0, 0, 0]}
-                args={[15, 15]}
-                receiveShadow
-              >
-                <meshStandardMaterial attach="material" color="gray" />
-              </Plane>
-              <OrbitControls
-                enablePan={false}
-                minDistance={4}
-                maxDistance={10}
-                maxPolarAngle={Math.PI / 1.2 / 2}
-              />
-            </Suspense>
-          </Canvas>
+    <div className="flex flex-col h-screen bg-gray-100">
+      {/* Header: Farm Information, Server Status, and Exit Button */}
+      <div className="bg-white p-6 shadow-md flex justify-between items-center">
+        <div className="flex items-center space-x-8">
+          <div className="flex items-center space-x-3">
+            <Home className="text-2xl text-primary" />
+            <div>
+              <h2 className="text-2xl font-bold">Farm Information</h2>
+              {farmData ? (
+                <div className="flex space-x-4 text-sm">
+                  <p>
+                    <strong>Id:</strong> {farmData.farmId}
+                  </p>
+                  <p>
+                    <strong>Location:</strong> {farmData.location}
+                  </p>
+                  <p>
+                    <strong>Tanks:</strong>{" "}
+                    {farmData && farmData.tanks ? farmData.tanks.length : 0}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">Loading farm data...</p>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center space-x-3">
+            <Server className="text-2xl text-primary" />
+            <div>
+              <h2 className="text-2xl font-bold">Server Status</h2>
+              <div className="flex items-center mt-1">
+                {serverStatus === "connected" ? (
+                  <>
+                    <Wifi className="mr-2 text-green-500" />
+                    <Badge variant="outline" className="bg-green-100 text-green-800">
+                      Connected
+                    </Badge>
+                  </>
+                ) : serverStatus === "disconnected" ? (
+                  <>
+                    <WifiOff className="mr-2 text-red-500" />
+                    <Badge variant="outline" className="bg-red-100 text-red-800">
+                      Disconnected
+                    </Badge>
+                  </>
+                ) : (
+                  <>
+                    <Wifi className="mr-2 text-yellow-500 animate-pulse" />
+                    <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
+                      Connecting
+                    </Badge>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
+        <Button variant="outline" size="lg" className="space-x-2">
+          <LogOut className="h-5 w-5" />
+          <span>Exit</span>
+        </Button>
       </div>
 
-      {/* Parte de los datos de los sensores */}
-      {/* <div className="w-full lg:w-1/4 h-1/2 lg:h-full p-4">
-        <h2 className="text-2xl font-bold mb-4">Sensor Data</h2>
-        <ScrollArea className="h-full">
-          <div className="pr-4">
-            <TankTemperatures />
-            <MilkQuantity milkQuantityData={milkQuantityData} />
-            <Encoder encoderData={encoderData} />
-            <MagneticSwitch switchStatus={switchStatus} />
-            <Gyroscope gyroscopeData={gyroscopeData} />
-            <AirQuality airQualityData={airQualityData} />
+      {/* Main Content: Sidebar, Tank Information, and 3D Model */}
+      <div className="flex flex-grow">
+        {/* Sidebar */}
+        <div className="w-64 m-2 bg-white shadow-md rounded-lg">
+          <div className="p-4">
+            <h2 className="text-xl font-bold mb-4">Tanks</h2>
+            <ScrollArea className="h-[calc(100vh-12rem)]">
+              {farmData.tanks &&
+                farmData.tanks.map((tank) => (
+                  <Button
+                    key={tank.id}
+                    className={`w-full mb-2 ${
+                      selectedTank && selectedTank.id === tank.id
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-secondary"
+                    }`}
+                    onClick={() => setSelectedTank(tank)}
+                  >
+                    {tank.tankName}
+                  </Button>
+                ))}
+            </ScrollArea>
           </div>
-        </ScrollArea>
-      </div> */}
+        </div>
+
+        <div className="flex-grow flex flex-col m-2">
+          {/* Tank Information */}
+          <Card className="mb-1 bg-white shadow-md">
+            <CardContent className="m-2">
+              {selectedTank ? (
+                <div className="grid grid-cols-5">
+                  <div className="space-y-2">
+                    <p className="font-semibold">Tank Name</p>
+                    <p>{selectedTank.tankName}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="font-semibold">Capacity</p>
+                    <p>{2500} liters</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="font-semibold">Height</p>
+                    <p>{"1.5 m"}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="font-semibold">Weight:</p>
+                    <p>{"1000 kg"}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="font-semibold">Status:</p>
+                    <Badge variant={"success"}>
+                      {"Working"}
+                    </Badge>
+                  </div>
+                </div>
+              ) : (
+                <p>No tank selected</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* 3D Model */}
+          <div className="flex-grow bg-white rounded-lg shadow-md overflow-hidden">
+            <Canvas>
+              <ambientLight intensity={0.6} />
+              <directionalLight position={[-10, -10, -10]} intensity={0.5} />
+              <Suspense fallback={null}>
+                {farmData.tanks && farmData.tanks.map((tank) => (
+                  selectedTank && selectedTank.id === tank.id ? (
+                    <HorizontalTank2BladesModel
+                      key={tank.id}
+                      tankStations={tank.tankStations}
+                      milkQuantityData={checkDataIsFromTank(milkQuantityData, tank.tankStations) ? milkQuantityData : null}
+                      encoderData={checkDataIsFromTank(encoderData, tank.tankStations) ? encoderData : null}
+                      gyroscopeData={checkDataIsFromTank(gyroscopeData, tank.tankStations) ? gyroscopeData : null}
+                      switchStatus={checkDataIsFromTank(switchStatus, tank.tankStations) ? switchStatus : null}
+                      tankTemperaturesData={checkDataIsFromTank(tankTemperaturesData, tank.tankStations) ? tankTemperaturesData : null}
+                      weightData={checkDataIsFromTank(weightData, tank.tankStations) ? weightData : null}
+                      airQualityData={checkDataIsFromTank(airQualityData, tank.tankStations) ? airQualityData : null}
+                    />
+                  ) : "No tank selected"
+                ))}
+                <Plane
+                  rotation={[-Math.PI / 2, 0, 0]}
+                  position={[0, -0.01, 0]}
+                  args={[30, 30]}
+                  receiveShadow
+                >
+                  <meshStandardMaterial
+                    roughness={0.2}
+                    metalness={0.1}
+                    color="#95a5a6"
+                  />
+                </Plane>
+                <OrbitControls
+                  enablePan={false}
+                  minDistance={4}
+                  maxDistance={10}
+                  maxPolarAngle={Math.PI / 1.2 / 2}
+                />
+              </Suspense>
+            </Canvas>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
