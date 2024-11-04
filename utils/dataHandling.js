@@ -24,14 +24,13 @@ const getTankTemperaturesData = (rawData) => {
     const readableDate = date.toLocaleString();
 
     const result = {
+      measurement: lastObject.measurement,
+      tags: lastObject.tags,
       readableDate: readableDate,
       submerged_temperature: lastObject.fields.submerged_temperature,
       surface_temperature: lastObject.fields.surface_temperature,
       over_surface_temperature: lastObject.fields.over_surface_temperature,
     };
-
-    console.log("Last object ", lastObject);
-    console.log("Result ", result);
 
     return result;
   } catch (error) {
@@ -51,9 +50,14 @@ const getGyroscopeData = (rawData) => {
     const date = new Date(lastObject.timestamp * 1000);
     const readableDate = date.toLocaleString();
 
-    lastObject.readableDate = readableDate;
+    const result = {
+      measurement: lastObject.measurement,
+      tags: lastObject.tags,
+      readableDate: readableDate,
+      fields: lastObject.fields,
+    };
 
-    return lastObject;
+    return result;
   } catch (error) {
     console.log(
       "ERROR WHILE PARSING MESSAGE (STRING) TO JSON (OBJECT) : ",
@@ -76,6 +80,8 @@ const getMilkQuantityData = (rawData) => {
 
     // Crea el nuevo objeto con readableDate y milkQuantity
     const result = {
+      measurement: lastObject.measurement,
+      tags: lastObject.tags,
       readableDate: readableDate,
       milkQuantity: milkQuantity,
     };
@@ -98,6 +104,8 @@ const getAirQualityData = (rawData) => {
   const readableDate = date.toLocaleString();
 
   result = {
+    measurement: lastObject.measurement,  
+    tags: lastObject.tags,
     readableDate: readableDate,
     airQuality: lastObject.fields,
   };
@@ -116,6 +124,8 @@ const getWeightData = (rawData) => {
   const readableDate = date.toLocaleString();
 
   const result = {
+    measurement: lastObject.measurement,
+    tags: lastObject.tags,
     readableDate: readableDate,
     weight: lastObject.fields.value,
   };
@@ -132,6 +142,8 @@ const getMagneticSwitchData = (rawData) => {
   const readableDate = date.toLocaleString();
 
   const result = {
+    measurement: lastObject.measurement,
+    tags: lastObject.tags,
     readableDate: readableDate,
     status: lastObject.fields.state,
   };
@@ -148,6 +160,8 @@ const getEncoderData = (rawData) => {
   const readableDate = date.toLocaleString();
 
   const result = {
+    measurement: lastObject.measurement,
+    tags: lastObject.tags,
     readableDate: readableDate,
     value: lastObject.fields.rpm,
   };
@@ -164,6 +178,8 @@ const getBoardTemperatureData = (rawData) => {
   const readableDate = date.toLocaleString();
 
   const result = {
+    measurement: lastObject.measurement,
+    tags: lastObject.tags,
     readableDate: readableDate,
     temperature: lastObject.fields.temperature,
   };
@@ -180,6 +196,8 @@ const getBoardStatusData = (rawData) => {
   const readableDate = date.toLocaleString();
 
   const result = {
+    measurement: lastObject.measurement,
+    tags: lastObject.tags,
     readableDate: readableDate,
     status: lastObject.fields.status,
   };
