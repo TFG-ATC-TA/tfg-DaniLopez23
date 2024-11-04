@@ -69,6 +69,7 @@ export default function App() {
     if (tankStations == null || tankStations.length === 0) return false;
 
     const boardIds = tankStations.map((station) => station.board.boardId);
+    console.log(`${data.measurement} ${data.tags.board_id} - ${boardIds}`);
     if (boardIds.includes(data.tags.board_id)) {
       return true;
     } else {

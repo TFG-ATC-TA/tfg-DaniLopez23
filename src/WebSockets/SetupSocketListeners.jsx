@@ -17,7 +17,7 @@ export const setupSocketListeners = (
   };
 
   const onEncoderData = (data) => {
-    console.log(data);
+    // console.log(data);
     setEncoderData(data);
   };
 
@@ -27,27 +27,27 @@ export const setupSocketListeners = (
   };
 
   const onMilkQuantityData = (data) => {
-    console.log(data);
+    // console.log(data);
     setMilkQuantityData(data);
   };
 
   const onTankTemperature = (data) => {
-    console.log(data);
+    // console.log(data);
     setTankTemperaturesData(data);
   };
 
   const onWeightData = (data) => {
-    console.log(data);
+    // console.log(data);
     setWeightData(data);
   }
 
   const onSwitch = (data) => {
-    console.log(data);
+    // console.log(data);
     setSwitchStatus(data);
   };
 
   const onAirQualityData = (data) => {
-    console.log(data);
+    // console.log(data);
     setAirQualityData(data);
   }
 
