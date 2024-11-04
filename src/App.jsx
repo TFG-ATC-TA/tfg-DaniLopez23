@@ -53,19 +53,28 @@ export default function App() {
     getFarm().then((data) => {
       if (Array.isArray(data) && data.length > 0) {
         const farm = data[0];
-        const tanksWithStations = farm.tanks.map(tank => ({
-          ...tank,
-          boardIDs: tank.tankStations.map(station => station.boardId)
-        }));
-        setFarmData({ ...farm, tanks: tanksWithStations });
-        if (tanksWithStations.length > 0) {
-          setSelectedTank(tanksWithStations[0]);
+        
+        setFarmData(farm);
+        if (farm.tanks.length > 0) {
+          setSelectedTank(farm.tanks[0]);
         }
       } else {
         console.error("No data found");
       }
     });
   }, []);
+
+  const checkDataIsFromTank = (data, tankStations) => {
+    if (data == null) return false;
+    if (tankStations == null || tankStations.length === 0) return false;
+
+    const boardIds = tankStations.map((station) => station.board.boardId);
+    if (boardIds.includes(data.tags.board_id)) {
+      return true;
+    } else {
+      return false;
+    }
+  } 
 
   return (
     <div className="flex flex-col h-screen bg-gray-100">
@@ -168,20 +177,20 @@ export default function App() {
                   </div>
                   <div className="space-y-2">
                     <p className="font-semibold">Capacity</p>
-                    <p>{selectedTank.capacity} liters</p>
+                    <p>{2500} liters</p>
                   </div>
                   <div className="space-y-2">
                     <p className="font-semibold">Height</p>
-                    <p>{milkQuantityData ? `${milkQuantityData.milkQuantity}%` : 'N/A'}</p>
+                    <p>{"1.5 m"}</p>
                   </div>
                   <div className="space-y-2">
                     <p className="font-semibold">Weight:</p>
-                    <p>{weightData ? `${weightData.weight} kg` : 'N/A'}</p>
+                    <p>{"1000 kg"}</p>
                   </div>
                   <div className="space-y-2">
                     <p className="font-semibold">Status:</p>
-                    <Badge variant={switchStatus ? "success" : "secondary"}>
-                      {switchStatus ? 'Working' : 'Stopped'}
+                    <Badge variant={"success"}>
+                      {"Working"}
                     </Badge>
                   </div>
                 </div>
@@ -198,19 +207,19 @@ export default function App() {
               <directionalLight position={[-10, -10, -10]} intensity={0.5} />
               <Suspense fallback={null}>
                 {farmData.tanks && farmData.tanks.map((tank) => (
-                  <HorizontalTank2BladesModel
-                    key={tank.id}
-                    tankId={tank.id}
-                    boardIDs={tank.boardIDs}
-                    milkQuantityData={milkQuantityData}
-                    encoderData={encoderData}
-                    gyroscopeData={gyroscopeData}
-                    switchStatus={switchStatus}
-                    tankTemperaturesData={tankTemperaturesData}
-                    weightData={weightData}
-                    airQualityData={airQualityData}
-                    isSelected={selectedTank && selectedTank.id === tank.id}
-                  />
+                  selectedTank && selectedTank.id === tank.id ? (
+                    <HorizontalTank2BladesModel
+                      key={tank.id}
+                      tankStations={tank.tankStations}
+                      milkQuantityData={checkDataIsFromTank(milkQuantityData, tank.tankStations) ? milkQuantityData : null}
+                      encoderData={checkDataIsFromTank(encoderData, tank.tankStations) ? encoderData : null}
+                      gyroscopeData={checkDataIsFromTank(gyroscopeData, tank.tankStations) ? gyroscopeData : null}
+                      switchStatus={checkDataIsFromTank(switchStatus, tank.tankStations) ? switchStatus : null}
+                      tankTemperaturesData={checkDataIsFromTank(tankTemperaturesData, tank.tankStations) ? tankTemperaturesData : null}
+                      weightData={checkDataIsFromTank(weightData, tank.tankStations) ? weightData : null}
+                      airQualityData={checkDataIsFromTank(airQualityData, tank.tankStations) ? airQualityData : null}
+                    />
+                  ) : "No tank selected"
                 ))}
                 <Plane
                   rotation={[-Math.PI / 2, 0, 0]}

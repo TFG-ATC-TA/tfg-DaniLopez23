@@ -14,10 +14,13 @@ export default function HorizontalTank2BladesModel({
   gyroscopeData,
   tankTemperaturesData,
   airQualityData,
+  tankStations
 }) {
   const { nodes, materials } = useGLTF(
     "/horizontalTankModel/2Pales/HorizontalTank2BladesModel.glb"
   );
+  
+
 
   const getRotationDuration = (encoderData) => {
     if (encoderData === null || encoderData <= 0) return 0; // Duración máxima si encoderData es nulo o menor o igual a cero
@@ -173,12 +176,12 @@ export default function HorizontalTank2BladesModel({
       {/* CallOutText */}
       <CallOutText
         position={[0, 2.9, 0.92]}
-        text={`RPM: ${encoderData?.value} rad/s`}
+        text={`RPM: ${encoderData?.value ?? "No data"} `}
         radius={0.05}
       />
       <CallOutText
         position={[0, 2.9, -0.92]}
-        text={`RPM: ${encoderData?.value} rad/s`}
+        text={`RPM: ${encoderData?.value ?? "No data"} `}
         radius={0.05}
       />
       <CallOutText
