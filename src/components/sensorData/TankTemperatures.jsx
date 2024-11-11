@@ -3,39 +3,43 @@ import { Thermometer } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 
 const TankTemperatures = ({ tankTemperaturesData }) => {
+  const { overSurface, onSurface, underSurface } = tankTemperaturesData || {}
+
   return (
-    <Card className="w-full">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">Tank Temperatures</CardTitle>
-        <Thermometer className="h-4 w-4 text-muted-foreground" />
+    <Card className="transition-all duration-300 hover:shadow-lg">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-medium flex items-center space-x-2">
+          <Thermometer size={16} className="text-red-500" />
+          <span>Milk Temperatures</span>
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        {tankTemperaturesData ? (
-          <div className="text-sm">
-            <p className="text-xs text-muted-foreground mb-2">
-              Last update: {tankTemperaturesData.readableDate}
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              <div className="flex flex-col items-center">
-                <span className="text-xs font-medium">Submerged</span>
-                <span className="text-lg font-bold">{tankTemperaturesData.submerged_temperature}</span>
-                <span className="text-xs text-muted-foreground">°C</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <span className="text-xs font-medium">Surface</span>
-                <span className="text-lg font-bold">{tankTemperaturesData.surface_temperature}</span>
-                <span className="text-xs text-muted-foreground">°C</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <span className="text-xs font-medium">Over Surface</span>
-                <span className="text-lg font-bold">{tankTemperaturesData.over_surface_temperature}</span>
-                <span className="text-xs text-muted-foreground">°C</span>
-              </div>
+        <div className="space-y-2">
+          {overSurface ? (
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-muted-foreground">Over Surface:</span>
+              <span className="text-sm font-medium">{overSurface}°C</span>
             </div>
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">No data received yet</p>
-        )}
+          ) : (
+            <span className="text-xs text-muted-foreground">Over Surface: No data</span>
+          )}
+          {onSurface  ? (
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-muted-foreground">On Surface:</span>
+              <span className="text-sm font-medium">{onSurface}°C</span>
+            </div>
+          ) : (
+            <span className="text-xs text-muted-foreground">On Surface: No data</span>
+          )}
+          {underSurface  ? (
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-muted-foreground">Under Surface:</span>
+              <span className="text-sm font-medium">{underSurface}°C</span>
+            </div>
+          ) : (
+            <span className="text-xs text-muted-foreground">Under Surface: No data</span>
+          )}
+        </div>
       </CardContent>
     </Card>
   )

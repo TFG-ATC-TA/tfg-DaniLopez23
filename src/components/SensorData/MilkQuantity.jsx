@@ -1,31 +1,47 @@
-import React from "react"
-import { Droplet } from "lucide-react"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import React from "react";
+import { Droplet } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 const MilkQuantity = ({ milkQuantityData }) => {
+  const percentage = milkQuantityData?.milkQuantity || null;
+  const fillHeight = percentage ? `${percentage}%` : "0%";
+
   return (
-    <Card className="w-full">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">Milk Quantity</CardTitle>
-        <Droplet className="h-4 w-4 text-muted-foreground" />
+    <Card className="transition-all duration-300 hover:shadow-lg">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-medium flex items-center space-x-2">
+          <Droplet size={16} className="text-blue-500" />
+          <span>Milk Quantity</span>
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        {milkQuantityData !== null ? (
-          <div className="text-sm">
-            <p className="text-xs text-muted-foreground mb-2">
-              Last update: {milkQuantityData.readableDate}
-            </p>
-            <div className="flex items-center justify-center">
-              <span className="text-2xl font-bold">{milkQuantityData.milkQuantity}</span>
-              <span className="text-lg ml-1">%</span>
+        {percentage !== null ? (
+          <>
+            <div className="my-2 text-xs text-muted-foreground">
+            Last update: {milkQuantityData.readableDate}
             </div>
-          </div>
+            <div className="relative h-24 bg-gray-200 rounded-md overflow-hidden">
+              
+              <div
+                className="absolute bottom-0 left-0 right-0 bg-blue-500 transition-all duration-500 ease-in-out"
+                style={{ height: fillHeight }}
+              ></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-lg font-bold text-black">
+                  {percentage.toFixed(2)}%
+                </span>
+              </div>
+            </div>
+            
+          </>
         ) : (
-          <p className="text-sm text-muted-foreground">No data received yet</p>
+          <span className="text-sm text-muted-foreground">
+            No data available
+          </span>
         )}
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
-export default MilkQuantity
+export default MilkQuantity;

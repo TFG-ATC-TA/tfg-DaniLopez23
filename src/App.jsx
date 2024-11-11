@@ -3,9 +3,9 @@ import { setupSocketListeners } from "./WebSockets/SetupSocketListeners";
 import { socket } from "./webSockets/socket";
 import { getFarm } from "./services/farm";
 import Header from "./components/Header";
-import Sidebar from "./components/Sidebar";
-import TankInformation from "./components/TankInformation";
+import SensorData from "./components/SensorData";
 import TankModel from "./components/TankModel";
+import TankInformation from "./components/TankInformation";
 
 export default function App() {
   const [milkQuantityData, setMilkQuantityData] = useState(null);
@@ -58,22 +58,29 @@ export default function App() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-100">
-      <Header farmData={farmData} serverStatus={serverStatus} />
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar
-          className="w-64 bg-white shadow-md"
-          farmData={farmData}
-          selectedTank={selectedTank}
-          setSelectedTank={setSelectedTank}
-        />
-        <div className="flex flex-col flex-1 overflow-hidden">
-          <div className="p-4">
-            <TankInformation
-              selectedTank={selectedTank}
-              className="mb-4"
-            />
+      <Header 
+        farmData={farmData} 
+        serverStatus={serverStatus} 
+        selectedTank={selectedTank}
+        setSelectedTank={setSelectedTank}
+      />
+      <div className="flex flex-grow overflow-hidden">
+        <div className="w-64 bg-white shadow-md overflow-y-auto">
+          <SensorData
+            milkQuantityData={milkQuantityData}
+            tankTemperaturesData={tankTemperaturesData}
+            weightData={weightData}
+            switchStatus={switchStatus}
+            airQualityData={airQualityData}
+            encoderData={encoderData}
+            gyroscopeData={gyroscopeData}
+          />
+        </div>
+        <div className="flex-grow flex flex-col overflow-hidden">
+          <div className="p-4 mb-4">
+            <TankInformation selectedTank={selectedTank} />
           </div>
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-grow overflow-auto p-4">
             <TankModel
               farmData={farmData}
               selectedTank={selectedTank}

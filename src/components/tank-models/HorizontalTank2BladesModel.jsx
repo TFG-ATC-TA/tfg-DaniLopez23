@@ -206,11 +206,6 @@ export default function HorizontalTank2BladesModel({
         onSurface={tankTemperaturesData?.surface_temperature}
         underSurface={tankTemperaturesData?.submerged_temperature}
       />
-      
-      <CallOutTextMilkQuantity
-        position={[-1.2, 1.8, -5.4]}
-        quantity={milkQuantityData?.milkQuantity}
-      />
 
       <CallOutTextAirQuality
         position={[3.7, 2.8, 4.8]}
