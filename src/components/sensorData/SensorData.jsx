@@ -1,11 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Thermometer, Droplet, Scale, Activity, Milk } from "lucide-react";
-import AirQuality from "./SensorData/AirQuality";
-import MagneticSwitch from "./SensorData/MagneticSwitch";
-import TankTemperatures from "./SensorData/TankTemperatures";
-import MilkQuantity from "./SensorData/MilkQuantity";
-import Encoder from "./SensorData/Encoder";
-import Gyroscope from "./SensorData/Gyroscope";
+
+import AirQuality from "./AirQuality";
+import MagneticSwitch from "./MagneticSwitch";
+import TankTemperatures from "./TankTemperatures";
+import MilkQuantity from "./MilkQuantity";
+import Encoder from "./Encoder";
+import Gyroscope from "./Gyroscope";
 
 const SensorData = ({ className, milkQuantityData, tankTemperaturesData, switchStatus, airQualityData, encoderData}) => {
   console.log(tankTemperaturesData)
