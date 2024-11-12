@@ -3,7 +3,7 @@ import { setupSocketListeners } from "./WebSockets/SetupSocketListeners";
 import { socket } from "./webSockets/socket";
 import { getFarm } from "./services/farm";
 import Header from "./components/Header";
-import SensorData from "./components/SensorData";
+import SensorData from "./components/sensorData/SensorData";
 import TankModel from "./components/TankModel";
 import TankInformation from "./components/TankInformation";
 
