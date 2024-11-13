@@ -1,10 +1,10 @@
-const getTopics = require("./farmConfig");
+const farmService = require("../services/farmService");
 
 let topics = null;
 
 const initializeTopics = async () => {
   try {
-    topics = await getTopics();
+    topics = await farmService.getTopics();
   } catch (error) {
     console.error("Error initializing topics:", error);
   }

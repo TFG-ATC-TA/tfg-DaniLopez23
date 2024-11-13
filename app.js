@@ -1,17 +1,17 @@
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
-const config = require("./utils/config");
+const config = require("./config/index");
 const mongoose = require('mongoose');
 
-const MONGO_URI = config.MONGO_URI;
+const MONGO_URI = config.mongoDB.MONGO_URI;
 
 const farmRouter = require("./controllers/Farm"); 
 const tankRouter = require("./controllers/Tank");
 const boardRouter = require("./controllers/Board");
 
-const MqttHandler = require("./utils/handlers/MqttHandler");
-const WebSocketHandler = require("./utils/handlers/WebSocketHandler");
+const mqttService = require("./services/mqtt");
+const webSocketsService = require("./services/webSOckets");
 
 const app = express();
 
@@ -31,22 +31,20 @@ mongoose.connect(MONGO_URI).then(() => {
 });
 
 const server = http.createServer(app);
-const webSocketHandler = new WebSocketHandler(server);
-webSocketHandler.init();
 
-const mqttClient = new MqttHandler();
-mqttClient.connect();
+webSocketsService.initializeWebSocket(server);
+
+mqttService.connect(); 
 
 app.use("/farms", farmRouter);
 app.use("/tanks", tankRouter);
 app.use("/boards", boardRouter);
 
-// Establece el manejador para los mensajes entrantes
-mqttClient.onMessage((topic, message) => {
 
-  const processedData = dataHandling.processData(topic, message); // Procesar los datos
-
-  webSocketHandler.emit(topic, processedData); // Emitir a todos los clientes
+// Establece el manejador para los mensajes entrantes desde MQTT
+mqttService.onMessage((tankId, topic, data) => {
+  
+  webSocketsService.emitToTank(tankId, topic, data);
 });
 
 module.exports = { app, server };

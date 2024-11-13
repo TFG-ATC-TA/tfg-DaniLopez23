@@ -2,16 +2,11 @@ const Farm = require("../models/Farm");
 const farmRouter = require("express").Router();
 const Tank = require("../models/Tank");
 const Board = require("../models/Board");
+const farmService = require("../services/farmService");
 
 farmRouter.get("/", async (req, res) => {
   try {
-    const farms = await Farm.find({}).populate({
-      path: "tanks",
-      populate: {
-        path: "tankStations.board",
-        model: "Board",
-      },
-    });
+    const farms = farmService.getFarm();
     console.log(farms);
     res.json(farms);
   } catch (error) {
