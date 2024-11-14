@@ -2,6 +2,7 @@ const Farm = require("../models/Farm");
 const Board = require("../models/Board");
 const Tank = require("../models/Tank");
 
+
 const getTopics = async () => {
   try {
     const farm = await Farm.findOne();
@@ -38,4 +39,11 @@ const getFarm = async () => {
   return farm;
 }
 
-module.exports = { getTopics, getFarm };
+// Función para obtener el tankId usando un boardId
+const getTankIdByBoardId = (boardId) => {
+  
+};
+
+
+
+module.exports = { getTopics, getFarm, getTankIdByBoardId };

@@ -6,7 +6,7 @@ const farmService = require("../services/farmService");
 
 farmRouter.get("/", async (req, res) => {
   try {
-    const farms = farmService.getFarm();
+    const farms = await farmService.getFarm();
     console.log(farms);
     res.json(farms);
   } catch (error) {

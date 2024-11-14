@@ -40,7 +40,7 @@ const connect = () => {
     const processedData = dataHandling.processData(topic, message); // Procesar el mensaje
 
     // Filtra los datos por board-id y emite solo a la room correspondiente
-    const boardId = processedData.boardId; // Suponiendo que el mensaje contiene el board-id
+    const boardId = 0// processedData.boardId; // Suponiendo que el mensaje contiene el board-id
 
     if (messageHandler) {
       messageHandler(boardId, processedData);

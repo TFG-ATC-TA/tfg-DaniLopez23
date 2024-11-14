@@ -11,11 +11,9 @@ const tankRouter = require("./controllers/Tank");
 const boardRouter = require("./controllers/Board");
 
 const mqttService = require("./services/mqtt");
-const webSocketsService = require("./services/webSOckets");
+const webSocketsService = require("./services/webSockets");
 
 const app = express();
-
-const dataHandling = require("./utils/dataHandling");
 
 const corsOptions = {
   origin: "http://localhost:5173", // Asegúrate de que esta URL sea la correcta
@@ -43,8 +41,7 @@ app.use("/boards", boardRouter);
 
 // Establece el manejador para los mensajes entrantes desde MQTT
 mqttService.onMessage((tankId, topic, data) => {
-  
-  webSocketsService.emitToTank(tankId, topic, data);
+  // webSocketsService.emitToTank(tankId, topic, data);
 });
 
 module.exports = { app, server };
