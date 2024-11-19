@@ -39,6 +39,11 @@ const initializeWebSocket = (server) => {
 
 // Función para emitir mensajes solo a la room del tanque seleccionado
 const emitToTank = (tankId, event, message) => {
+  if(tankId===undefined) {
+    console.log("No tank selected");
+    return;
+  }
+
   if (io) {
     io.to(tankId).emit(event, { tankId, message });
     console.log(`Emitting to room ${tankId}: ${event}`);

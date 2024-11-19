@@ -7,8 +7,7 @@ const mongoose = require('mongoose');
 const MONGO_URI = config.mongoDB.MONGO_URI_LOCAL;
 
 const farmRouter = require("./controllers/Farm"); 
-const tankRouter = require("./controllers/Tank");
-const boardRouter = require("./controllers/Board");
+
 
 const mqttService = require("./services/mqtt");
 const webSocketsService = require("./services/webSockets");
@@ -28,9 +27,6 @@ mongoose.connect(MONGO_URI).then(() => {
   console.log('Error connecting to MongoDB', err);
 });
 
-
-
-
 const server = http.createServer(app);
 
 webSocketsService.initializeWebSocket(server);
@@ -38,13 +34,12 @@ webSocketsService.initializeWebSocket(server);
 mqttService.connect(); 
 
 app.use("/farms", farmRouter);
-app.use("/tanks", tankRouter);
-app.use("/boards", boardRouter);
+
 
 
 // Establece el manejador para los mensajes entrantes desde MQTT
-mqttService.onMessage((tankId, topic, data) => {
-  webSocketsService.emitToTank(tankId, topic, data);
+mqttService.onMessage((boardId, topic, data) => {
+  webSocketsService.emitToTank(boardId, topic, data);
 });
 
 module.exports = { app, server };

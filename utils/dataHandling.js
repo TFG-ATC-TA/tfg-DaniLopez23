@@ -1,17 +1,3 @@
-const farmService = require("../services/farmService");
-
-let topics = null;
-
-const initializeTopics = async () => {
-  try {
-    topics = await farmService.getTopics();
-  } catch (error) {
-    console.error("Error initializing topics:", error);
-  }
-};
-
-initializeTopics();
-
 const TANK_HEIGHT = 4000; // 2000 mm ; 2m
 
 const getTankTemperaturesData = (rawData) => {
@@ -205,7 +191,6 @@ const getBoardStatusData = (rawData) => {
   return result;
 };
 
-// Define a mapping object to associate each topic with its processing function
 const topicHandlers = {
   "synthetic-farm-1/6_dof_imu": getGyroscopeData,
   "synthetic-farm-1/tank_temperature_probes": getTankTemperaturesData,
@@ -218,20 +203,23 @@ const topicHandlers = {
   "synthetic-farm-1/board_status": getBoardStatusData,
 };
 
-const processData = (topic, rawData) => {
-  if (!topics) {
-    console.log("Topics not initialized yet");
-    return null;
-  }
+const processData = (topic,rawData) => {
 
-  const handler = topicHandlers[topic];
-  if (handler) {
-    console.log(`Processing... ${handler.name} `);
-    return handler(rawData);
-  } else {
-    console.log("Topic not found");
-    return null;
-  }
+  const dataObject = JSON.parse(rawData);
+
+  let lastObject = dataObject[dataObject.length - 1];
+
+  const date = new Date(lastObject.timestamp * 1000);
+  const readableDate = date.toLocaleString();
+
+  const result = {
+    measurement: lastObject.measurement,
+    tags: lastObject.tags,
+    readableDate: readableDate,
+    fields: lastObject.fields,
+  };
+
+  return result;
 };
 
 module.exports = { processData };
