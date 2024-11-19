@@ -11,9 +11,9 @@ const Header = ({ farmData, serverStatus, selectedTank, setSelectedTank }) => {
           <h2 className="text-xl font-bold mb-2">Farm Information</h2>
           {farmData ? (
             <div className="flex space-x-4 text-sm">
-              <p><strong>Id:</strong> {farmData.farmId}</p>
-              <p><strong>Location:</strong> {farmData.location}</p>
-              <p><strong>Tanks:</strong> {farmData.tanks ? farmData.tanks.length : 0}</p>
+              <p><strong>Id:</strong> {farmData.idname}</p>
+              <p><strong>Location:</strong> {farmData.name}</p>
+              <p><strong>Tanks:</strong> {farmData.equipments ? farmData.equipments.length : 0}</p>
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">Loading farm data...</p>
@@ -24,15 +24,15 @@ const Header = ({ farmData, serverStatus, selectedTank, setSelectedTank }) => {
       <div className="flex-1 mx-8">
         <h3 className="text-xl font-bold mb-2">Select Tank</h3>
         <Select 
-          value={selectedTank?.id} 
-          onValueChange={(value) => setSelectedTank(farmData.tanks.find(tank => tank.id === value))}
+          value={selectedTank?._id} 
+          onValueChange={(value) => setSelectedTank(farmData.equipments.find(tank => tank._id === value))}
         >
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Select a tank" />
           </SelectTrigger>
           <SelectContent>
-            {farmData.tanks && farmData.tanks.map((tank) => (
-              <SelectItem key={tank.id} value={tank.id}>{tank.tankName}</SelectItem>
+            {farmData.equipments && farmData.equipments.map((tank) => (
+              <SelectItem key={tank._id} value={tank._id}>{tank.name}</SelectItem>
             ))}
           </SelectContent>
         </Select>
