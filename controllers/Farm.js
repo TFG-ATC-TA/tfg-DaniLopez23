@@ -1,4 +1,4 @@
-const Farm = require("../models/Farm");
+const Farm = require("../models/Farms");
 const farmRouter = require("express").Router();
 const Tank = require("../models/Tank");
 const Board = require("../models/Board");

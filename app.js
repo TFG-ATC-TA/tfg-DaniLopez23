@@ -4,7 +4,7 @@ const cors = require("cors");
 const config = require("./config/index");
 const mongoose = require('mongoose');
 
-const MONGO_URI = config.mongoDB.MONGO_URI;
+const MONGO_URI = config.mongoDB.MONGO_URI_LOCAL;
 
 const farmRouter = require("./controllers/Farm"); 
 const tankRouter = require("./controllers/Tank");
@@ -23,10 +23,13 @@ app.use(cors(corsOptions)); // Configura el middleware de CORS
 app.use(express.json()); 
 
 mongoose.connect(MONGO_URI).then(() => {
-  console.log('Connected to MongoDB');
+  console.log('Connected to MongoDB :' + MONGO_URI);
 }).catch((err) => {
   console.log('Error connecting to MongoDB', err);
 });
+
+
+
 
 const server = http.createServer(app);
 
@@ -41,7 +44,7 @@ app.use("/boards", boardRouter);
 
 // Establece el manejador para los mensajes entrantes desde MQTT
 mqttService.onMessage((tankId, topic, data) => {
-  // webSocketsService.emitToTank(tankId, topic, data);
+  webSocketsService.emitToTank(tankId, topic, data);
 });
 
 module.exports = { app, server };

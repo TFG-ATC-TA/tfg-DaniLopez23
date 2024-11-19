@@ -1,5 +1,5 @@
 const Board = require("../models/Board");
-const Farm = require("../models/Farm");
+const Farm = require("../models/Farms");
 const boardRouter = require("express").Router();
 
 

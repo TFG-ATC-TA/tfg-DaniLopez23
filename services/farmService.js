@@ -1,15 +1,16 @@
-const Farm = require("../models/Farm");
+const Farm = require("../models/Farms");
 const Board = require("../models/Board");
 const Tank = require("../models/Tank");
 
 
+
 const getTopics = async () => {
   try {
-    const farm = await Farm.findOne();
+    const farm = await Farm.findOne({});
     if (!farm) {
       throw new Error("Farm not found");
     }
-    const farmId = farm.farmId;
+    const farmId = farm.idname;
 
     const uniqueSensorTypes = await Board.aggregate([
       { $unwind: "$sensors" },
