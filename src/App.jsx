@@ -11,36 +11,38 @@ import TankInformation from "./components/TankInformation";
 const FARM_ID = "synthetic-farm-1";
 
 export default function App() {
-  const { connect, disconnect } = useSocketStore((state) => state);
-  const { selectedTank, setSelectedTank } = useTankStore((state) => state);
+
+  const { selectedTank, setSelectedTank } = useTankStore((state) => (state));
+
   const [farmData, setFarmData] = useState({});
   const serverStatus = "connected";
 
-  // Configurar conexión global del WebSocket
+  // Inicializar conexión del socket y obtener datos de la granja
   useEffect(() => {
-    connect("http://localhost:3001");
+    const initializeApp = async () => {
+      try {
+        const data = await getFarm(); // Obtener datos de la granja
+        setFarmData(data);
+        setSelectedTank(data.equipments?.[0] || null); // Seleccionar el primer tanque por defecto
+      } catch (error) {
+        console.error("App initialization error:", error);
+      }
+    };
 
+    initializeApp();
+
+    // Cleanup: desconectar socket al desmontar componente
     return () => {
       disconnect();
     };
-  }, [connect, disconnect]);
-
-  // Cargar datos de la granja y configurar el tanque seleccionado por defecto
-  useEffect(() => {
-    getFarm().then((data) => {
-      setFarmData(data);
-      if (data.equipments && data.equipments.length > 0) {
-        setSelectedTank(data.equipments[0]); // Seleccionar el primer tanque por defecto
-      }
-    });
   }, [setSelectedTank]);
 
-  // Inicializar escucha de datos según el tanque seleccionado
+  // Configurar listeners del socket para datos del tanque
   useSocketSetup(FARM_ID);
 
   return (
     <div className="flex flex-col h-screen bg-gray-100">
-      <Header serverStatus={serverStatus} farmData={farmData}/>
+      <Header serverStatus={serverStatus} farmData={farmData} />
       <div className="flex flex-grow overflow-hidden">
         <div className="w-64 bg-white shadow-md overflow-y-auto">
           <SensorData />

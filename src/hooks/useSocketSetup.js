@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import useSocketStore from "../Stores/useSocketStore";
 import useDataStore from "../Stores/useDataStore";
-import useTankStore from "@/Stores/useTankStore";
+
 const useSocketSetup = (farmId) => {
-  const { stopListeningToEvent, joinRoom, listenToEvent, connected } = useSocketStore((state) => state);
+  const { connect, disconnect, joinRoom, leaveRoom, onEvent, offEvent } = useSocketStore();
   const {
     updateEncoderData,
     updateGyroscopeData,
@@ -12,61 +12,65 @@ const useSocketSetup = (farmId) => {
     updateSwitchStatus,
     updateWeightData,
     updateAirQualityData,
-  } = useDataStore((state) => state);
-
-  const {selectedTank} = useTankStore((state) => state);
+  } = useDataStore((state) => ({
+    updateEncoderData: state.updateEncoderData,
+    updateGyroscopeData: state.updateGyroscopeData,
+    updateMilkQuantityData: state.updateMilkQuantityData,
+    updateTankTemperaturesData: state.updateTankTemperaturesData,
+    updateSwitchStatus: state.updateSwitchStatus,
+    updateWeightData: state.updateWeightData,
+    updateAirQualityData: state.updateAirQualityData,
+  }));
 
   useEffect(() => {
-    if (!connected) {
-      console.log("Esperando conexión al servidor WebSocket...");
-      return;
-    }
 
-    // Si hay un `farmId`, se une a la room correspondiente
-    if (farmId && selectedTank) {
-      // Unirse a la room actual
-      joinRoom("00");
-      // Configurar listeners para los eventos específicos de la room
-      listenToEvent(`${farmId}/encoder`, updateEncoderData);
-      listenToEvent(`${farmId}/6-dof-imu`, updateGyroscopeData);
-      listenToEvent(`${farmId}/tank_distance`, updateMilkQuantityData);
-      listenToEvent(`${farmId}/tank_temperature_probes`, updateTankTemperaturesData);
-      listenToEvent(`${farmId}/magnetic_switch`, updateSwitchStatus);
-      listenToEvent(`${farmId}/weight`, updateWeightData);
-      listenToEvent(`${farmId}/air_quality`, updateAirQualityData);
-    }
+    // Unirse a la room correspondiente al farmId
+    joinRoom(farmId);
 
-    // Limpieza de listeners cuando el `farmId` cambia o el componente se desmonta
+    // Definir los canales y sus manejadores
+    const sensorChannels = [
+      { channel: `${farmId}/encoder`, handler: updateEncoderData },
+      { channel: `${farmId}/6_dof_imu`, handler: updateGyroscopeData },
+      { channel: `${farmId}/milk-quantity`, handler: updateMilkQuantityData },
+      { channel: `${farmId}/tank-temperatures`, handler: updateTankTemperaturesData },
+      { channel: `${farmId}/switch-status`, handler: updateSwitchStatus },
+      { channel: `${farmId}/weight`, handler: updateWeightData },
+      { channel: `${farmId}/air-quality`, handler: updateAirQualityData },
+    ];
+
+    // Configurar los listeners
+    sensorChannels.forEach(({ channel, handler }) => {
+      onEvent(channel, handler);
+    });
+
+    // Cleanup: eliminar listeners y desconectar
     return () => {
-      if (farmId) {
-        // Eliminar los listeners específicos de la `room`
-        stopListeningToEvent(`${farmId}/encoder`);
-        stopListeningToEvent(`${farmId}/6-dof-imu`);
-        stopListeningToEvent(`${farmId}/tank_distance`);
-        stopListeningToEvent(`${farmId}/tank_temperature_probes`);
-        stopListeningToEvent(`${farmId}/magnetic_switch`);
-        stopListeningToEvent(`${farmId}/weight`);
-        stopListeningToEvent(`${farmId}/air_quality`);
+      sensorChannels.forEach(({ channel }) => {
+        offEvent(channel);
+      });
 
-        console.log(`Limpieza de eventos para farmId: ${farmId}`);
-      }
+      // Salir de la room (opcional, si el servidor lo admite)
+      leaveRoom(farmId);
+
+      // Desconectar del servidor
+      disconnect();
     };
   }, [
-    farmId,
-    selectedTank,
-    connected,
+    connect,
+    disconnect,
     joinRoom,
-    listenToEvent,
-    stopListeningToEvent,
-    updateAirQualityData,
+    leaveRoom,
+    onEvent,
+    offEvent,
+    farmId,
     updateEncoderData,
     updateGyroscopeData,
     updateMilkQuantityData,
-    updateSwitchStatus,
     updateTankTemperaturesData,
+    updateSwitchStatus,
     updateWeightData,
+    updateAirQualityData,
   ]);
-
 };
 
 export default useSocketSetup;
