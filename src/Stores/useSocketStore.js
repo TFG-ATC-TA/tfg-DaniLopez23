@@ -1,49 +1,52 @@
-// socketStore.js
-import create from 'zustand';
-import { io } from 'socket.io-client';
+import { create } from "zustand";
+import { createSocket, closeSocket, getSocket } from "../WebSockets/Socket";
 
 const useSocketStore = create((set) => ({
   socket: null,
   connected: false,
 
-  // Conectar al servidor WebSocket
-  connect: (url) => {
-    const socket = io(url);
-    socket.on('connect', () => {
-      set({ socket, connected: true });
-      console.log('Conectado a WebSocket');
-    });
-    socket.on('disconnect', () => {
-      set({ connected: false });
-      console.log('Desconectado de WebSocket');
-    });
-    socket.onAny((event, ...args) => {
-      console.log(`Evento recibido: ${event}`, args);
-    });
-
-    set({ socket });
+  connect: (url, options) => {
+    const socket = createSocket(url, options);
+    socket.connect();
+    set({ socket, connected: true });
   },
 
-  // Unirse a una room
+  disconnect: () => {
+    closeSocket();
+    set({ socket: null, connected: false });
+  },
+
   joinRoom: (roomName) => {
-    const socket = get().socket;
+    const socket = getSocket();
     if (socket) {
-      socket.emit('joinRoom', roomName);
+      socket.emit("joinRoom", roomName);
       console.log(`Unido a la room: ${roomName}`);
     }
   },
 
-  // Escuchar un evento y pasar los datos al store de sensores
-  listenToEvent: (eventName, callback) => {
-    const socket = get().socket;
+  leaveRoom: (roomName) => {
+    const socket = getSocket();
     if (socket) {
-      socket.on(eventName, (data) => {
-        console.log(`${eventName} recibido:`, data);
-        // Llamamos al callback en el store de sensores
-        callback(data);
-      });
+      socket.emit("leaveRoom", roomName);
+      console.log(`Saliendo de la room: ${roomName}`);
     }
   },
+
+  listenToEvent: (eventName, callback) => {
+    const socket = getSocket();
+    if (socket) {
+      socket.on(eventName, callback);
+      console.log(`Escuchando evento: ${eventName}`);
+    }
+  },
+
+  stopListeningToEvent: (eventName) => {
+    const socket = getSocket();
+    if (socket) {
+      socket.off(eventName);
+    }
+  },
+  
 }));
 
 export default useSocketStore;

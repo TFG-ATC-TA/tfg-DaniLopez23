@@ -1,8 +1,18 @@
 import { Home, Server, Wifi, WifiOff } from "lucide-react";
+import PropTypes from 'prop-types';
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const Header = ({ farmData, serverStatus, selectedTank, setSelectedTank }) => {
+import useTankStore from "@/Stores/useTankStore";
+
+const Header = ({ serverStatus, farmData}) => {
+  const {selectedTank, setSelectedTank} = useTankStore()
+
+  const handleTankChange = (tankId) => {
+    const tank = farmData.equipments.find(tank => tank._id === tankId)
+    setSelectedTank(tank)
+  }
+
   return (
     <div className="bg-white p-4 shadow-md flex justify-between items-center">
       <div className="flex items-center space-x-4">
@@ -25,7 +35,7 @@ const Header = ({ farmData, serverStatus, selectedTank, setSelectedTank }) => {
         <h3 className="text-xl font-bold mb-2">Select Tank</h3>
         <Select 
           value={selectedTank?._id} 
-          onValueChange={(value) => setSelectedTank(farmData.equipments.find(tank => tank._id === value))}
+          onValueChange={handleTankChange}
         >
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Select a tank" />
@@ -60,6 +70,18 @@ const Header = ({ farmData, serverStatus, selectedTank, setSelectedTank }) => {
       </div>
     </div>
   );
+};
+
+Header.propTypes = {
+  serverStatus: PropTypes.string.isRequired,
+  farmData: PropTypes.shape({
+    idname: PropTypes.string,
+    name: PropTypes.string,
+    equipments: PropTypes.arrayOf(PropTypes.shape({
+      _id: PropTypes.string,
+      name: PropTypes.string
+    }))
+  })
 };
 
 export default Header;

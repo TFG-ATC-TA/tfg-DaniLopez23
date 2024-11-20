@@ -1,5 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Thermometer, Droplet, Scale, Activity, Milk } from "lucide-react";
+import useDataStore from "@/Stores/useDataStore";
 
 import AirQuality from "./AirQuality";
 import MagneticSwitch from "./MagneticSwitch";
@@ -8,8 +7,17 @@ import MilkQuantity from "./MilkQuantity";
 import Encoder from "./Encoder";
 import Gyroscope from "./Gyroscope";
 
-const SensorData = ({ className, milkQuantityData, tankTemperaturesData, switchStatus, airQualityData, encoderData}) => {
-  console.log(tankTemperaturesData)
+const SensorData = ({className}) => {
+  const {
+    encoderData,
+    gyroscopeData,
+    milkQuantityData,
+    tankTemperaturesData,
+    switchStatus,
+    weightData,
+    airQualityData,
+  } = useDataStore((state) => state);
+
   return (
     <div className={`p-4 ${className}`}>
       <h2 className="text-xl font-bold mb-4">Sensor Data</h2>
@@ -19,7 +27,7 @@ const SensorData = ({ className, milkQuantityData, tankTemperaturesData, switchS
         <MagneticSwitch switchStatus={switchStatus} />
         <Encoder encoderData={encoderData} />
         <Gyroscope switchStatus={switchStatus} />
-        <AirQuality airQualityData={airQualityData}/>
+        <AirQuality airQualityData={airQualityData} />
       </div>
     </div>
   );
