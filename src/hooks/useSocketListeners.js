@@ -13,6 +13,8 @@ const useSocketListeners = (socket, selectedRoom) => {
 
   useEffect(() => {
     const setupListeners = () => {
+      socket.on("connect", () => {"Conectado al servidor"});
+      socket.on("disconnect",  () => {"Desconectado del servidor"});
       socket.on("synthetic-farm-1/encoder", setEncoderData);
       socket.on("synthetic-farm-1/6_dof_imu", setGyroscopeData);
       socket.on("synthetic-farm-1/tank_distance", setMilkQuantityData);
@@ -22,6 +24,8 @@ const useSocketListeners = (socket, selectedRoom) => {
       socket.on("synthetic-farm-1/air_quality", setAirQualityData);
 
       return () => {
+        socket.off("connect", () => {"Conectado al servidor"});
+        socket.off("disconnect", () => {"Desconectado del servidor"});
         socket.off("synthetic-farm-1/encoder", setEncoderData);
         socket.off("synthetic-farm-1/6_dof_imu", setGyroscopeData);
         socket.off("synthetic-farm-1/tank_distance", setMilkQuantityData);

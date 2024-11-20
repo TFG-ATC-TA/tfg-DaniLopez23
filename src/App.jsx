@@ -6,40 +6,57 @@ import Header from "./components/Header";
 import SensorData from "./components/sensorData/SensorData";
 import TankModel from "./components/TankModel";
 import TankInformation from "./components/TankInformation";
-import useSocketListeners from "./hooks/useSocketListeners";
 
 export default function App() {
+  const [milkQuantityData, setMilkQuantityData] = useState(null);
+  const [encoderData, setEncoderData] = useState(null);
+  const [gyroscopeData, setGyroscopeData] = useState(null);
+  const [switchStatus, setSwitchStatus] = useState(null);
+  const [tankTemperaturesData, setTankTemperaturesData] = useState(null);
+  const [airQualityData, setAirQualityData] = useState(null);
+  const [weightData, setWeightData] = useState(null);
 
   const [farmData, setFarmData] = useState({});
   const [serverStatus, setServerStatus] = useState("connecting");
   const [selectedTank, setSelectedTank] = useState(null);
 
-  const {
-    encoderData,
-    gyroscopeData,
-    milkQuantityData,
-    tankTemperaturesData,
-    switchStatus,
-    weightData,
-    airQualityData,
-  } = useSocketListeners(socket, selectedTank);
+  useEffect(() => {
+    const cleanup = setupSocketListeners(
+      socket,
+      setEncoderData,
+      setGyroscopeData,
+      setMilkQuantityData,
+      setTankTemperaturesData,
+      setSwitchStatus,
+      setWeightData,
+      setAirQualityData
+    );
 
+    socket.on("connect", () => setServerStatus("connected"));
+    socket.on("disconnect", () => setServerStatus("disconnected"));
+
+    return () => {
+      cleanup();
+      socket.off("connect");
+      socket.off("disconnect");
+    };
+  }, []);
 
   useEffect(() => {
     getFarm().then((data) => {
-      const farm = data;
-      setFarmData(farm);
-      if (farm.tanks && farm.tanks.length > 0) {
-        setSelectedTank(farm.tanks[0]);
-      }
+        const farm = data;
+        setFarmData(farm);
+        if (farm.equipments && farm.equipments.length > 0) {
+          setSelectedTank(farm.equipments[0]);
+        }
     });
   }, []);
 
   return (
     <div className="flex flex-col h-screen bg-gray-100">
-      <Header
-        farmData={farmData}
-        serverStatus={serverStatus}
+      <Header 
+        farmData={farmData} 
+        serverStatus={serverStatus} 
         selectedTank={selectedTank}
         setSelectedTank={setSelectedTank}
       />
