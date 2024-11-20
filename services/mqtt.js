@@ -42,7 +42,7 @@ const connect = () => {
     const boardId = processedData.tags.board_id; // Suponiendo que el mensaje contiene el board-id
     
     if (messageHandler) {
-      messageHandler(boardId, processedData);
+      messageHandler(boardId, topic, processedData);
     }
   });
 
