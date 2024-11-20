@@ -1,44 +1,38 @@
 import { useEffect, useState } from "react";
-import useSocketStore from "./Stores/useSocketStore";
 import useTankStore from "./Stores/useTankStore";
-import useSocketSetup from "./hooks/useSocketSetup";
+import { createSocket } from "./WebSockets/Socket";
 import { getFarm } from "./services/farm";
 import Header from "./components/Header";
 import SensorData from "./components/sensorData/SensorData";
 import TankModel from "./components/TankModel";
 import TankInformation from "./components/TankInformation";
+import { setupSocketListeners } from "./WebSockets/SetupSocketListeners";
 
 const FARM_ID = "synthetic-farm-1";
+const socket = createSocket();
 
 export default function App() {
-
-  const { selectedTank, setSelectedTank } = useTankStore((state) => (state));
+  const { selectedTank, setSelectedTank } = useTankStore((state) => state);
 
   const [farmData, setFarmData] = useState({});
-  const serverStatus = "connected";
+  const [serverStatus, setServerStatus] = useState("disconnected");
 
-  // Inicializar conexión del socket y obtener datos de la granja
+  // Obtener datos iniciales de la granja
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        const data = await getFarm(); // Obtener datos de la granja
+        const data = await getFarm();
         setFarmData(data);
-        setSelectedTank(data.equipments?.[0] || null); // Seleccionar el primer tanque por defecto
+        setSelectedTank(data.equipments?.[0] || null); // Seleccionar tanque inicial
       } catch (error) {
-        console.error("App initialization error:", error);
+        console.error("Error al inicializar la aplicación:", error);
       }
     };
 
     initializeApp();
-
-    // Cleanup: desconectar socket al desmontar componente
-    return () => {
-      disconnect();
-    };
   }, [setSelectedTank]);
 
-  // Configurar listeners del socket para datos del tanque
-  useSocketSetup(FARM_ID);
+  setupSocketListeners(socket);
 
   return (
     <div className="flex flex-col h-screen bg-gray-100">

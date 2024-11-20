@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-let socket = null; // Mantén una referencia única a la instancia del socket
+let socket = null;
 
 export const createSocket = (url = "http://localhost:3001", options = {}) => {
   if (socket) {
@@ -17,25 +17,5 @@ export const createSocket = (url = "http://localhost:3001", options = {}) => {
     ...options,
   });
 
-  // Listeners globales del socket
-  socket.on("connect", () => console.log("Conectado al servidor WebSocket"));
-  socket.on("disconnect", (reason) => console.log("Desconectado:", reason));
-  socket.on("connect_error", (error) => console.error("Error al conectar:", error));
-
   return socket;
-};
-
-export const getSocket = () => {
-  if (!socket) {
-    throw new Error("Socket no inicializado. Llama a createSocket primero.");
-  }
-  return socket;
-};
-
-export const closeSocket = () => {
-  if (socket) {
-    socket.disconnect();
-    socket = null;
-    console.log("Socket desconectado y referencia eliminada.");
-  }
 };
