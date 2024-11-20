@@ -3,7 +3,7 @@ import useSocketStore from "../Stores/useSocketStore";
 import useDataStore from "../Stores/useDataStore";
 import useTankStore from "@/Stores/useTankStore";
 const useSocketSetup = (farmId) => {
-  const { socket, stopListeningToEvent, joinRoom, listenToEvent, connected } = useSocketStore((state) => state);
+  const { stopListeningToEvent, joinRoom, listenToEvent, connected } = useSocketStore((state) => state);
   const {
     updateEncoderData,
     updateGyroscopeData,
