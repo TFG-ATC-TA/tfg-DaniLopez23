@@ -50,7 +50,15 @@ const emitToTank = (boardId, event, data) => {
   }
 };
 
+const emitToAll = (event, data) => {
+  if (io) {
+    io.emit(event, data);
+    console.log(`Emitting to all: ${event}`);
+  }
+};
+
 module.exports = {
   initializeWebSocket,
   emitToTank,
+  emitToAll,
 };
