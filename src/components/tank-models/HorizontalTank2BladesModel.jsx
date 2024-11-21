@@ -5,20 +5,21 @@ import CallOutText from "./CallOutText";
 import CallOutTextTemperatures from "./CallOutTextTemperatures";
 import CallOutTextMilkQuantity from "./CallOutTextMilkQuantity";
 import CallOutTextAirQuality from "./CallOutTextAirQuality";
+import useDataStore from "@/Stores/useDataStore";
 
-export default function HorizontalTank2BladesModel({
-  encoderData,
-  milkQuantityData,
-  switchStatus,
-  weightData,
-  gyroscopeData,
-  tankTemperaturesData,
-  airQualityData,
-  tankStations
-}) {
+export default function HorizontalTank2BladesModel() {
   const { nodes, materials } = useGLTF(
     "/horizontalTankModel/2Pales/HorizontalTank2BladesModel.glb"
   );
+
+  const {
+    encoderData,
+    milkQuantityData,
+    switchStatus,
+    weightData,
+    tankTemperaturesData,
+    airQualityData,
+  } = useDataStore((state) => state);
   
 
 

@@ -1,38 +1,15 @@
-import { useEffect, useState } from "react";
+import { useSocket } from './WebSockets/SocketProvider';
 import useTankStore from "./Stores/useTankStore";
-import { createSocket } from "./WebSockets/Socket";
-import { getFarm } from "./services/farm";
+import useDataStore from "./Stores/useDataStore";
 import Header from "./components/Header";
 import SensorData from "./components/sensorData/SensorData";
 import TankModel from "./components/TankModel";
 import TankInformation from "./components/TankInformation";
-import { setupSocketListeners } from "./WebSockets/SetupSocketListeners";
-
-const FARM_ID = "synthetic-farm-1";
-const socket = createSocket();
 
 export default function App() {
-  const { selectedTank, setSelectedTank } = useTankStore((state) => state);
-
-  const [farmData, setFarmData] = useState({});
-  const [serverStatus, setServerStatus] = useState("disconnected");
-
-  // Obtener datos iniciales de la granja
-  useEffect(() => {
-    const initializeApp = async () => {
-      try {
-        const data = await getFarm();
-        setFarmData(data);
-        setSelectedTank(data.equipments?.[0] || null); // Seleccionar tanque inicial
-      } catch (error) {
-        console.error("Error al inicializar la aplicación:", error);
-      }
-    };
-
-    initializeApp();
-  }, [setSelectedTank]);
-
-  setupSocketListeners(socket);
+  const { serverStatus } = useSocket();
+  const { selectedTank } = useTankStore((state) => state);
+  const { farmData } = useDataStore((state) => state);
 
   return (
     <div className="flex flex-col h-screen bg-gray-100">
