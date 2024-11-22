@@ -1,21 +1,18 @@
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
-const config = require("./utils/config");
+const config = require("./config/index");
 const mongoose = require('mongoose');
 
-const MONGO_URI = config.MONGO_URI;
+const MONGO_URI = config.mongoDB.MONGO_URI_LOCAL;
 
 const farmRouter = require("./controllers/Farm"); 
-const tankRouter = require("./controllers/Tank");
-const boardRouter = require("./controllers/Board");
 
-const MqttHandler = require("./utils/handlers/MqttHandler");
-const WebSocketHandler = require("./utils/handlers/WebSocketHandler");
+
+const mqttService = require("./services/mqtt");
+const webSocketsService = require("./services/webSockets");
 
 const app = express();
-
-const dataHandling = require("./utils/dataHandling");
 
 const corsOptions = {
   origin: "http://localhost:5173", // Asegúrate de que esta URL sea la correcta
@@ -25,28 +22,26 @@ app.use(cors(corsOptions)); // Configura el middleware de CORS
 app.use(express.json()); 
 
 mongoose.connect(MONGO_URI).then(() => {
-  console.log('Connected to MongoDB');
+  console.log('Connected to MongoDB :' + MONGO_URI);
 }).catch((err) => {
   console.log('Error connecting to MongoDB', err);
 });
 
 const server = http.createServer(app);
-const webSocketHandler = new WebSocketHandler(server);
-webSocketHandler.init();
 
-const mqttClient = new MqttHandler();
-mqttClient.connect();
+webSocketsService.initializeWebSocket(server);
+
+mqttService.connect(); 
 
 app.use("/farms", farmRouter);
-app.use("/tanks", tankRouter);
-app.use("/boards", boardRouter);
 
-// Establece el manejador para los mensajes entrantes
-mqttClient.onMessage((topic, message) => {
 
-  const processedData = dataHandling.processData(topic, message); // Procesar los datos
 
-  webSocketHandler.emit(topic, processedData); // Emitir a todos los clientes
+// Establece el manejador para los mensajes entrantes desde MQTT
+mqttService.onMessage((boardId, topic, data) => {
+  // webSocketsService.emitToAll(topic, data);
+  
+  webSocketsService.emitToTank(boardId ,topic, data);
 });
 
 module.exports = { app, server };

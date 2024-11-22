@@ -1,16 +1,4 @@
-const getTopics = require("./farmConfig");
-
-let topics = null;
-
-const initializeTopics = async () => {
-  try {
-    topics = await getTopics();
-  } catch (error) {
-    console.error("Error initializing topics:", error);
-  }
-};
-
-initializeTopics();
+const topics = require("./topics");
 
 const TANK_HEIGHT = 4000; // 2000 mm ; 2m
 
@@ -205,7 +193,6 @@ const getBoardStatusData = (rawData) => {
   return result;
 };
 
-// Define a mapping object to associate each topic with its processing function
 const topicHandlers = {
   "synthetic-farm-1/6_dof_imu": getGyroscopeData,
   "synthetic-farm-1/tank_temperature_probes": getTankTemperaturesData,
@@ -226,7 +213,6 @@ const processData = (topic, rawData) => {
 
   const handler = topicHandlers[topic];
   if (handler) {
-    console.log(`Processing... ${handler.name} `);
     return handler(rawData);
   } else {
     console.log("Topic not found");

@@ -2,11 +2,11 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "backend for digital twin",
-  "main": "index.js",
+  "main": "bin/www",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "node bin/www",
+    "dev": "nodemon bin/www"
   },
   "author": "Daniel Lopez Paredes",
   "license": "ISC",
