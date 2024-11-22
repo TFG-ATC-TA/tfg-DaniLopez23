@@ -27,6 +27,14 @@ const TankModel = () => {
     selectedTank
   } = useTankStore((state) => state);
 
+  const {
+    encoderData,
+    milkQuantityData,
+    switchStatus,
+    weightData,
+    tankTemperaturesData,
+    airQualityData,
+  } = useDataStore((state) => state);
   return (
     <div className="h-full">
       <Canvas>
@@ -36,7 +44,14 @@ const TankModel = () => {
           {farmData.equipments &&
             farmData.equipments.map((tank) =>
               selectedTank && selectedTank._id === tank._id ? (
-                <HorizontalTank2BladesModel key={tank._id}/>
+                <HorizontalTank2BladesModel key={tank._id}
+                  encoderData={encoderData}
+                  milkQuantityData={milkQuantityData}
+                  switchStatus={switchStatus}
+                  weightData={weightData}
+                  tankTemperaturesData={tankTemperaturesData}
+                  airQualityData={airQualityData}
+                />
               ) : (
                 "No tank selected"
               )

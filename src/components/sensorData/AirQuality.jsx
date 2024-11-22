@@ -15,23 +15,6 @@ const AirQuality = ({ airQualityData }) => {
             <p className="text-xs text-muted-foreground mb-2">
               Last update: {airQualityData.readableDate}
             </p>
-            <div className="grid grid-cols-3 gap-2">
-              <div className="flex flex-col items-center">
-                <span className="text-xs font-medium">Temperature</span>
-                <span className="text-lg font-bold">{airQualityData.raw_temperature}</span>
-                <span className="text-xs text-muted-foreground">rad/s</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <span className="text-xs font-medium">Y</span>
-                <span className="text-lg font-bold">{gyroscopeData.fields.gyro_y.toFixed(2)}</span>
-                <span className="text-xs text-muted-foreground">rad/s</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <span className="text-xs font-medium">Z</span>
-                <span className="text-lg font-bold">{gyroscopeData.fields.gyro_z.toFixed(2)}</span>
-                <span className="text-xs text-muted-foreground">rad/s</span>
-              </div>
-            </div>
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">No data received yet</p>

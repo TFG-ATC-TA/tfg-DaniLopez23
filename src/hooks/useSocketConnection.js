@@ -27,41 +27,41 @@ export const useSocketConnection = () => {
 
     const setupSocketListeners = () => {
       socket.on("connect", () => {
-        console.log("Connected to server");
+        //console.log("Connected to server");
         setServerStatus("connected");
       });
 
       socket.on("disconnect", () => {
-        console.log("Disconnected from server");
+        //console.log("Disconnected from server");
         setServerStatus("disconnected");
       });
 
       socket.on(`${FARM_ID}/encoder`, (data) => {
-        console.log("Encoder data received:", data);
+        //console.log("Encoder data received:", data);
         updateEncoderData(data);
       });
       socket.on(`${FARM_ID}/6_dof_imu`, (data) => {
-        console.log("Gyroscope data received:", data);
+        //console.log("Gyroscope data received:", data);
         updateGyroscopeData(data);
       });
       socket.on(`${FARM_ID}/tank_distance`, (data) => {
-        console.log("Milk quantity data received:", data);
+        //console.log("Milk quantity data received:", data);
         updateMilkQuantityData(data);
       });
       socket.on(`${FARM_ID}/tank_temperature_probes`, (data) => {
-        console.log("Tank temperatures data received:", data);
+        //console.log("Tank temperatures data received:", data);
         updateTankTemperaturesData(data);
       });
       socket.on(`${FARM_ID}/magnetic_switch`, (data) => {
-        console.log("Switch status received:", data);
+        //console.log("Switch status received:", data);
         updateSwitchStatus(data);
       });
       socket.on(`${FARM_ID}/weight`, (data) => {
-        console.log("Weight data received:", data);
+        //console.log("Weight data received:", data);
         updateWeightData(data);
       });
       socket.on(`${FARM_ID}/air_quality`, (data) => {
-        console.log("Air quality data received:", data);
+        //console.log("Air quality data received:", data);
         updateAirQualityData(data);
       });
     };

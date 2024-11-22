@@ -26,7 +26,7 @@ const SensorData = ({className}) => {
         <TankTemperatures tankTemperaturesData={tankTemperaturesData} />
         <MagneticSwitch switchStatus={switchStatus} />
         <Encoder encoderData={encoderData} />
-        <Gyroscope switchStatus={switchStatus} />
+        <Gyroscope gyroscopeData={gyroscopeData} />
         <AirQuality airQualityData={airQualityData} />
       </div>
     </div>
