@@ -1,4 +1,4 @@
-import { OrbitControls, Plane } from "@react-three/drei";
+import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Suspense } from "react";
 import useDataStore from "@/Stores/useDataStore";
@@ -6,18 +6,6 @@ import HorizontalTank2BladesModel from "./tank-models/HorizontalTank2BladesModel
 import useTankStore from "@/Stores/useTankStore";
 
 const TankModel = () => {
-  // const checkDataIsFromTank = (data, tankStations) => {
-  //   if (data == null) return false;
-  //   if (tankStations == null || tankStations.length === 0) return false;
-
-  //   const boardIds = tankStations.map((station) => station.board.boardId);
-  //   console.log(`${data.measurement} ${data.tags.board_id} - ${boardIds}`);
-  //   if (boardIds.includes(data.tags.board_id)) {
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // };
 
   const {
     farmData

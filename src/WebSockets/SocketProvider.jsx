@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { createSocket } from "@/WebSockets/Socket";
 import useDataStore from "@/Stores/useDataStore";
 import useTankStore from "@/Stores/useTankStore";
@@ -26,37 +26,44 @@ export function SocketProvider({ children }) {
 
   const { setSelectedTank } = useTankStore((state) => state);
 
+  const joinRooms = useCallback((boardIds) => {
+    if (socket && Array.isArray(boardIds)) {
+      socket.emit("selectTank", boardIds);
+    }
+  }, [socket]);
+
   const onEncoderData = (data) => {
-    console.log("Encoder data received:", data);
+    console.log("Encoder data received:", data.tags.board_id);
     updateEncoderData(data);
   };
 
   const onGyroscopeData = (data) => {
+    console.log("Gyroscope data received:", data.tags.board_id);
     updateGyroscopeData(data);
   };
 
   const onMilkQuantityData = (data) => {
-    console.log("Milk quantity data received:", data);
+    console.log("Milk quantity data received:", data.tags.board_id);
     updateMilkQuantityData(data);
   };
 
   const onTankTemperature = (data) => {
-    console.log("Tank temperature data received:", data);
+    console.log("Tank temperatures data received:", data.tags.board_id);
     updateTankTemperaturesData(data);
   };
 
   const onWeightData = (data) => {
-    console.log("Weight data received:", data);
+    console.log("Weight data received:", data.tags.board_id);
     updateWeightData(data);
   };
 
   const onSwitch = (data) => {
-    console.log("Switch data received:", data);
+    console.log("Switch status received:", data.tags.board_id);
     updateSwitchStatus(data);
   };
 
   const onAirQualityData = (data) => {
-    console.log("Air quality data received:", data);
+    console.log("Air quality data received:", data.tags.board_id);
     updateAirQualityData(data);
   };
 
@@ -87,8 +94,18 @@ export function SocketProvider({ children }) {
     const initializeApp = async () => {
       try {
         const data = await getFarm();
+        console.log("Farm data received:", data);
         setFarmData(data);
-        setSelectedTank(data.equipments?.[0] || null);
+        const firstMilkTank = data.equipments.find(
+          (tank) => tank.type === "Tanque de leche"
+        );
+        setSelectedTank(firstMilkTank);
+
+        if (firstMilkTank && firstMilkTank.devices) {
+          const boardIds = firstMilkTank.devices.map(device => device.boardId).filter(Boolean);
+          joinRooms(boardIds);
+          console.log("Joining rooms for boards:", boardIds);
+        }
       } catch (error) {
         console.error("Error initializing the application:", error);
       }
@@ -101,10 +118,10 @@ export function SocketProvider({ children }) {
     return () => {
       newSocket.disconnect();
     };
-  }, []);
+  }, [setFarmData, setSelectedTank, joinRooms]);
 
   return (
-    <SocketContext.Provider value={{ socket, serverStatus }}>
+    <SocketContext.Provider value={{ socket, serverStatus, joinRooms }}>
       {children}
     </SocketContext.Provider>
   );

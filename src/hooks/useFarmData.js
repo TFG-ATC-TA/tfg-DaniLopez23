@@ -1,20 +1,40 @@
-import { useEffect, useState } from "react";
-import { getFarm } from "../services/farm";
+import { useEffect } from "react";
+import { getFarm, getBoardsByTank } from "../services/farm";
+import  useDataStore  from "../Stores/useDataStore";
+import useTankStore from "../Stores/useTankStore";
 
 const useFarmData = () => {
-  const [farmData, setFarmData] = useState({});
-  const [selectedTank, setSelectedTank] = useState(null);
+
+  const {setFarmData} = useDataStore((state) => (state))
+  const {setSelectedTank, setBoardsByTank} = useTankStore((state) => (state))
 
   useEffect(() => {
-    getFarm().then((data) => {
-      setFarmData(data);
-      if (data.equipments && data.equipments.length > 0) {
-        setSelectedTank(data.equipments[0]);
+    const fetchData = async () => {
+      try {
+        const data = await getFarm();
+        setFarmData(data);
+
+        if (data && data.equipments) {
+          const boards = getBoardsByTank(data);
+          setBoardsByTank(boards);
+
+          const firstMilkTank = data.equipments.find(
+            (tank) => tank.type === "Tanque de leche"
+          );
+          if (firstMilkTank) {
+            setSelectedTank(firstMilkTank);
+          }
+        } else {
+          console.log("No equipment data found in farm data");
+        }
+      } catch (error) {
+        console.error("Error fetching farm data:", error);
       }
-    });
+    };
+
+    fetchData();
   }, []);
 
-  return { farmData, selectedTank, setSelectedTank };
 };
 
 export default useFarmData;

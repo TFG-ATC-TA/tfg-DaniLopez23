@@ -16,8 +16,8 @@ const MagneticSwitch = ({ switchStatus }) => {
               Last update: {switchStatus.readableDate}
             </p>
             <div className="flex items-center justify-center">
-              <span className={`text-2xl font-bold ${switchStatus === 0 ? 'text-red-500' : 'text-green-500'}`}>
-                {switchStatus === 0 ? "Closed" : "Opened"}
+              <span className={`text-2xl font-bold ${switchStatus.status === 0 ? 'text-red-500' : 'text-green-500'}`}>
+                {switchStatus.status === 0 ? "Closed" : "Opened"}
               </span>
             </div>
           </div>

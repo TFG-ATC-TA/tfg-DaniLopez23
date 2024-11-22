@@ -1,9 +1,6 @@
-import React from "react";
 import { useGLTF } from "@react-three/drei";
 import { useSpring, animated } from "@react-spring/three";
 import CallOutText from "./CallOutText";
-import CallOutTextTemperatures from "./CallOutTextTemperatures";
-import CallOutTextMilkQuantity from "./CallOutTextMilkQuantity";
 import CallOutTextAirQuality from "./CallOutTextAirQuality";
 
 export default function HorizontalTank2BladesModel({
@@ -17,13 +14,7 @@ export default function HorizontalTank2BladesModel({
   const { nodes, materials } = useGLTF(
     "/horizontalTankModel/2Pales/HorizontalTank2BladesModel.glb"
   );
-  	
-  console.log("encoderData", encoderData);
-  console.log("milkQuantityData", milkQuantityData);
-  console.log("switchStatus", switchStatus);
-  console.log("weightData", weightData);
-  console.log("tankTemperaturesData", tankTemperaturesData);
-  console.log("airQualityData", airQualityData);
+
   
   const getRotationDuration = (encoderData) => {
     if (encoderData === null || encoderData <= 0) return 0; // Duración máxima si encoderData es nulo o menor o igual a cero

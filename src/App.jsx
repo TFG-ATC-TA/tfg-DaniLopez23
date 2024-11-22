@@ -5,11 +5,13 @@ import Header from "./components/Header";
 import SensorData from "./components/sensorData/SensorData";
 import TankModel from "./components/TankModel";
 import TankInformation from "./components/TankInformation";
+import useFarmData from './hooks/useFarmData';
 
 export default function App() {
   const { serverStatus } = useSocket();
   const { selectedTank } = useTankStore((state) => state);
   const { farmData } = useDataStore((state) => state);
+
 
   return (
     <div className="flex flex-col h-screen bg-gray-100">

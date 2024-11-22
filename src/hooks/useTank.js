@@ -1,23 +1,39 @@
-import { useEffect } from "react";
-import useSocketStore from "@/Stores/useSocketStore"; // Importar el store para acceder al socket
+import { useEffect, useCallback } from "react";
 import useTankStore from "@/Stores/useTankStore";
+import { useSocket } from "@/WebSockets/SocketProvider";
 
 export const useTank = () => {
-  const { selectTank, selectedTank } = useTankStore((state) => state); // Obtener el tanque seleccionado y la función de selección
-  const { joinRoom, leaveRoom } = useSocketStore((state) => state); // Obtener el socket y las funciones de unirse/salir de rooms
-    
-  
+  const { selectedTank, setSelectedTank } = useTankStore((state) => state);
+  const { joinRooms } = useSocket();
+
+  const changeSelectedTank = useCallback((newTank) => {
+    // Select the new tank
+    setSelectedTank(newTank);
+
+    // Join the rooms for the new tank
+    if (newTank.devices && Array.isArray(newTank.devices)) {
+      const boardIds = newTank.devices
+        .map(device => device.boardId)
+        .filter(Boolean);
+      
+      joinRooms(boardIds);
+    } else {
+      console.warn("New tank has no devices or devices is not an array");
+    }
+  }, [setSelectedTank, joinRooms]);
+
   useEffect(() => {
     if (selectedTank) {
-      // Unirse a la room del tanque seleccionado al cambiar de tanque
-      joinRoom(selectedTank._id); // Asumiendo que 'roomName' es el identificador único de la room para el tanque
-
-      // Limpiar la suscripción y salir de la room cuando el tanque cambie o cuando el componente se desmonte
-      return () => {
-        leaveRoom(selectedTank._id); // Salir de la room del tanque seleccionado
-      };
+      // Join rooms for the initially selected tank
+      if (selectedTank.devices && Array.isArray(selectedTank.devices)) {
+        const boardIds = selectedTank.devices
+          .map(device => device.boardId)
+          .filter(Boolean);
+        
+        joinRooms(boardIds);
+      }
     }
-  }, [selectedTank, joinRoom, leaveRoom]); // Dependencias actualizadas para garantizar la correcta ejecución
+  }, [selectedTank, joinRooms]);
 
-  return { selectedTank, selectTank }; // Retornar el tanque seleccionado y la función para cambiar el tanque
+  return { selectedTank, changeSelectedTank };
 };

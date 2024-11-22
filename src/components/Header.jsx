@@ -1,17 +1,31 @@
 import { Home, Server, Wifi, WifiOff } from "lucide-react";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-import useTankStore from "@/Stores/useTankStore";
+import { useTank } from "@/hooks/useTank";
 
-const Header = ({ serverStatus, farmData}) => {
-  const {selectedTank, setSelectedTank} = useTankStore()
+const Header = ({ serverStatus, farmData }) => {
+  const { selectedTank, changeSelectedTank } = useTank();
 
   const handleTankChange = (tankId) => {
-    const tank = farmData.equipments.find(tank => tank._id === tankId)
-    setSelectedTank(tank)
-  }
+    const tank = farmData.equipments.find((tank) => tank._id === tankId);
+    console.log("Changed tank:", tank.name);
+
+    if (tank) {
+      changeSelectedTank(tank);
+    }
+  };
+
+  const getMilkTanks = (equipments) => {
+    return equipments.filter((tank) => tank.type === "Tanque de leche");
+  };
 
   return (
     <div className="bg-white p-4 shadow-md flex justify-between items-center">
@@ -21,29 +35,38 @@ const Header = ({ serverStatus, farmData}) => {
           <h2 className="text-xl font-bold mb-2">Farm Information</h2>
           {farmData ? (
             <div className="flex space-x-4 text-sm">
-              <p><strong>Id:</strong> {farmData.idname}</p>
-              <p><strong>Location:</strong> {farmData.name}</p>
-              <p><strong>Tanks:</strong> {farmData.equipments ? farmData.equipments.length : 0}</p>
+              <p>
+                <strong>Id:</strong> {farmData.idname}
+              </p>
+              <p>
+                <strong>Location:</strong> {farmData.name}
+              </p>
+              <p>
+                <strong>Tanks:</strong>{" "}
+                {farmData.equipments ? farmData.equipments.length : 0}
+              </p>
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">Loading farm data...</p>
+            <p className="text-sm text-muted-foreground">
+              Loading farm data...
+            </p>
           )}
         </div>
       </div>
-      
+
       <div className="flex-1 mx-8">
         <h3 className="text-xl font-bold mb-2">Select Tank</h3>
-        <Select 
-          value={selectedTank?._id} 
-          onValueChange={handleTankChange}
-        >
+        <Select value={selectedTank?._id} onValueChange={handleTankChange}>
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Select a tank" />
           </SelectTrigger>
           <SelectContent>
-            {farmData.equipments && farmData.equipments.map((tank) => (
-              <SelectItem key={tank._id} value={tank._id}>{tank.name}</SelectItem>
-            ))}
+            {farmData.equipments &&
+              getMilkTanks(farmData.equipments).map((tank) => (
+                <SelectItem key={tank._id} value={tank._id}>
+                  {tank.name}
+                </SelectItem>
+              ))}
           </SelectContent>
         </Select>
       </div>
@@ -54,17 +77,23 @@ const Header = ({ serverStatus, farmData}) => {
         {serverStatus === "connected" ? (
           <>
             <Wifi className="text-green-500" />
-            <Badge variant="outline" className="bg-green-100 text-green-800">Connected</Badge>
+            <Badge variant="outline" className="bg-green-100 text-green-800">
+              Connected
+            </Badge>
           </>
         ) : serverStatus === "disconnected" ? (
           <>
             <WifiOff className="text-red-500" />
-            <Badge variant="outline" className="bg-red-100 text-red-800">Disconnected</Badge>
+            <Badge variant="outline" className="bg-red-100 text-red-800">
+              Disconnected
+            </Badge>
           </>
         ) : (
           <>
             <Wifi className="text-yellow-500 animate-pulse" />
-            <Badge variant="outline" className="bg-yellow-100 text-yellow-800">Connecting</Badge>
+            <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
+              Connecting
+            </Badge>
           </>
         )}
       </div>
@@ -77,11 +106,19 @@ Header.propTypes = {
   farmData: PropTypes.shape({
     idname: PropTypes.string,
     name: PropTypes.string,
-    equipments: PropTypes.arrayOf(PropTypes.shape({
-      _id: PropTypes.string,
-      name: PropTypes.string
-    }))
-  })
+    equipments: PropTypes.arrayOf(
+      PropTypes.shape({
+        _id: PropTypes.string,
+        name: PropTypes.string,
+        type: PropTypes.string,
+        devices: PropTypes.arrayOf(
+          PropTypes.shape({
+            boardId: PropTypes.string,
+          })
+        ),
+      })
+    ),
+  }),
 };
 
 export default Header;
