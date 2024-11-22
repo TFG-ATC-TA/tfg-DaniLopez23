@@ -17,18 +17,34 @@ const initializeWebSocket = (server) => {
     let currentTankId = null;
 
     // Escucha el evento de cambio de tanque
-    socket.on("selectTank", (tank) => {
-      const tankId = tank.id;
-      if (currentTankId !== null && currentTankId !== tankId) {
-        // Si el cliente ya está en otro tanque, sale de la room anterior
-        socket.leave(currentTankId);
-        console.log(`Socket ${socket.id} left room for tank: ${currentTankId}`);
+    let currentRooms = new Set(); // Almacena las rooms a las que está conectado el socket
+
+    socket.on("selectTank", (boardIds) => {
+      if (!Array.isArray(boardIds)) {
+        console.error("Invalid boardIds format. Expected an array.");
+        return;
       }
 
-      // El cliente se une a la nueva room correspondiente al tanque seleccionado
-      socket.join(tankId);
-      currentTankId = tankId; // Actualizamos el tanque actual del cliente
-      console.log(`Socket ${socket.id} joined room for tank: ${tankId}`);
+      const newRooms = new Set(boardIds);
+
+      // Salir de las rooms que ya no están en los nuevos boardIds
+      for (const room of currentRooms) {
+        if (!newRooms.has(room)) {
+          socket.leave(room);
+          console.log(`Socket ${socket.id} left room: ${room}`);
+        }
+      }
+
+      // Unirse a las nuevas rooms
+      for (const room of newRooms) {
+        if (!currentRooms.has(room)) {
+          socket.join(room);
+          console.log(`Socket ${socket.id} joined room: ${room}`);
+        }
+      }
+
+      // Actualizar las rooms actuales
+      currentRooms = newRooms;
     });
 
     socket.on("disconnect", () => {
@@ -39,7 +55,7 @@ const initializeWebSocket = (server) => {
 
 // Función para emitir mensajes solo a la room del tanque seleccionado
 const emitToTank = (boardId, event, data) => {
-  if(boardId===undefined) {
+  if (boardId === undefined) {
     console.log("No tank selected");
     return;
   }
