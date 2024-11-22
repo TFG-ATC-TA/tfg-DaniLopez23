@@ -1,9 +1,6 @@
-import React from "react";
 import { useGLTF } from "@react-three/drei";
 import { useSpring, animated } from "@react-spring/three";
 import CallOutText from "./CallOutText";
-import CallOutTextTemperatures from "./CallOutTextTemperatures";
-import CallOutTextMilkQuantity from "./CallOutTextMilkQuantity";
 import CallOutTextAirQuality from "./CallOutTextAirQuality";
 
 export default function HorizontalTank2BladesModel({
@@ -11,17 +8,14 @@ export default function HorizontalTank2BladesModel({
   milkQuantityData,
   switchStatus,
   weightData,
-  gyroscopeData,
   tankTemperaturesData,
   airQualityData,
-  tankStations
 }) {
   const { nodes, materials } = useGLTF(
     "/horizontalTankModel/2Pales/HorizontalTank2BladesModel.glb"
   );
+
   
-
-
   const getRotationDuration = (encoderData) => {
     if (encoderData === null || encoderData <= 0) return 0; // Duración máxima si encoderData es nulo o menor o igual a cero
     const minDuration = 1000; // Duración mínima (animación rápida)
@@ -199,12 +193,6 @@ export default function HorizontalTank2BladesModel({
         text={`Weight: ${
           weightData == null ? "No Data" : weightData.weight + "kg"
         } `}
-      />
-      <CallOutTextTemperatures
-        position={[-1.2, 1.8, -3.8]}
-        overSurface={tankTemperaturesData?.over_surface_temperature}
-        onSurface={tankTemperaturesData?.surface_temperature}
-        underSurface={tankTemperaturesData?.submerged_temperature}
       />
 
       <CallOutTextAirQuality

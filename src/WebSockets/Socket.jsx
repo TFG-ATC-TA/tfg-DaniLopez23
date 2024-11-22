@@ -1,6 +1,21 @@
-import { io } from 'socket.io-client';
+import { io } from "socket.io-client";
 
-// "undefined" means the URL will be computed from the `window.location` object
-const URL = 'http://localhost:3001';
+let socket = null;
 
-export const socket = io(URL);
+export const createSocket = (url = "http://localhost:3001", options = {}) => {
+  if (socket) {
+    console.warn("Socket ya inicializado. Usando la instancia existente.");
+    return socket;
+  }
+
+  // Crear nueva instancia de Socket.IO
+  socket = io(url, {
+    autoConnect: false,
+    reconnection: true,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 1000,
+    ...options,
+  });
+
+  return socket;
+};

@@ -1,12 +1,15 @@
 import { Badge } from "@/components/ui/badge";
-import { Droplet, Scale, Ruler, Thermometer, Activity } from "lucide-react";
+import useTankStore from "@/Stores/useTankStore";
+import PropTypes from 'prop-types';
 
-const TankInformation = ({ selectedTank, className }) => {
+const TankInformation = ({ className }) => {
+
+  const selectedTank = useTankStore((state) => state.selectedTank);
   return (
     <div className={`bg-white shadow-sm p-4 rounded-lg ${className}`}>
       {selectedTank ? (
         <div className="flex flex-wrap justify-between items-center">
-          <InfoItem  label="Tank Name" value={selectedTank.tankName} />
+          <InfoItem  label="Tank Name" value={selectedTank.name} />
           <InfoItem  label="Capacity" value={`${selectedTank.capacity || 2500} liters`} />
           <InfoItem  label="Height" value="1.5 m" />
           <InfoItem  label="Weight" value="1000 kg" />
@@ -27,9 +30,23 @@ const InfoItem = ({ icon, label, value }) => (
     <div className="text-primary">{icon}</div>
     <div>
       <p className="text-md font-semibold">{label}</p>
-      <p className="text-sm">{value}</p>
+      <div className="text-sm">{value}</div>
     </div>
   </div>
 );
+
+InfoItem.propTypes = {
+  icon: PropTypes.element,
+  label: PropTypes.string,
+  value: PropTypes.node,
+};
+
+TankInformation.propTypes = {
+  selectedTank: PropTypes.shape({
+    name: PropTypes.string,
+    capacity: PropTypes.number,
+  }),
+  className: PropTypes.string,
+};
 
 export default TankInformation;
