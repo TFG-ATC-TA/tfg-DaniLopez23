@@ -40,7 +40,7 @@ const connect = () => {
     const processedData = dataHandling.processData(topic, message); // Procesar el mensaje
 
     const boardId = processedData.tags.board_id; // Suponiendo que el mensaje contiene el board-id
-    
+
     if (messageHandler) {
       messageHandler(boardId, topic, processedData);
     }

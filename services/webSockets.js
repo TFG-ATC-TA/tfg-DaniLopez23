@@ -13,9 +13,6 @@ const initializeWebSocket = (server) => {
   io.on("connection", (socket) => {
     console.log(`New client connected: ${socket.id}`);
 
-    // Variable para guardar el tanque al que está suscrito el cliente
-    let currentTankId = null;
-
     // Escucha el evento de cambio de tanque
     let currentRooms = new Set(); // Almacena las rooms a las que está conectado el socket
 
@@ -61,7 +58,7 @@ const emitToTank = (boardId, event, data) => {
   }
 
   if (io) {
-    io.to(boardId).emit(event, { boardId, data });
+    io.to(boardId).emit(event, data);
     console.log(`Emitting to room ${boardId}: ${event}`);
   }
 };

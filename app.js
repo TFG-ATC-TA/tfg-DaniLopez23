@@ -39,9 +39,9 @@ app.use("/farms", farmRouter);
 
 // Establece el manejador para los mensajes entrantes desde MQTT
 mqttService.onMessage((boardId, topic, data) => {
-  webSocketsService.emitToAll(topic, data);
+  // webSocketsService.emitToAll(topic, data);
   
-  //webSocketsService.emitToTank(boardId ,'new-data', data);
+  webSocketsService.emitToTank(boardId ,topic, data);
 });
 
 module.exports = { app, server };

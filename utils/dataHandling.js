@@ -213,7 +213,6 @@ const processData = (topic, rawData) => {
 
   const handler = topicHandlers[topic];
   if (handler) {
-    console.log(`Processing... ${handler.name} `);
     return handler(rawData);
   } else {
     console.log("Topic not found");
