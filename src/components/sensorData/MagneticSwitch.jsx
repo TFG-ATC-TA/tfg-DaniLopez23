@@ -10,7 +10,7 @@ const MagneticSwitch = ({ switchStatus }) => {
         <ToggleLeft className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        {switchStatus !== null ? (
+        {switchStatus ? (
           <div className="text-sm">
             <p className="text-xs text-muted-foreground mb-2">
               Last update: {switchStatus.readableDate}
