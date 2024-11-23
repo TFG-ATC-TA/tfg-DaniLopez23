@@ -5,7 +5,6 @@ import Header from "./components/Header";
 import SensorData from "./components/sensorData/SensorData";
 import TankModel from "./components/TankModel";
 import TankInformation from "./components/TankInformation";
-import useFarmData from './hooks/useFarmData';
 
 export default function App() {
   const { serverStatus } = useSocket();
