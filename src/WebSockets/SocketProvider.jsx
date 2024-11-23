@@ -29,6 +29,7 @@ export function SocketProvider({ children }) {
   const joinRooms = useCallback((boardIds) => {
     if (socket && Array.isArray(boardIds)) {
       socket.emit("selectTank", boardIds);
+      socket.emit("request last data", boardIds);
     }
   }, [socket]);
 
@@ -67,6 +68,17 @@ export function SocketProvider({ children }) {
     updateAirQualityData(data);
   };
 
+  const onLastData = (data) => {
+    console.log("Last data received:", data);
+    updateEncoderData(data.encoder);
+    updateGyroscopeData(data["6_dof_imu"]);
+    updateMilkQuantityData(data.tank_distance);
+    updateTankTemperaturesData(data.tank_temperature_probes);
+    updateSwitchStatus(data.magnetic_switch);
+    updateWeightData(data.weight);
+    updateAirQualityData(data.air_quality);
+  };
+
   useEffect(() => {
     const newSocket = createSocket();
     setSocket(newSocket);
@@ -89,14 +101,15 @@ export function SocketProvider({ children }) {
       newSocket.on(`${FARM_ID}/magnetic_switch`, onSwitch);
       newSocket.on(`${FARM_ID}/weight`, onWeightData);
       newSocket.on(`${FARM_ID}/air_quality`, onAirQualityData);
+      newSocket.on(`last data`, onLastData );
     };
 
     const initializeApp = async () => {
       try {
-        const data = await getFarm();
-        console.log("Farm data received:", data);
-        setFarmData(data);
-        const firstMilkTank = data.equipments.find(
+        const farmData = await getFarm();
+        console.log("Farm data received:", farmData);
+        setFarmData(farmData);
+        const firstMilkTank = farmData.equipments.find(
           (tank) => tank.type === "Tanque de leche"
         );
         setSelectedTank(firstMilkTank);
@@ -111,8 +124,8 @@ export function SocketProvider({ children }) {
       }
     };
 
-    setupSocketListeners();
     initializeApp();
+    setupSocketListeners();
     newSocket.connect();
 
     return () => {
