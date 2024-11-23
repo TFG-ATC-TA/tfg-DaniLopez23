@@ -3,6 +3,8 @@ const mqtt = require("mqtt");
 const config = require("../config/index");
 const topics = require("../config/topics");
 const dataHandling = require("../utils/dataHandling");
+const dataCache = require("./cache");
+
 const url = `mqtts://${config.mqtt.MQTT_HOST}:${config.mqtt.MQTT_PORT}`;
 
 let mqttClient = null;
@@ -28,7 +30,7 @@ const connect = () => {
       if (err) {
         console.error("MQTT Subscription Error:", err);
       } else {
-        console.log("Subscribed to topics:", topics);
+        console.log("Subscribed to topics");
       }
     });
   });
@@ -40,6 +42,13 @@ const connect = () => {
     const processedData = dataHandling.processData(topic, message); // Procesar el mensaje
 
     const boardId = processedData.tags.board_id; // Suponiendo que el mensaje contiene el board-id
+
+    const sensorType = processedData.measurement; // Suponiendo que el mensaje contiene el tipo de sensor
+
+    if (boardId && sensorType) {
+      // Actualizar la caché con el último mensaje del sensor
+      dataCache.updateSensorData(boardId, sensorType, processedData);
+    }
 
     if (messageHandler) {
       messageHandler(boardId, topic, processedData);
