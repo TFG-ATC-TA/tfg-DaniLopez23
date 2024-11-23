@@ -1,5 +1,6 @@
 // services/websockets.js
 const socketIo = require("socket.io");
+const cacheData = require("./cache");
 
 let io;
 
@@ -16,13 +17,13 @@ const initializeWebSocket = (server) => {
     // Escucha el evento de cambio de tanque
     let currentRooms = new Set(); // Almacena las rooms a las que está conectado el socket
 
-    socket.on("selectTank", (boardIds) => {
-      if (!Array.isArray(boardIds)) {
+    socket.on("selectTank", (boards) => {
+      if (!Array.isArray(boards)) {
         console.error("Invalid boardIds format. Expected an array.");
         return;
       }
 
-      const newRooms = new Set(boardIds);
+      const newRooms = new Set(boards);
 
       // Salir de las rooms que ya no están en los nuevos boardIds
       for (const room of currentRooms) {
@@ -43,6 +44,19 @@ const initializeWebSocket = (server) => {
       // Actualizar las rooms actuales
       currentRooms = newRooms;
     });
+
+    socket.on("request last data", (boards) => {
+
+      if (!Array.isArray(boards)) {
+        console.error("Invalid boardIds format. Expected an array.");
+        return;
+      }
+
+      const data = cacheData.getDataByBoards(boards);
+      console.log("Sending last data to client: ", data);
+      socket.emit("last data", data);
+
+    })
 
     socket.on("disconnect", () => {
       console.log(`Client disconnected: ${socket.id}`);
