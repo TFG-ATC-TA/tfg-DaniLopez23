@@ -3,20 +3,10 @@ import { Droplet } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
-const MilkQuantity = ({ milkQuantityData }) => {
-  const [isSelected, setIsSelected] = useState(false);
+const MilkQuantity = ({ milkQuantityData, isSelected, onSelect }) => {
   const percentage = milkQuantityData?.milkQuantity || null
   const fillHeight = percentage ? `${percentage}%` : '0%'
 
-  const handleClick = () => {
-    setIsSelected(!isSelected);
-  };
-
-  const handleMouseLeave = () => {
-    if (!isSelected) {
-      setIsSelected(false);
-    }
-  };
 
   return (
     <Card
@@ -24,8 +14,7 @@ const MilkQuantity = ({ milkQuantityData }) => {
         "transition-all duration-300 hover:shadow-lg",
         isSelected && "ring-2 ring-blue-200"
       )}
-      onClick={() => setIsSelected(!isSelected)}
-      onMouseLeave={() => !isSelected && setIsSelected(false)}
+      onClick={onSelect}
       tabIndex={0}
       role="button"
       aria-pressed={isSelected}

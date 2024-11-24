@@ -3,12 +3,8 @@ import { Compass } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-const Gyroscope = ({ gyroscopeData }) => {
-  const [isSelected, setIsSelected] = useState(false);
+const Gyroscope = ({ gyroscopeData, isSelected, onSelect }) => {
 
-  const handleClick = () => {
-    setIsSelected(!isSelected);
-  };
 
   return (
     <Card
@@ -16,8 +12,7 @@ const Gyroscope = ({ gyroscopeData }) => {
         "transition-all duration-300 hover:shadow-lg",
         isSelected && "ring-2 ring-purple-200"
       )}
-      onClick={handleClick}
-      onMouseLeave={() => !isSelected && setIsSelected(false)}
+      onClick={onSelect}
       tabIndex={0}
       role="button"
       aria-pressed={isSelected}

@@ -1,7 +1,6 @@
 import { useGLTF } from "@react-three/drei";
 import { useSpring, animated } from "@react-spring/three";
 import CallOutText from "./CallOutText";
-import CallOutTextAirQuality from "./CallOutTextAirQuality";
 
 export default function HorizontalTank2BladesModel({
   encoderData,
@@ -194,11 +193,7 @@ export default function HorizontalTank2BladesModel({
           weightData == null ? "No Data" : weightData.weight + "kg"
         } `}
       />
-
-      <CallOutTextAirQuality
-        position={[3.7, 2.8, 4.8]}
-        data={airQualityData}
-      />
+      
     </group>
   );
 }

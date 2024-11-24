@@ -3,12 +3,7 @@ import { ToggleLeft } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-const MagneticSwitch = ({ switchStatus }) => {
-  const [isSelected, setIsSelected] = useState(false);
-
-  const handleClick = () => {
-    setIsSelected(!isSelected);
-  };
+const MagneticSwitch = ({ switchStatus, isSelected, onSelect }) => {
 
   return (
     <Card
@@ -16,8 +11,7 @@ const MagneticSwitch = ({ switchStatus }) => {
         "transition-all duration-300 hover:shadow-lg",
         isSelected && "ring-2 ring-yellow-200"
       )}
-      onClick={handleClick}
-      onMouseLeave={() => !isSelected && setIsSelected(false)}
+      onClick={onSelect}
       tabIndex={0}
       role="button"
       aria-pressed={isSelected}

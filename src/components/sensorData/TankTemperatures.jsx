@@ -3,13 +3,10 @@ import { Thermometer } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-const TankTemperatures = ({ tankTemperaturesData }) => {
-  const [isSelected, setIsSelected] = useState(false);
+const TankTemperatures = ({ tankTemperaturesData, isSelected, onSelect }) => {
+
   const { overSurface, onSurface, underSurface } = tankTemperaturesData || {};
 
-  const handleClick = () => {
-    setIsSelected(!isSelected);
-  };
 
   return (
     <Card
@@ -17,8 +14,7 @@ const TankTemperatures = ({ tankTemperaturesData }) => {
         "transition-all duration-300 hover:shadow-lg",
         isSelected && "ring-2 ring-red-200"
       )}
-      onClick={handleClick}
-      onMouseLeave={() => !isSelected && setIsSelected(false)}
+      onClick={onSelect}
       tabIndex={0}
       role="button"
       aria-pressed={isSelected}
