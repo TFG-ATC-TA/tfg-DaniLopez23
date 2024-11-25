@@ -53,7 +53,6 @@ const initializeWebSocket = (server) => {
       }
 
       const data = cacheData.getDataByBoards(boards);
-      console.log("Sending last data to client: ", data);
       socket.emit("last data", data);
 
     })

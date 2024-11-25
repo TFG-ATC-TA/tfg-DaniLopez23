@@ -36,8 +36,10 @@ const connect = () => {
   });
 
   mqttClient.on("message", (topic, message) => {
-    //console.log(`Received message from topic: ${topic}`);
 
+    if (topic === "tank_temperature_probes") {
+      console.log(`Received message from topic: ${topic}`);
+    }
     // Procesa los datos del mensaje
     const processedData = dataHandling.processData(topic, message); // Procesar el mensaje
 

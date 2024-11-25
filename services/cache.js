@@ -17,7 +17,6 @@ function getDataByBoards(boards) {
   
     boards.forEach((boardId) => {
       const boardData = sensorCache.get(boardId);
-      console.log("boardData", boardData);
       if (boardData) {
         Object.entries(boardData).forEach(([sensorType, sensorData]) => {
           // Si el sensorType ya existe, sobrescribimos con los últimos datos
