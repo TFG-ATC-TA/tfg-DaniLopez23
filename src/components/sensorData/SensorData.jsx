@@ -6,6 +6,7 @@ import TankTemperatures from "./TankTemperatures";
 import MilkQuantity from "./MilkQuantity";
 import Encoder from "./Encoder";
 import Gyroscope from "./Gyroscope";
+import Weight from "./Weight";
 
 const SensorData = ({ className }) => {
   const {
@@ -58,6 +59,11 @@ const SensorData = ({ className }) => {
           gyroscopeData={gyroscopeData}
           isSelected={selectedData === "Gyroscope"}
           onSelect={() => handleCardSelect("Gyroscope")}
+        />
+        <Weight
+          weightData={weightData}
+          isSelected={selectedData === "Weight"}
+          onSelect={() => handleCardSelect("Weight")}
         />
         <AirQuality
           airQualityData={airQualityData}

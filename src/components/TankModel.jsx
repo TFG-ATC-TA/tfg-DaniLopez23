@@ -21,8 +21,6 @@ const TankModel = () => {
     airQualityData,
     selectedData,
   } = useDataStore((state) => state);
-
-  console.log(selectedData);
   
   return (
     <div className="h-full relative">
