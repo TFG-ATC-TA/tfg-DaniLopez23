@@ -5,7 +5,9 @@ import { cn } from "@/lib/utils";
 
 const TankTemperatures = ({ tankTemperaturesData, isSelected, onSelect }) => {
 
-  const { overSurface, onSurface, underSurface } = tankTemperaturesData || {};
+  console.log("TEMPERATURES", tankTemperaturesData)
+
+  const { over_surface_temperature, surface_temperature, submerged_temperature } = tankTemperaturesData || {};
 
 
   return (
@@ -38,19 +40,19 @@ const TankTemperatures = ({ tankTemperaturesData, isSelected, onSelect }) => {
           <div className="flex justify-between items-center">
             <span className="text-xs text-muted-foreground">Over Surface:</span>
             <span className="text-sm font-medium">
-              {overSurface !== undefined ? `${overSurface}°C` : "No data"}
+              {over_surface_temperature !== undefined ? `${over_surface_temperature}°C` : "No data"}
             </span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-xs text-muted-foreground">On Surface:</span>
             <span className="text-sm font-medium">
-              {onSurface !== undefined ? `${onSurface}°C` : "No data"}
+              {surface_temperature !== undefined ? `${surface_temperature}°C` : "No data"}
             </span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-xs text-muted-foreground">Under Surface:</span>
             <span className="text-sm font-medium">
-              {underSurface !== undefined ? `${underSurface}°C` : "No data"}
+              {submerged_temperature !== undefined ? `${submerged_temperature}°C` : "No data"}
             </span>
           </div>
         </div>
