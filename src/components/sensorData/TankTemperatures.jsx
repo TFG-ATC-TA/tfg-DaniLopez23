@@ -5,8 +5,6 @@ import { cn } from "@/lib/utils";
 
 const TankTemperatures = ({ tankTemperaturesData, isSelected, onSelect }) => {
 
-  console.log("TEMPERATURES", tankTemperaturesData)
-
   const { over_surface_temperature, surface_temperature, submerged_temperature } = tankTemperaturesData || {};
 
 

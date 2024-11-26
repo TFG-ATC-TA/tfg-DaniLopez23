@@ -35,8 +35,7 @@ const Weight = ({ weightData, isSelected, onSelect }) => {
       <CardContent>
         {weightData ? (
           <div className="flex items-center justify-center">
-            <span className="text-2xl font-bold text-black">{weightData.value}</span>
-            <span className="text-lg ml-1">rad/s</span>
+            <span className="text-2xl font-bold text-black">{weightData?.weight}</span>
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">No data available</p>

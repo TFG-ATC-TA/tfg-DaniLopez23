@@ -73,7 +73,7 @@ export function SocketProvider({ children }) {
     updateEncoderData(data.encoder);
     updateGyroscopeData(data["6_dof_imu"]);
     updateMilkQuantityData(data.tank_distance);
-    updateTankTemperaturesData(data.tank_temperature_probes);
+    updateTankTemperaturesData(data.temperature_probe);
     updateSwitchStatus(data.magnetic_switch);
     updateWeightData(data.weight);
     updateAirQualityData(data.air_quality);
