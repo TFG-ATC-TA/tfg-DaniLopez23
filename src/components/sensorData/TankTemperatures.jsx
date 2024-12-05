@@ -33,6 +33,9 @@ const TankTemperatures = ({ tankTemperaturesData, isSelected, onSelect }) => {
           />
         </CardTitle>
       </CardHeader>
+      <p className="text-xs text-muted-foreground mb-3 px-6">
+        Last update: {tankTemperaturesData?.readableDate}
+      </p>
       <CardContent>
         <div className="space-y-2">
           <div className="flex justify-between items-center">

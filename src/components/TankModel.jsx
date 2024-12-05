@@ -9,8 +9,6 @@ import { cameraViews } from "./Camera/CameraViews";
 
 const TankModel = () => {
 
-
-
   const { selectedTank } = useTankStore((state) => state);
   const {
     encoderData,
