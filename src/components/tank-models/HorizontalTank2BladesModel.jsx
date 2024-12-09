@@ -169,17 +169,17 @@ export default function HorizontalTank2BladesModel({
       {/* CallOutText */}
       <CallOutText
         position={[0, 2.9, 0.92]}
-        text={`RPM: ${encoderData?.value ?? "No data"} `}
+        text={`${encoderData?.value + " rad/s" ?? "No data"} `}
         radius={0.05}
       />
       <CallOutText
         position={[0, 2.9, -0.92]}
-        text={`RPM: ${encoderData?.value ?? "No data"} `}
+        text={`${encoderData?.value + " rad/s" ?? "No data"} `}
         radius={0.05}
       />
       <CallOutText
         position={[0, 2.9, 0]}
-        text={`Hatch: ${
+        text={`${
           switchStatus == null
             ? "No Data"
             : switchStatus.status
@@ -188,8 +188,8 @@ export default function HorizontalTank2BladesModel({
         }`}
       />
       <CallOutText
-        position={[1.7, 0.8, 3.2]}
-        text={`Weight: ${
+        position={[1.7, 0.9, 3.2]}
+        text={`${
           weightData == null ? "No Data" : weightData.weight + "kg"
         } `}
       />
