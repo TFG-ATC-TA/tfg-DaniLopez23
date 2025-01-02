@@ -6,6 +6,7 @@ import HorizontalTank2BladesModel from "./tank-models/HorizontalTank2BladesModel
 import { Button } from "@/components/ui/button";
 import CameraSettings from "./Camera/CameraSettings";
 import { cameraViews } from "./Camera/CameraViews";
+import {Model}  from "./tank-models/HorizontalTank2Blades";
 
 const TankModel = () => {
 
@@ -28,7 +29,7 @@ const TankModel = () => {
         <Suspense fallback={null}>
           {selectedTank ? (
             <group>
-              <HorizontalTank2BladesModel
+              <Model
                 key={selectedTank._id}
                 encoderData={encoderData}
                 milkQuantityData={milkQuantityData}
