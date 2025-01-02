@@ -131,7 +131,7 @@ export function SocketProvider({ children }) {
     return () => {
       newSocket.disconnect();
     };
-  }, [setFarmData, setSelectedTank, joinRooms]);
+  }, []);
 
   return (
     <SocketContext.Provider value={{ socket, serverStatus, joinRooms }}>

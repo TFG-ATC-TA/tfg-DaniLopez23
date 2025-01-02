@@ -10,6 +10,7 @@ const useDataStore = create((set) => ({
   airQualityData: null,
   farmData: {},
   selectedData: null,
+  mode: "realtime",
 
   setFarmData: (data) => set({ farmData: data }),
   updateEncoderData: (data) => set({ encoderData: data }),
@@ -20,6 +21,7 @@ const useDataStore = create((set) => ({
   updateWeightData: (data) => set({ weightData: data }),
   updateAirQualityData: (data) => set({ airQualityData: data }),
   setSelectedData: (data) => set({ selectedData: data }),
+  setMode: (data) => set({ mode: data }),
 }));
 
 export default useDataStore;
