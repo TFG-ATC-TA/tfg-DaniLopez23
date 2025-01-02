@@ -5,6 +5,7 @@ Command: npx gltfjsx@6.5.0 .\public\horizontalTankModel\2Pales\horizontalTank2Bl
 
 import { useGLTF } from "@react-three/drei";
 import { useSpring, animated } from "@react-spring/three";
+import CallOutText from "./CallOutText";
 
 export function Model({
   encoderData,
@@ -34,7 +35,6 @@ export function Model({
   };
 
   const getVisibleMilkCilinder = (quantity) => {
-    console.log("quantity", quantity);
     const ranges = [
       { min: 0, max: 10, node: nodes.MilkCilinder10 },
       { min: 10, max: 20, node: nodes.MilkCilinder20 },
@@ -53,8 +53,6 @@ export function Model({
       ({ min, max }) => quantity >= min && quantity < max
     );
 
-    console.log("range", range);
-
     if (range && range.node) {
       return (
         <mesh
@@ -67,6 +65,46 @@ export function Model({
     }
 
     return null;
+  };
+
+  const getAlcalineAcidCylinders = ({ quantity, maxValue }) => {
+    // Calcula los valores de morphTargetInfluences en función de la cantidad y el máximo
+    const calculateMorphTargets = (quantity, maxValue) => {
+      const percentage = Math.min(quantity / maxValue, 1); // Normaliza el porcentaje (máx 100%)
+      
+      // Ejemplo: dividir el porcentaje entre tres influencias para simular la variación
+      const morph1 = percentage * 0.5; // Primera influencia recibe 50% del porcentaje
+      const morph2 = percentage * 0.3; // Segunda influencia recibe 30%
+      const morph3 = percentage * 0.2; // Tercera influencia recibe 20%
+      
+      return [morph1, morph2, morph3];
+    };
+  
+    const alcalineMorph = calculateMorphTargets(quantity, maxValue); // Morph para AlcalineCilinder
+    const acidMorph = calculateMorphTargets(quantity, maxValue); // Morph inverso para AcidCilinder
+  
+    return (
+      <>
+        <mesh
+          name="AlcalineCilinder"
+          geometry={nodes.AlcalineCilinder.geometry}
+          material={materials["MilkMaterial.003"]}
+          morphTargetDictionary={nodes.AlcalineCilinder.morphTargetDictionary}
+          morphTargetInfluences={alcalineMorph} // Valores dinámicos
+          position={[1.265, -0.001, 2.908]}
+          scale={[0.188, 0.015, 0.188]}
+        />
+        <mesh
+          name="AcidCilinder"
+          geometry={nodes.AcidCilinder.geometry}
+          material={materials["MilkMaterial.003"]}
+          morphTargetDictionary={nodes.AcidCilinder.morphTargetDictionary}
+          morphTargetInfluences={acidMorph} // Valores dinámicos inversos
+          position={[2.112, -0.001, 3.149]}
+          scale={[0.188, 0.015, 0.188]}
+        />
+      </>
+    );
   };
 
   const rotationBlade1 = useSpring({
@@ -95,7 +133,7 @@ export function Model({
     <group dispose={null}>
 
       {getVisibleMilkCilinder(milkQuantityData?.milkQuantity ?? 0)}
-
+      {getAlcalineAcidCylinders({quantity: weightData?.weight ?? 0, maxValue: 35000 })}
       {/* Palas del tanque */}
       <animated.mesh
         geometry={nodes.Blade2.geometry}
@@ -146,24 +184,35 @@ export function Model({
         material={nodes.BarrelAcid.material}
         position={[2.204, 0.27, 3.091]}
       />
-      <mesh
-        name="AlcalineCilinder"
-        geometry={nodes.AlcalineCilinder.geometry}
-        material={materials["MilkMaterial.003"]}
-        morphTargetDictionary={nodes.AlcalineCilinder.morphTargetDictionary}
-        morphTargetInfluences={nodes.AlcalineCilinder.morphTargetInfluences}
-        position={[1.265, -0.001, 2.908]}
-        scale={[0.188, 0.015, 0.188]}
-      />
-      <mesh
-        name="AcidCilinder"
-        geometry={nodes.AcidCilinder.geometry}
-        material={materials["MilkMaterial.003"]}
-        morphTargetDictionary={nodes.AcidCilinder.morphTargetDictionary}
-        morphTargetInfluences={nodes.AcidCilinder.morphTargetInfluences}
-        position={[2.112, -0.001, 3.149]}
-        scale={[0.188, 0.015, 0.188]}
-      />
+
+      {/* CallOutText */}
+      <CallOutText
+          position={[0, 2.9, 0.92]}
+          text={`${encoderData?.value + " rad/s" ?? "No data"} `}
+          radius={0.05}
+        />
+        <CallOutText
+          position={[0, 2.9, -0.92]}
+          text={`${encoderData?.value + " rad/s" ?? "No data"} `}
+          radius={0.05}
+        />
+        <CallOutText
+          position={[0, 2.9, 0]}
+          text={`${
+            switchStatus == null
+              ? "No Data"
+              : switchStatus.status
+              ? "Open"
+              : "Closed"
+          }`}
+        />
+        <CallOutText
+          position={[1.7, 0.9, 3.2]}
+          text={`${
+            weightData == null ? "No Data" : weightData.weight + "kg"
+          } `}
+        />
+
     </group>
   );
 }
