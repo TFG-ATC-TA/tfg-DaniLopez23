@@ -1,6 +1,7 @@
 import { Home, Server, Wifi, WifiOff, History } from 'lucide-react';
 import PropTypes from "prop-types";
 import { useState } from "react";
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -13,11 +14,12 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
 import { useTank } from "@/hooks/useTank";
-import useDataStore from '@/Stores/useDataStore';
 
 const Header = ({ serverStatus, farmData }) => {
   const { selectedTank, changeSelectedTank } = useTank();
-  const { mode, setMode } = useDataStore((state) => state);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isRealTime = location.pathname === '/real-time';
 
   const handleTankChange = (tankId) => {
     const tank = farmData.equipments.find((tank) => tank._id === tankId);
@@ -33,8 +35,7 @@ const Header = ({ serverStatus, farmData }) => {
   };
 
   const handleDataModeToggle = (checked) => {
-    const newMode = checked ? "realtime" : "historical";
-    setMode(newMode);
+    navigate(checked ? '/real-time' : '/historical');
   };
 
   return (
@@ -85,11 +86,11 @@ const Header = ({ serverStatus, farmData }) => {
         <div className="flex items-center space-x-3">
           <Switch
             id="data-mode"
-            checked={mode === "realtime"}
+            checked={isRealTime}
             onCheckedChange={handleDataModeToggle}
           />
           <Label htmlFor="data-mode" className="text-base font-medium">
-            {mode === "realtime" ? (
+            {isRealTime ? (
               <span className="flex items-center">
                 <Wifi className="mr-2 h-5 w-5" /> Real-time
               </span>
