@@ -1,20 +1,16 @@
-import { OrbitControls } from "@react-three/drei";
+import React, { Suspense, useState } from "react";
 import { Canvas } from "@react-three/fiber";
-import { Suspense } from "react";
 import useDataStore from "@/Stores/useDataStore";
-import HorizontalTank2BladesModel from "./tank-models/HorizontalTank2BladesModel";
 import useTankStore from "@/Stores/useTankStore";
+import HorizontalTank2BladesModel from "./tank-models/HorizontalTank2BladesModel";
+import { Button } from "@/components/ui/button";
+import CameraSettings from "./Camera/CameraSettings";
+import { cameraViews } from "./Camera/CameraViews";
+import {Model}  from "./tank-models/HorizontalTank2Blades";
 
 const TankModel = () => {
 
-  const {
-    farmData
-  } = useDataStore((state) => state);
-
-  const {
-    selectedTank
-  } = useTankStore((state) => state);
-
+  const { selectedTank } = useTankStore((state) => state);
   const {
     encoderData,
     milkQuantityData,
@@ -22,35 +18,34 @@ const TankModel = () => {
     weightData,
     tankTemperaturesData,
     airQualityData,
+    selectedData,
   } = useDataStore((state) => state);
+  
   return (
-    <div className="h-full">
+    <div className="h-full relative">
       <Canvas>
         <ambientLight intensity={0.6} />
         <directionalLight position={[-10, -10, -10]} intensity={0.5} />
         <Suspense fallback={null}>
-          {farmData.equipments &&
-            farmData.equipments.map((tank) =>
-              selectedTank && selectedTank._id === tank._id ? (
-                <HorizontalTank2BladesModel key={tank._id}
-                  encoderData={encoderData}
-                  milkQuantityData={milkQuantityData}
-                  switchStatus={switchStatus}
-                  weightData={weightData}
-                  tankTemperaturesData={tankTemperaturesData}
-                  airQualityData={airQualityData}
-                />
-              ) : (
-                "No tank selected"
-              )
-            )}
-          
-          <OrbitControls
-            enablePan={false}
-            minDistance={4}
-            maxDistance={10}
-            maxPolarAngle={Math.PI / 1.2 / 2}
-          />
+          {selectedTank ? (
+            <group>
+              <Model
+                key={selectedTank._id}
+                encoderData={encoderData}
+                milkQuantityData={milkQuantityData}
+                switchStatus={switchStatus}
+                weightData={weightData}
+                tankTemperaturesData={tankTemperaturesData}
+                airQualityData={airQualityData}
+              />
+            </group>
+          ) : (
+            <mesh>
+              <boxGeometry args={[1, 1, 1]} />
+              <meshStandardMaterial color="red" />
+            </mesh>
+          )}
+          <CameraSettings view={selectedData} />
         </Suspense>
       </Canvas>
     </div>

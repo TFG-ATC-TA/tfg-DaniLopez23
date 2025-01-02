@@ -9,6 +9,7 @@ const useDataStore = create((set) => ({
   weightData: null,
   airQualityData: null,
   farmData: {},
+  selectedData: null,
 
   setFarmData: (data) => set({ farmData: data }),
   updateEncoderData: (data) => set({ encoderData: data }),
@@ -18,6 +19,7 @@ const useDataStore = create((set) => ({
   updateSwitchStatus: (data) => set({ switchStatus: data }),
   updateWeightData: (data) => set({ weightData: data }),
   updateAirQualityData: (data) => set({ airQualityData: data }),
+  setSelectedData: (data) => set({ selectedData: data }),
 }));
 
 export default useDataStore;

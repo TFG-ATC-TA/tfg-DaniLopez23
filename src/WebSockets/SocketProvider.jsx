@@ -34,32 +34,32 @@ export function SocketProvider({ children }) {
   }, [socket]);
 
   const onEncoderData = (data) => {
-    console.log("Encoder data received:", data.tags.board_id);
+    //console.log("Encoder data received:", data.tags.board_id);
     updateEncoderData(data);
   };
 
   const onGyroscopeData = (data) => {
-    console.log("Gyroscope data received:", data.tags.board_id);
+    //console.log("Gyroscope data received:", data.tags.board_id);
     updateGyroscopeData(data);
   };
 
   const onMilkQuantityData = (data) => {
-    console.log("Milk quantity data received:", data.tags.board_id);
+    //console.log("Milk quantity data received:", data.tags.board_id);
     updateMilkQuantityData(data);
   };
 
   const onTankTemperature = (data) => {
-    console.log("Tank temperatures data received:", data.tags.board_id);
+    //console.log("Tank temperatures data received:", data.tags.board_id);
     updateTankTemperaturesData(data);
   };
 
   const onWeightData = (data) => {
-    console.log("Weight data received:", data.tags.board_id);
+    //console.log("Weight data received:", data.tags.board_id);
     updateWeightData(data);
   };
 
   const onSwitch = (data) => {
-    console.log("Switch status received:", data.tags.board_id);
+    //console.log("Switch status received:", data.tags.board_id);
     updateSwitchStatus(data);
   };
 
@@ -73,7 +73,7 @@ export function SocketProvider({ children }) {
     updateEncoderData(data.encoder);
     updateGyroscopeData(data["6_dof_imu"]);
     updateMilkQuantityData(data.tank_distance);
-    updateTankTemperaturesData(data.tank_temperature_probes);
+    updateTankTemperaturesData(data.temperature_probe);
     updateSwitchStatus(data.magnetic_switch);
     updateWeightData(data.weight);
     updateAirQualityData(data.air_quality);
