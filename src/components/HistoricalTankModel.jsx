@@ -1,70 +1,139 @@
 import { useState } from 'react';
-import { ChevronRight, ChevronDown } from 'lucide-react';
+import { Calendar, Filter} from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-// import { DatePickerWithRange } from "@/components/ui/date-picker-with-range";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Slider } from "@/components/ui/slider";
+import { format } from "date-fns";
 
 const HistoricalTankModel = ({ farmData, selectedTank }) => {
-  const [isFilterOpen, setIsFilterOpen] = useState(true);
-  const [dateRange, setDateRange] = useState({ from: new Date(), to: new Date() });
+  const [date, setDate] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedSensor, setSelectedSensor] = useState('all');
+  const [showAnomalous, setShowAnomalous] = useState(false);
+  const [timeSlider, setTimeSlider] = useState(0);
 
-  // This is a placeholder for the actual tank model rendering
   const renderTankModel = () => {
     return (
       <div className="w-full h-full flex items-center justify-center">
-        <p>Historical Tank Model Placeholder</p>
+        <p>Select a date to watch the state of the tank in that day</p>
       </div>
     );
   };
 
+  const clearFilters = () => {
+    setDate(null);
+    setSelectedStatus('all');
+    setSelectedSensor('all');
+    setShowAnomalous(false);
+    setTimeSlider(0);
+  };
+
+  const formatTime = (value) => {
+    const hours = value;
+    return `${hours.toString().padStart(2, '0')}:00`;
+  };
+
   return (
-    <div className="flex h-full">
-      <div className="flex-grow">
-        {renderTankModel()}
+    <div className="flex h-full gap-2">
+      <div className="flex-grow flex flex-col">
+        <div className="flex-grow">
+          {renderTankModel()}
+        </div>
+        <div className="m-6">
+          {date && (
+            <>
+              <Label htmlFor="time-slider" className="block text-sm font-medium mb-1">
+                Time: {formatTime(timeSlider)}
+              </Label>
+              <Slider
+                id="time-slider"
+                min={0}
+                max={23}
+                step={1}
+                value={[timeSlider]}
+                onValueChange={(value) => setTimeSlider(value[0])}
+              />
+            </>
+          )}
+        </div>
       </div>
-      <Collapsible
-        open={isFilterOpen}
-        onOpenChange={setIsFilterOpen}
-        className="w-80 bg-white shadow-md rounded-lg overflow-hidden"
-      >
-        <CollapsibleTrigger asChild>
-          <Button variant="ghost" className="w-full flex justify-between items-center p-4">
-            Filter
-            {isFilterOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+      <Card className="w-1/5 shadow-md rounded-lg h-full">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Filter className="h-5 w-5" />
+            Historical Data Filters
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="date-picker" className="block text-sm font-medium mb-1">Date</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start text-left font-normal"
+                  id="date-picker"
+                >
+                  <Calendar className="mr-2 h-4 w-4" />
+                  {date ? format(date, "PPP") : "Select a date"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <CalendarComponent
+                  mode="single"
+                  selected={date}
+                  onSelect={setDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+          <div>
+            <Label htmlFor="status-select" className="block text-sm font-medium mb-1">Status</Label>
+            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+              <SelectTrigger id="status-select">
+                <SelectValue placeholder="Select a status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="working">Working</SelectItem>
+                <SelectItem value="maintenance">Maintenance</SelectItem>
+                <SelectItem value="error">Error</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="sensor-select" className="block text-sm font-medium mb-1">Sensor</Label>
+            <Select value={selectedSensor} onValueChange={setSelectedSensor}>
+              <SelectTrigger id="sensor-select">
+                <SelectValue placeholder="Select a sensor" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Sensors</SelectItem>
+                <SelectItem value="temperature">Temperature</SelectItem>
+                <SelectItem value="pressure">Pressure</SelectItem>
+                <SelectItem value="volume">Volume</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="anomalous-data"
+              checked={showAnomalous}
+              onCheckedChange={setShowAnomalous}
+            />
+            <Label htmlFor="anomalous-data">Show Anomalous Data</Label>
+          </div>
+          <Button  size="sm" onClick={clearFilters}>
+              Remove filters
           </Button>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <Card>
-            <CardHeader>
-              <CardTitle>Historical Data Filters</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
-                {/* <DatePickerWithRange date={dateRange} setDate={setDateRange} /> */}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Sensor</label>
-                <Select value={selectedSensor} onValueChange={setSelectedSensor}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a sensor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Sensors</SelectItem>
-                    <SelectItem value="temperature">Temperature</SelectItem>
-                    <SelectItem value="pressure">Pressure</SelectItem>
-                    <SelectItem value="volume">Volume</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button className="w-full">Apply Filters</Button>
-            </CardContent>
-          </Card>
-        </CollapsibleContent>
-      </Collapsible>
+        </CardContent>
+      </Card>
     </div>
   );
 };

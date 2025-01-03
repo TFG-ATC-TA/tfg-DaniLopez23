@@ -34,11 +34,11 @@ export default function App() {
           <SensorData className="w-full" />
         </div>
         <div className="flex-1 flex flex-col gap-2">
-          <div className="flex gap-4">
+          <div className="flex gap-2">
             <div className="flex-1 bg-white shadow-md rounded-lg p-2">
               <TankInformation />
             </div>
-            <div className="w-64 bg-white shadow-md rounded-lg p-4">
+            <div className="w-1/5 bg-white shadow-md rounded-lg p-4">
               <TankStatus status={selectedTank?.status || "Working"} />
             </div>
           </div>
@@ -63,14 +63,12 @@ export default function App() {
             <Route 
               path="/historical" 
               element={
-                <div className="flex gap-2 h-full">
-                  <div className="flex-grow bg-white shadow-md rounded-lg relative">
-                    <HistoricalTankModel 
-                      farmData={farmData} 
-                      selectedTank={selectedTank} 
-                    />
-                  </div>
-                </div>
+                <TankModelLayout>
+                  <HistoricalTankModel 
+                    farmData={farmData} 
+                    selectedTank={selectedTank} 
+                  />
+                </TankModelLayout>
               } 
             />
           </Routes>
