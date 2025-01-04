@@ -53,10 +53,7 @@ export default function App() {
               path="/real-time" 
               element={
                 <TankModelLayout>
-                  <RealTimeTankModel 
-                    farmData={farmData} 
-                    selectedTank={selectedTank} 
-                  />
+                  <RealTimeTankModel/>
                 </TankModelLayout>
               } 
             />
