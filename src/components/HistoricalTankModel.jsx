@@ -28,8 +28,6 @@ const HistoricalTankModel = () => {
   const selectedData = useDataStore((state) => state.selectedData);
   const selectedTank = useTankStore((state) => state.selectedTank);
 
-  const [filteredData, setFilteredData] = useState(null);
-
   const historicalData = {
     encoderData: [],
     milkQuantityData: [],
@@ -41,7 +39,7 @@ const HistoricalTankModel = () => {
   };
 
   const boardIds = getBoardIdsFromTank(selectedTank);
-  console.log(boardIds);
+
 
   const applyFilters = async () => {
     const filters = {
@@ -49,11 +47,18 @@ const HistoricalTankModel = () => {
       boardIds: boardIds,
       hour: timeSlider,
     };
-
+    console.log('filters:', filters);
     try {
       const data = await getHistoricalData(filters);
       console.log('Filtered data:', data);
-      setFilteredData(data); // Actualiza el estado con los datos recibidos
+
+      historicalData.encoderData = data.encoderData;
+      historicalData.milkQuantityData = data.milkQuantityData;
+      historicalData.switchStatus = data.switchStatus;
+      historicalData.weightData = data.weightData;
+      historicalData.tankTemperaturesData = data.tankTemperaturesData;
+      historicalData.airQualityData = data.airQualityData;
+
     } catch (error) {
       console.error('Error applying filters:', error);
     }
@@ -113,7 +118,7 @@ const HistoricalTankModel = () => {
     <div className="flex h-full gap-2">
       <div className="flex-grow flex flex-col">
         <div className="flex-grow">
-          {renderTankModel()}
+          {date ? renderTankModel() : <div className="h-full flex items-center justify-center">Select a date to view historical data</div>}
         </div>
         <div className="m-6">
           {date && (
