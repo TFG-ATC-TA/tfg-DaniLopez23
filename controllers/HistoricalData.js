@@ -20,58 +20,63 @@ console.log("url:", url);
 // Ruta para obtener datos históricos
 HistoricalDataRouter.post("/", async (req, res) => {
   const { date, hour, boardIds } = req.body;
-
+  console.log(req.body);
   try {
-    // Validar los parámetros
+    // Validate parameters
     if (!date) {
-      return res
-        .status(400)
-        .json({ message: "No se ha seleccionado ninguna fecha." });
+      return res.status(400).json({ message: "No date selected." });
     }
 
     if (!Array.isArray(boardIds) || boardIds.length === 0) {
       return res
         .status(400)
-        .json({ message: "Debe proporcionar un array válido de IDs de placas." });
+        .json({ message: "Must provide a valid array of board IDs." });
     }
 
-    // Filtrar valores no válidos en boardIds
-    const validBoardIds = boardIds.filter((id) => typeof id === "string" && id.trim() !== "");
+    // Filter invalid values in boardIds
+    const validBoardIds = boardIds.filter(
+      (id) => typeof id === "string" && id.trim() !== ""
+    );
     if (validBoardIds.length === 0) {
       return res
         .status(400)
-        .json({ message: "Todos los IDs de placas proporcionados son inválidos." });
+        .json({ message: "All provided board IDs are invalid." });
     }
 
-    // Formatear fecha y hora
-    const dateString = new Date(date).toISOString().split("T")[0]; // "YYYY-MM-DD"
-    const startTime = `${dateString}T${String(hour).padStart(2, "0")}:00:00Z`;
-    const endTime = `${dateString}T${String(hour + 1).padStart(2, "0")}:00:00Z`;
+    const selectedDate = new Date(date); // Esto ya es correcto
+    const startTime = new Date(selectedDate.setUTCHours(hour, 0, 0, 0));
+    const endTime = new Date(selectedDate.setUTCHours(hour + 1, 0, 0, 0));
 
-    // Construir consulta Flux con IDs válidos
+    // Construct Flux query with valid IDs
     const fluxQuery = `
       from(bucket: "synthetic-farm-1")
-      |> range(start: ${startTime}, stop: ${endTime})
-      |> filter(fn: (r) => ${validBoardIds.map((id) => `r.tags_board_id == "${id}"`).join(" or ")})
-      |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)
-      |> yield(name: "mean")
+        |> range(start: ${startTime.toISOString()}, stop: ${endTime.toISOString()})
+        |> filter(fn: (r) => ${validBoardIds
+          .map((id) => `r.board_id == "${id}"`)
+          .join(" or ")})
+        |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)
+        |> yield(name: "mean")
     `;
 
-    console.log("Ejecutando consulta:", fluxQuery);
+    console.log("Executing query:", fluxQuery);
 
-    // Ejecutar consulta
-    const result = [];
-    const rows = queryApi.iterateRows(fluxQuery);
-    for await (const { _time, _value, tags_board_id } of rows) {
-      result.push({ time: _time, value: _value, boardId: tags_board_id });
-    }
+    // Execute query
+    const result = await queryApi.collectRows(fluxQuery);
 
-    return res.status(200).json(result);
+    // Process and format the results
+    const formattedResult = result.map((row) => ({
+      time: row._time,
+      value: row._value,
+      boardId: row.board_id,
+      // Add any other fields you need from the row
+    }));
+
+    return res.status(200).json(formattedResult);
   } catch (error) {
-    console.error("Error ejecutando consulta:", error);
+    console.error("Error executing query:", error);
     return res
       .status(500)
-      .json({ message: "Error ejecutando consulta", error: error.message });
+      .json({ message: "Error executing query", error: error.message });
   }
 });
 
