@@ -43,7 +43,7 @@ const HistoricalTankModel = () => {
 
   const applyFilters = async () => {
     const filters = {
-      date,
+      date: date ? new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())) : null,
       boardIds: boardIds,
       hour: timeSlider,
     };
@@ -51,18 +51,19 @@ const HistoricalTankModel = () => {
     try {
       const data = await getHistoricalData(filters);
       console.log('Filtered data:', data);
-
+  
       historicalData.encoderData = data.encoderData;
       historicalData.milkQuantityData = data.milkQuantityData;
       historicalData.switchStatus = data.switchStatus;
       historicalData.weightData = data.weightData;
       historicalData.tankTemperaturesData = data.tankTemperaturesData;
       historicalData.airQualityData = data.airQualityData;
-
     } catch (error) {
       console.error('Error applying filters:', error);
     }
   };
+  
+  
 
   useEffect(() => {
     // Opcional: Si deseas cargar datos automáticamente cuando cambian los filtros

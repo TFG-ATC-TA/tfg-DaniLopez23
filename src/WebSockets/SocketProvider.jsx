@@ -1,18 +1,15 @@
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { createContext, useContext, useEffect, useCallback } from "react";
 import { createSocket } from "@/WebSockets/Socket";
 import useDataStore from "@/Stores/useDataStore";
 import useTankStore from "@/Stores/useTankStore";
-import { getFarm } from "@/services/farm";
-
-const FARM_ID = "synthetic-farm-1";
+import { getFarmById } from "@/services/farm";
+import useSocketStore from "@/Stores/useSocketStore";
 
 const SocketContext = createContext(null);
-
+const defaultFarmId = "673b5c5ed5c203a653ace69a"
 export const useSocket = () => useContext(SocketContext);
 
 export function SocketProvider({ children }) {
-  const [socket, setSocket] = useState(null);
-  const [serverStatus, setServerStatus] = useState("disconnected");
   const {
     updateEncoderData,
     updateGyroscopeData,
@@ -25,6 +22,7 @@ export function SocketProvider({ children }) {
   } = useDataStore((state) => state);
 
   const { setSelectedTank } = useTankStore((state) => state);
+  const { socket, serverStatus, setSocket, setServerStatus } = useSocketStore((state) => state);
 
   const joinRooms = useCallback((boardIds) => {
     if (socket && Array.isArray(boardIds)) {
@@ -33,91 +31,51 @@ export function SocketProvider({ children }) {
     }
   }, [socket]);
 
-  const onEncoderData = (data) => {
-    //console.log("Encoder data received:", data.tags.board_id);
-    updateEncoderData(data);
-  };
-
-  const onGyroscopeData = (data) => {
-    //console.log("Gyroscope data received:", data.tags.board_id);
-    updateGyroscopeData(data);
-  };
-
-  const onMilkQuantityData = (data) => {
-    //console.log("Milk quantity data received:", data.tags.board_id);
-    updateMilkQuantityData(data);
-  };
-
-  const onTankTemperature = (data) => {
-    //console.log("Tank temperatures data received:", data.tags.board_id);
-    updateTankTemperaturesData(data);
-  };
-
-  const onWeightData = (data) => {
-    //console.log("Weight data received:", data.tags.board_id);
-    updateWeightData(data);
-  };
-
-  const onSwitch = (data) => {
-    //console.log("Switch status received:", data.tags.board_id);
-    updateSwitchStatus(data);
-  };
-
-  const onAirQualityData = (data) => {
-    console.log("Air quality data received:", data.tags.board_id);
-    updateAirQualityData(data);
-  };
-
-  const onLastData = (data) => {
-    console.log("Last data received:", data);
-    updateEncoderData(data.encoder);
-    updateGyroscopeData(data["6_dof_imu"]);
-    updateMilkQuantityData(data.tank_distance);
-    updateTankTemperaturesData(data.temperature_probe);
-    updateSwitchStatus(data.magnetic_switch);
-    updateWeightData(data.weight);
-    updateAirQualityData(data.air_quality);
-  };
-
   useEffect(() => {
     const newSocket = createSocket();
     setSocket(newSocket);
 
     const setupSocketListeners = () => {
-      newSocket.on("connect", () => {
-        console.log("Connected to server");
-        setServerStatus("connected");
-      });
+      newSocket.on("connect", () => setServerStatus("connected"));
+      newSocket.on("disconnect", () => setServerStatus("disconnected"));
 
-      newSocket.on("disconnect", () => {
-        console.log("Disconnected from server");
-        setServerStatus("disconnected");
-      });
+      // Register specific event listeners
+      newSocket.on("synthetic-farm-1/encoder", updateEncoderData);
+      newSocket.on("synthetic-farm-1/6_dof_imu", updateGyroscopeData);
+      newSocket.on("synthetic-farm-1/tank_distance", updateMilkQuantityData);
+      newSocket.on("synthetic-farm-1/tank_temperature_probes", updateTankTemperaturesData);
+      newSocket.on("synthetic-farm-1/magnetic_switch", updateSwitchStatus);
+      newSocket.on("synthetic-farm-1/weight", updateWeightData);
+      newSocket.on("synthetic-farm-1/air_quality", updateAirQualityData);
 
-      newSocket.on(`${FARM_ID}/encoder`, onEncoderData);
-      newSocket.on(`${FARM_ID}/6_dof_imu`, onGyroscopeData);
-      newSocket.on(`${FARM_ID}/tank_distance`, onMilkQuantityData);
-      newSocket.on(`${FARM_ID}/tank_temperature_probes`, onTankTemperature);
-      newSocket.on(`${FARM_ID}/magnetic_switch`, onSwitch);
-      newSocket.on(`${FARM_ID}/weight`, onWeightData);
-      newSocket.on(`${FARM_ID}/air_quality`, onAirQualityData);
-      newSocket.on(`last data`, onLastData );
+      // Handle last data event separately
+      newSocket.on("last data", (data) => {
+        console.log("Last data received:", data);
+
+        // Update all stores with the last data payload
+        if (data.encoder) updateEncoderData(data.encoder);
+        if (data["6_dof_imu"]) updateGyroscopeData(data["6_dof_imu"]);
+        if (data.tank_distance) updateMilkQuantityData(data.tank_distance);
+        if (data.temperature_probe) updateTankTemperaturesData(data.temperature_probe);
+        if (data.magnetic_switch) updateSwitchStatus(data.magnetic_switch);
+        if (data.weight) updateWeightData(data.weight);
+        if (data.air_quality) updateAirQualityData(data.air_quality);
+      });
     };
 
     const initializeApp = async () => {
       try {
-        const farmData = await getFarm();
-        console.log("Farm data received:", farmData);
+        const farmData = await getFarmById(defaultFarmId);
         setFarmData(farmData);
+
         const firstMilkTank = farmData.equipments.find(
           (tank) => tank.type === "Tanque de leche"
         );
         setSelectedTank(firstMilkTank);
 
-        if (firstMilkTank && firstMilkTank.devices) {
-          const boardIds = firstMilkTank.devices.map(device => device.boardId).filter(Boolean);
+        if (firstMilkTank?.devices) {
+          const boardIds = firstMilkTank.devices.map((device) => device.boardId).filter(Boolean);
           joinRooms(boardIds);
-          console.log("Joining rooms for boards:", boardIds);
         }
       } catch (error) {
         console.error("Error initializing the application:", error);

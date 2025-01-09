@@ -2,9 +2,9 @@ import axios from "axios";
 
 const baseUrl = "http://localhost:3001/farms";
 
-export const getFarm = async () => {
+export const getFarmById = async (id) => {
   try {
-    const response = await axios.get(baseUrl);
+    const response = await axios.get(`${baseUrl}/${id}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching farm data:", error);
