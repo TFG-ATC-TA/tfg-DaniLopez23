@@ -1,5 +1,6 @@
-import { Home, Server, Wifi, WifiOff } from "lucide-react";
+import { Home, Server, Wifi, WifiOff, History } from 'lucide-react';
 import PropTypes from "prop-types";
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -8,11 +9,50 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
 
 import { useTank } from "@/hooks/useTank";
 
+const DataModeToggle = ({ isRealTime, onToggle }) => {
+  return (
+    <div className="flex items-center bg-gray-100 rounded-full p-1 shadow-inner">
+      <button
+        className={cn(
+          "px-3 py-1 rounded-full text-sm font-medium transition-colors flex items-center",
+          isRealTime
+            ? "bg-white text-primary shadow-sm"
+            : "text-gray-600 hover:bg-gray-200"
+        )}
+        onClick={() => onToggle(true)}
+      >
+        <Wifi className="mr-2 h-4 w-4" /> Real-time
+      </button>
+      <Switch
+        checked={!isRealTime}
+        onCheckedChange={(checked) => onToggle(!checked)}
+        className="mx-2"
+      />
+      <button
+        className={cn(
+          "px-3 py-1 rounded-full text-sm font-medium transition-colors flex items-center",
+          !isRealTime
+            ? "bg-white text-primary shadow-sm"
+            : "text-gray-600 hover:bg-gray-200"
+        )}
+        onClick={() => onToggle(false)}
+      >
+        <History className="mr-2 h-4 w-4" /> Historical
+      </button>
+    </div>
+  );
+};
+
 const Header = ({ serverStatus, farmData }) => {
   const { selectedTank, changeSelectedTank } = useTank();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isRealTime = location.pathname === '/real-time';
 
   const handleTankChange = (tankId) => {
     const tank = farmData.equipments.find((tank) => tank._id === tankId);
@@ -27,14 +67,18 @@ const Header = ({ serverStatus, farmData }) => {
     return equipments.filter((tank) => tank.type === "Tanque de leche");
   };
 
+  const handleDataModeToggle = (isRealTimeMode) => {
+    navigate(isRealTimeMode ? '/real-time' : '/historical');
+  };
+
   return (
-    <div className="bg-white p-4 shadow-md flex justify-between items-center">
+    <div className="bg-white p-6 shadow-sm border-b flex justify-between items-center space-x-8">
       <div className="flex items-center space-x-4">
-        <Home className="text-2xl text-primary" />
+        <Home className="text-3xl text-primary" />
         <div>
-          <h2 className="text-xl font-bold mb-2">Farm Information</h2>
+          <h2 className="text-2xl font-bold mb-3">Farm Information</h2>
           {farmData ? (
-            <div className="flex space-x-4 text-sm">
+            <div className="flex space-x-6 text-base">
               <p>
                 <strong>Id:</strong> {farmData.idname}
               </p>
@@ -47,17 +91,17 @@ const Header = ({ serverStatus, farmData }) => {
               </p>
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-base text-muted-foreground">
               Loading farm data...
             </p>
           )}
         </div>
       </div>
 
-      <div className="flex-1 mx-8">
-        <h3 className="text-xl font-bold mb-2">Select Tank</h3>
+      <div className="flex-1 mx-10">
+        <h3 className="text-2xl font-bold mb-3">Select Tank</h3>
         <Select value={selectedTank?._id} onValueChange={handleTankChange}>
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-[250px]">
             <SelectValue placeholder="Select a tank" />
           </SelectTrigger>
           <SelectContent>
@@ -71,31 +115,35 @@ const Header = ({ serverStatus, farmData }) => {
         </Select>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <Server className="text-xl text-primary" />
-        <h3 className="text-xl font-bold">Server Status</h3>
-        {serverStatus === "connected" ? (
-          <>
-            <Wifi className="text-green-500" />
-            <Badge variant="outline" className="bg-green-100 text-green-800">
-              Connected
-            </Badge>
-          </>
-        ) : serverStatus === "disconnected" ? (
-          <>
-            <WifiOff className="text-red-500" />
-            <Badge variant="outline" className="bg-red-100 text-red-800">
-              Disconnected
-            </Badge>
-          </>
-        ) : (
-          <>
-            <Wifi className="text-yellow-500 animate-pulse" />
-            <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
-              Connecting
-            </Badge>
-          </>
-        )}
+      <div className="flex items-center space-x-8">
+        <DataModeToggle isRealTime={isRealTime} onToggle={handleDataModeToggle} />
+
+        <div className="flex items-center space-x-3">
+          <Server className="text-2xl text-primary" />
+          <h3 className="text-2xl font-bold">Server Status</h3>
+          {serverStatus === "connected" ? (
+            <>
+              <Wifi className="text-green-500 h-5 w-5" />
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                Connected
+              </Badge>
+            </>
+          ) : serverStatus === "disconnected" ? (
+            <>
+              <WifiOff className="text-red-500 h-5 w-5" />
+              <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                Disconnected
+              </Badge>
+            </>
+          ) : (
+            <>
+              <Wifi className="text-yellow-500 animate-pulse h-5 w-5" />
+              <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                Connecting
+              </Badge>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

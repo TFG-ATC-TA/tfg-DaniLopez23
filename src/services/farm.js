@@ -2,9 +2,9 @@ import axios from "axios";
 
 const baseUrl = "http://localhost:3001/farms";
 
-export const getFarm = async () => {
+export const getFarmById = async (id) => {
   try {
-    const response = await axios.get(baseUrl);
+    const response = await axios.get(`${baseUrl}/${id}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching farm data:", error);
@@ -35,4 +35,16 @@ export const getBoardsByTank = (farmData) => {
 
   console.log("Boards by tank:", boardsByTank);
   return boardsByTank;
+};
+
+export const getHistoricalData = async (filters) => {
+  try {
+    console.log('Filters:', filters);
+
+    const response = await axios.post('http://localhost:3001/historical-data', filters);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching filtered data:', error);
+    throw error;
+  }
 };

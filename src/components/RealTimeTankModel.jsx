@@ -8,7 +8,7 @@ import CameraSettings from "./Camera/CameraSettings";
 import { cameraViews } from "./Camera/CameraViews";
 import {Model}  from "./tank-models/HorizontalTank2Blades";
 
-const TankModel = () => {
+const RealTimeTankModel = () => {
 
   const { selectedTank } = useTankStore((state) => state);
   const {
@@ -52,4 +52,4 @@ const TankModel = () => {
   );
 };
 
-export default TankModel;
+export default RealTimeTankModel;
