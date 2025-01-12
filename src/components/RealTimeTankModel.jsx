@@ -2,7 +2,6 @@ import React, { Suspense, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import useDataStore from "@/Stores/useDataStore";
 import useTankStore from "@/Stores/useTankStore";
-import HorizontalTank2BladesModel from "./tank-models/HorizontalTank2BladesModel";
 import { Button } from "@/components/ui/button";
 import CameraSettings from "./Camera/CameraSettings";
 import { cameraViews } from "./Camera/CameraViews";
