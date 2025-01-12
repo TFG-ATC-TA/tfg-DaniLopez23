@@ -25,7 +25,6 @@ const TankModelLayout = ({ children }) => {
 const DigitalTwin = () => {
 
   const { selectedTank } = useTankStore((state) => state);
-  const { serverStatus } = useSocket();
 
   return (
     <div className="flex flex-grow overflow-hidden p-2 gap-2">

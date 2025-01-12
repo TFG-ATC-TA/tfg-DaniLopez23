@@ -36,6 +36,7 @@ const RealTimeTankModel = () => {
                 weightData={weightData}
                 tankTemperaturesData={tankTemperaturesData}
                 airQualityData={airQualityData}
+                selectedData={selectedData}
               />
             </group>
           ) : (
