@@ -36,9 +36,7 @@ mqttService.connect();
 app.use("/farms", farmRouter);
 app.use("/historical-data", historicalDataRouter);
 // Establece el manejador para los mensajes entrantes desde MQTT
-mqttService.onMessage((boardId, topic, data) => {
-  // webSocketsService.emitToAll(topic, data);
-  
+mqttService.onMessage((boardId, topic, data) => {  
   webSocketsService.emitToTank(boardId ,topic, data);
 });
 
