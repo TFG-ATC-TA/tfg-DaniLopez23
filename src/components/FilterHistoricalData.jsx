@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, Filter } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -9,33 +9,37 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 
-const FilterComponent = ({ onFilterChange }) => {
-  const [date, setDate] = useState(null);
-  const [selectedStatus, setSelectedStatus] = useState('all');
-  const [selectedSensor, setSelectedSensor] = useState('all');
-  const [showAnomalous, setShowAnomalous] = useState(false);
+const FilterComponent = ({ filters, setFilters }) => {
+  const [localFilters, setLocalFilters] = useState(filters);
 
-  const handleFilterChange = () => {
-    onFilterChange({
-      date,
-      selectedStatus,
-      selectedSensor,
-      showAnomalous
-    });
+  useEffect(() => {
+    setLocalFilters(filters);
+  }, [filters]);
+
+  const handleFilterChange = (key, value) => {
+    setLocalFilters(prev => ({ ...prev, [key]: value }));
+  };
+
+  const applyFilters = () => {
+    setFilters(localFilters);
   };
 
   const clearFilters = () => {
-    setDate(null);
-    setSelectedStatus('all');
-    setSelectedSensor('all');
-    setShowAnomalous(false);
-    handleFilterChange();
+    const clearedFilters = {
+      date: null,
+      selectedStatus: 'all',
+      selectedSensor: 'all',
+      showAnomalous: false,
+      timeSlider: 0
+    };
+    setLocalFilters(clearedFilters);
+    setFilters(clearedFilters);
   };
 
   return (
-    <Card className="w-full shadow-md rounded-lg">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+    <Card className="w-full shadow-none border-none">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg font-semibold flex items-center gap-2">
           <Filter className="h-5 w-5" />
           Historical Data Filters
         </CardTitle>
@@ -51,17 +55,14 @@ const FilterComponent = ({ onFilterChange }) => {
                 id="date-picker"
               >
                 <Calendar className="mr-2 h-4 w-4" />
-                {date ? format(date, "PPP") : "Select a date"}
+                {localFilters.date ? format(localFilters.date, "PPP") : "Select a date"}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">
               <CalendarComponent
                 mode="single"
-                selected={date}
-                onSelect={(newDate) => {
-                  setDate(newDate);
-                  handleFilterChange();
-                }}
+                selected={localFilters.date}
+                onSelect={(newDate) => handleFilterChange('date', newDate)}
                 initialFocus
               />
             </PopoverContent>
@@ -70,11 +71,8 @@ const FilterComponent = ({ onFilterChange }) => {
         <div>
           <Label htmlFor="status-select" className="block text-sm font-medium mb-1">Status</Label>
           <Select 
-            value={selectedStatus} 
-            onValueChange={(value) => {
-              setSelectedStatus(value);
-              handleFilterChange();
-            }}
+            value={localFilters.selectedStatus} 
+            onValueChange={(value) => handleFilterChange('selectedStatus', value)}
           >
             <SelectTrigger id="status-select">
               <SelectValue placeholder="Select a status" />
@@ -90,11 +88,8 @@ const FilterComponent = ({ onFilterChange }) => {
         <div>
           <Label htmlFor="sensor-select" className="block text-sm font-medium mb-1">Sensor</Label>
           <Select 
-            value={selectedSensor} 
-            onValueChange={(value) => {
-              setSelectedSensor(value);
-              handleFilterChange();
-            }}
+            value={localFilters.selectedSensor} 
+            onValueChange={(value) => handleFilterChange('selectedSensor', value)}
           >
             <SelectTrigger id="sensor-select">
               <SelectValue placeholder="Select a sensor" />
@@ -110,19 +105,21 @@ const FilterComponent = ({ onFilterChange }) => {
         <div className="flex items-center space-x-2">
           <Switch
             id="anomalous-data"
-            checked={showAnomalous}
-            onCheckedChange={(checked) => {
-              setShowAnomalous(checked);
-              handleFilterChange();
-            }}
+            checked={localFilters.showAnomalous}
+            onCheckedChange={(checked) => handleFilterChange('showAnomalous', checked)}
           />
           <Label htmlFor="anomalous-data">Show Anomalous Data</Label>
         </div>
-        <Button size="sm" onClick={clearFilters}>
-          Remove filters
-        </Button>
-        </CardContent>
-      </Card>
+        <div className="flex justify-between pt-4">
+          <Button variant="outline" size="sm" onClick={clearFilters}>
+            Clear Filters
+          </Button>
+          <Button size="sm" onClick={applyFilters}>
+            Apply Filters
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

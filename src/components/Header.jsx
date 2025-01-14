@@ -114,7 +114,7 @@ const Header = ({ serverStatus, farmData }) => {
       </div>
 
       <div className="flex items-center space-x-8">
-        <DataModeToggle isRealTime={isRealTime} onToggle={handleDataModeToggle} />
+        {/* <DataModeToggle isRealTime={isRealTime} onToggle={handleDataModeToggle} /> */}
 
         <div className="flex items-center space-x-3">
           <Server className="text-2xl text-primary" />

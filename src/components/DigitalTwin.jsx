@@ -1,14 +1,19 @@
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import SensorData from "./SensorData/SensorData";
 import TankStatus from "./TankStatus";
 import TankInformation from "./TankInformation";
 import SelectedSensorData from "./sensorData/SelectedSensorData";
-import FilterComponent from './FilterHistoricalData';
+import FilterComponent from "./FilterHistoricalData";
 import CameraSettings from "./Camera/CameraSettings";
 import { Model } from "./tank-models/HorizontalTank2Blades";
+import { Slider } from "@/components/ui/slider";
+import { Label } from "@/components/ui/label";
 
-import { getHistoricalData } from '@/services/farm';
+import { getHistoricalData } from "@/services/farm";
+import useDataStore from "@/Stores/useDataStore";
+import useTankStore from "@/Stores/useTankStore";
+import { getBoardIdsFromTank } from "@/services/tank";
 
 const TankModelLayout = ({ children }) => {
   return (
@@ -38,52 +43,76 @@ const DigitalTwin = ({
     weightData,
     tankTemperaturesData,
     airQualityData,
-    selectedData
+    selectedData,
   };
 
   const [historicalData, setHistoricalData] = useState(null);
-  const [mode, setMode] = useState('realtime');
+  const { mode } = useDataStore((state) => state);
 
   const [filters, setFilters] = useState({
     date: null,
-    selectedStatus: 'all',
-    selectedSensor: 'all',
+    selectedStatus: "all",
+    selectedSensor: "all",
     showAnomalous: false,
-    timeSlider: 0
+    timeSlider: 0,
   });
+  const boardIds = getBoardIdsFromTank(selectedTank);
 
   useEffect(() => {
-    if (mode === 'historical' && filters.date) {
+    if (mode === "historical" && filters.date) {
       fetchHistoricalData();
     }
-  }, [filters]);
+  }, [filters, mode]);
 
   const fetchHistoricalData = async () => {
     try {
       const data = await getHistoricalData({
-        date: filters.date,
+        date: new Date(
+          Date.UTC(
+            filters.date.getFullYear(),
+            filters.date.getMonth(),
+            filters.date.getDate()
+          )
+        ),
+        boardIds: boardIds,
         status: filters.selectedStatus,
         sensor: filters.selectedSensor,
         showAnomalous: filters.showAnomalous,
         hour: filters.timeSlider,
-        tankId: selectedTank?._id
+        tankId: selectedTank?._id,
       });
       setHistoricalData(data);
     } catch (error) {
-      console.error('Error fetching historical data:', error);
+      console.error("Error fetching historical data:", error);
     }
   };
 
   const renderTankModel = () => {
-    const data = mode === 'realtime' ? realTimeData : historicalData;
+    const data = mode === "realtime" ? realTimeData : historicalData;
 
-    if (mode === 'historical' && !data) {
-      return <div className="flex items-center justify-center h-full">Select a date to watch data</div>;
+    if (mode === "historical" && !filters.date) {
+      return (
+        <div className="flex items-center justify-center h-full text-lg text-gray-500">
+          Select a date to view historical data
+        </div>
+      );
     }
 
-    if (!data) {
-      return <div className="flex items-center justify-center h-full">Loading...</div>;
-    }
+    // if (mode === "historical" && !data) {
+    //   return (
+    //     <div className="flex items-center justify-center h-full text-lg text-gray-500">
+    //       Loading historical data...
+    //     </div>
+    //   );
+    // }
+
+    // if (!data) {
+    //   return (
+    //     <div className="flex items-center justify-center h-full text-lg text-gray-500">
+    //       Loading...
+    //     </div>
+    //   );
+    // }
 
     return (
       <Canvas className="w-full h-full">
@@ -92,19 +121,24 @@ const DigitalTwin = ({
         <Suspense fallback={null}>
           <group>
             <Model
-              encoderData={data.encoderData}
-              milkQuantityData={data.milkQuantityData}
-              switchStatus={data.switchStatus}
-              weightData={data.weightData}
-              tankTemperaturesData={data.tankTemperaturesData}
-              airQualityData={data.airQualityData}
-              selectedData={data.selectedData}
+              encoderData={data?.encoderData}
+              milkQuantityData={data?.milkQuantityData}
+              switchStatus={data?.switchStatus}
+              weightData={data?.weightData}
+              tankTemperaturesData={data?.tankTemperaturesData}
+              airQualityData={data?.airQualityData}
+              selectedData={data?.selectedData}
             />
           </group>
-          <CameraSettings view={data.selectedData} />
+          <CameraSettings view={data?.selectedData} />
         </Suspense>
       </Canvas>
     );
+  };
+
+  const formatTime = (value) => {
+    const hours = value;
+    return `${hours.toString().padStart(2, "0")}:00`;
   };
 
   return (
@@ -114,18 +148,40 @@ const DigitalTwin = ({
       </div>
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="flex-shrink-0 bg-white shadow-md p-4">
-          <TankInformation selectedTank={selectedTank} mode={mode} setMode={setMode} />
+          <TankInformation selectedTank={selectedTank} />
+        </div>
+        <div className="flex-shrink-0 bg-white shadow-md p-4">
+          <TankStatus />
         </div>
         <div className="flex-1 flex overflow-hidden">
-          <TankModelLayout className="flex-1">
-            {renderTankModel()}
-          </TankModelLayout>
-          {mode === 'historical' && (
-            <div className="w-64 bg-white shadow-md overflow-auto p-4">
-              <FilterComponent 
-                filters={filters} 
-                setFilters={setFilters}
-              />
+          <div className="flex-1 flex flex-col">
+            <TankModelLayout className="flex-1 bg-gray-100">
+              {renderTankModel()}
+            </TankModelLayout>
+            {mode === "historical" && filters.date && (
+              <div className="p-4 bg-white">
+                <Label
+                  htmlFor="time-slider"
+                  className="block text-sm font-medium mb-1"
+                >
+                  Time: {formatTime(filters.timeSlider)}
+                </Label>
+                <Slider
+                  id="time-slider"
+                  min={0}
+                  max={23}
+                  step={1}
+                  value={[filters.timeSlider]}
+                  onValueChange={(value) =>
+                    setFilters((prev) => ({ ...prev, timeSlider: value[0] }))
+                  }
+                />
+              </div>
+            )}
+          </div>
+          {mode === "historical" && (
+            <div className="w-80 bg-white shadow-md overflow-auto p-6">
+              <FilterComponent filters={filters} setFilters={setFilters} />
             </div>
           )}
         </div>

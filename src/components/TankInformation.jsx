@@ -10,10 +10,16 @@ import {
 } from "@/components/ui/dialog";
 import PropTypes from 'prop-types';
 import DataModeSwitch from './DataModeSwitch';
+import useDataStore from '@/Stores/useDataStore';
 
-const TankInformation = ({ selectedTank, mode, setMode }) => {
+const TankInformation = ({ selectedTank }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const {mode, setMode} = useDataStore((state) => state);
   const isRealTime = mode === 'realtime';
+
+  const handleDataModeToggle = (isRealTimeMode) => {
+    setMode(isRealTimeMode ? 'realtime' : 'historical');
+  };
 
   if (!selectedTank) {
     return (
@@ -45,7 +51,7 @@ const TankInformation = ({ selectedTank, mode, setMode }) => {
           </DialogContent>
         </Dialog>
       </div>
-      <DataModeSwitch isRealTime={isRealTime} onChange={() => setMode(isRealTime ? 'historical' : 'realtime')} />
+      <DataModeSwitch isRealTime={isRealTime} onToggle={handleDataModeToggle} />
     </div>
   );
 };
@@ -64,8 +70,6 @@ InfoItem.propTypes = {
 
 TankInformation.propTypes = {
   selectedTank: PropTypes.object,
-  mode: PropTypes.string.isRequired,
-  setMode: PropTypes.func.isRequired,
 };
 
 export default TankInformation;
