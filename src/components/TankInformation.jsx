@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { Info } from 'lucide-react';
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -10,24 +8,24 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import useTankStore from "@/Stores/useTankStore";
 import PropTypes from 'prop-types';
+import DataModeSwitch from './DataModeSwitch';
 
-const TankInformation = ({ className }) => {
-  const selectedTank = useTankStore((state) => state.selectedTank);
+const TankInformation = ({ selectedTank, mode, setMode }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const isRealTime = mode === 'realtime';
 
   if (!selectedTank) {
     return (
-      <div className={`text-center text-gray-500 ${className}`}>
+      <div className="text-center text-gray-500">
         No tank selected
       </div>
     );
   }
 
   return (
-    <div className={`flex justify-between items-center p-4 ${className}`}>
-      <div className="flex items-center gap-2">
+    <div className="flex justify-between items-center">
+      <div className="flex items-center gap-4">
         <h2 className="text-2xl font-bold">{selectedTank.name}</h2>
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
           <DialogTrigger asChild>
@@ -47,6 +45,7 @@ const TankInformation = ({ className }) => {
           </DialogContent>
         </Dialog>
       </div>
+      <DataModeSwitch isRealTime={isRealTime} onChange={() => setMode(isRealTime ? 'historical' : 'realtime')} />
     </div>
   );
 };
@@ -64,7 +63,9 @@ InfoItem.propTypes = {
 };
 
 TankInformation.propTypes = {
-  className: PropTypes.string,
+  selectedTank: PropTypes.object,
+  mode: PropTypes.string.isRequired,
+  setMode: PropTypes.func.isRequired,
 };
 
 export default TankInformation;

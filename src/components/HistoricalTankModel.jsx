@@ -87,6 +87,7 @@ const HistoricalTankModel = () => {
                 weightData={historicalData.weightData}
                 tankTemperaturesData={historicalData.tankTemperaturesData}
                 airQualityData={historicalData.airQualityData}
+                selectedData={selectedData}
               />
             </group>
           ) : (

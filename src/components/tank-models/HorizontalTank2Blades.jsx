@@ -125,15 +125,12 @@ export function Model({
   const renderMilkQuantity = () => (
     <>
       {getVisibleMilkCilinder(milkQuantityData?.milkQuantity ?? 0)}
-      <CallOutText
-        position={[0, 2.9, 0]}
-        text={`${milkQuantityData?.milkQuantity ?? "No data"} L`}
-      />
     </>
   );
 
   const renderEncoder = () => (
     <>
+      
       <animated.mesh
         geometry={nodes.Blade2.geometry}
         material={materials["BladeMaterial.002"]}
@@ -225,14 +222,6 @@ export function Model({
   const renderTankTemperatures = () => (
     <>
       {getVisibleMilkCilinder(milkQuantityData?.milkQuantity ?? 0)}
-      <CallOutText
-        position={[0, 2.9, 0]}
-        text={`${
-          tankTemperaturesData == null
-            ? "No Data"
-            : tankTemperaturesData.temperature + "°C"
-        }`}
-      />
     </>
   );
 

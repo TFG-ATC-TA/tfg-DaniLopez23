@@ -1,6 +1,5 @@
 import { Home, Server, Wifi, WifiOff, History } from 'lucide-react';
 import PropTypes from "prop-types";
-import { useNavigate, useLocation } from 'react-router-dom';
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -13,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 
 import { useTank } from "@/hooks/useTank";
+import useDataStore from '@/Stores/useDataStore';
 
 const DataModeToggle = ({ isRealTime, onToggle }) => {
   return (
@@ -50,10 +50,8 @@ const DataModeToggle = ({ isRealTime, onToggle }) => {
 
 const Header = ({ serverStatus, farmData }) => {
   const { selectedTank, changeSelectedTank } = useTank();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const isRealTime = location.pathname === '/real-time';
-
+  const {mode, setMode} = useDataStore((state) => state);
+  const isRealTime = mode === 'realtime';
   const handleTankChange = (tankId) => {
     const tank = farmData.equipments.find((tank) => tank._id === tankId);
     console.log("Changed tank:", tank.name);
@@ -68,7 +66,7 @@ const Header = ({ serverStatus, farmData }) => {
   };
 
   const handleDataModeToggle = (isRealTimeMode) => {
-    navigate(isRealTimeMode ? '/real-time' : '/historical');
+    setMode(isRealTimeMode ? 'realtime' : 'historical');
   };
 
   return (

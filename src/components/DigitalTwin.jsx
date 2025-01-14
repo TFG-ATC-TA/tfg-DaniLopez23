@@ -1,19 +1,18 @@
+import { useState, useEffect, Suspense } from 'react';
+import { Canvas } from "@react-three/fiber";
 import SensorData from "./SensorData/SensorData";
 import TankStatus from "./TankStatus";
-import RealTimeTankModel from "./RealTimeTankModel";
-import HistoricalTankModel from "./HistoricalTankModel";
 import TankInformation from "./TankInformation";
 import SelectedSensorData from "./sensorData/SelectedSensorData";
+import FilterComponent from './FilterHistoricalData';
+import CameraSettings from "./Camera/CameraSettings";
+import { Model } from "./tank-models/HorizontalTank2Blades";
 
-import { Routes, Route, Navigate } from "react-router-dom";
-
-import useTankStore from "@/Stores/useTankStore";
-import useDataStore from "@/Stores/useDataStore";
-import { useSocket } from "@/WebSockets/SocketProvider";
+import { getHistoricalData } from '@/services/farm';
 
 const TankModelLayout = ({ children }) => {
   return (
-    <div className="flex-grow bg-white shadow-md rounded-lg relative">
+    <div className="relative w-full h-full">
       <div className="absolute top-4 left-4 z-10">
         <SelectedSensorData />
       </div>
@@ -22,44 +21,114 @@ const TankModelLayout = ({ children }) => {
   );
 };
 
-const DigitalTwin = () => {
+const DigitalTwin = ({
+  encoderData,
+  milkQuantityData,
+  switchStatus,
+  weightData,
+  tankTemperaturesData,
+  airQualityData,
+  selectedData,
+  selectedTank,
+}) => {
+  const realTimeData = {
+    encoderData,
+    milkQuantityData,
+    switchStatus,
+    weightData,
+    tankTemperaturesData,
+    airQualityData,
+    selectedData
+  };
 
-  const { selectedTank } = useTankStore((state) => state);
+  const [historicalData, setHistoricalData] = useState(null);
+  const [mode, setMode] = useState('realtime');
+
+  const [filters, setFilters] = useState({
+    date: null,
+    selectedStatus: 'all',
+    selectedSensor: 'all',
+    showAnomalous: false,
+    timeSlider: 0
+  });
+
+  useEffect(() => {
+    if (mode === 'historical' && filters.date) {
+      fetchHistoricalData();
+    }
+  }, [filters]);
+
+  const fetchHistoricalData = async () => {
+    try {
+      const data = await getHistoricalData({
+        date: filters.date,
+        status: filters.selectedStatus,
+        sensor: filters.selectedSensor,
+        showAnomalous: filters.showAnomalous,
+        hour: filters.timeSlider,
+        tankId: selectedTank?._id
+      });
+      setHistoricalData(data);
+    } catch (error) {
+      console.error('Error fetching historical data:', error);
+    }
+  };
+
+  const renderTankModel = () => {
+    const data = mode === 'realtime' ? realTimeData : historicalData;
+
+    if (mode === 'historical' && !data) {
+      return <div className="flex items-center justify-center h-full">Select a date to watch data</div>;
+    }
+
+    if (!data) {
+      return <div className="flex items-center justify-center h-full">Loading...</div>;
+    }
+
+    return (
+      <Canvas className="w-full h-full">
+        <ambientLight intensity={0.6} />
+        <directionalLight position={[-10, -10, -10]} intensity={0.5} />
+        <Suspense fallback={null}>
+          <group>
+            <Model
+              encoderData={data.encoderData}
+              milkQuantityData={data.milkQuantityData}
+              switchStatus={data.switchStatus}
+              weightData={data.weightData}
+              tankTemperaturesData={data.tankTemperaturesData}
+              airQualityData={data.airQualityData}
+              selectedData={data.selectedData}
+            />
+          </group>
+          <CameraSettings view={data.selectedData} />
+        </Suspense>
+      </Canvas>
+    );
+  };
 
   return (
-    <div className="flex flex-grow overflow-hidden p-2 gap-2">
-      <div className="w-64 bg-white shadow-md rounded-lg overflow-auto">
+    <div className="flex h-screen overflow-hidden">
+      <div className="w-64 bg-white shadow-md overflow-auto">
         <SensorData className="w-full" />
       </div>
-      <div className="flex-1 flex flex-col gap-2">
-        <div className="flex gap-2">
-          <div className="flex-1 bg-white shadow-md rounded-lg p-2">
-            <TankInformation />
-          </div>
-          <div className="w-1/5 bg-white shadow-md rounded-lg p-4">
-            <TankStatus status={selectedTank?.status || "Working"} />
-          </div>
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-shrink-0 bg-white shadow-md p-4">
+          <TankInformation selectedTank={selectedTank} mode={mode} setMode={setMode} />
         </div>
-        <Routes>
-          <Route path="/" element={<Navigate to="/real-time" replace />} />
-          <Route
-            path="/real-time"
-            element={
-              <TankModelLayout>
-                <RealTimeTankModel />
-              </TankModelLayout>
-            }
-          />
-          <Route
-            path="/historical"
-            element={
-              <TankModelLayout>
-                <HistoricalTankModel
-                />
-              </TankModelLayout>
-            }
-          />
-        </Routes>
+        <div className="flex-1 flex overflow-hidden">
+          <TankModelLayout className="flex-1">
+            {renderTankModel()}
+          </TankModelLayout>
+          {mode === 'historical' && (
+            <div className="w-64 bg-white shadow-md overflow-auto p-4">
+              <FilterComponent 
+                filters={filters} 
+                setFilters={setFilters}
+              />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

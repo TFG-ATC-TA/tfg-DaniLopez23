@@ -1,5 +1,5 @@
 export const cameraViews = {
-    Encoder: { position: [2.5, 1.5, 0], target: [0, 1, 0] },
+    Encoder: { position: [0, 4, 0], target: [-1, -4, 0] },
     MagneticSwitch: { position: [1, 3, -1], target: [0, 2, 0] },
     MilkQuantity: { position: [0, 1, -4], target: [0, 1, -1] },
     Weight: { position: [2, 0.5, 2], target: [1.5, 0.5, 3.5]  },
