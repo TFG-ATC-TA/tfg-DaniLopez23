@@ -1,10 +1,9 @@
-const Farm = require("../models/Farms");
 const farmRouter = require("express").Router();
 const farmService = require("../services/farmService");
 
 farmRouter.get("/", async (req, res) => {
   try {
-    const farms = await farmService.getFarm();
+    const farms = await farmService.getFarms();
     res.json(farms);
   } catch (error) {
     console.error(error);
@@ -14,7 +13,7 @@ farmRouter.get("/", async (req, res) => {
 
 farmRouter.get("/:id", async (req, res) => {
   try {
-    const farm = await Farm.findById(req.params.id).populate({ path: "equipments", populate: { path: "devices" } });
+    const farm = await farmService.getFarmById(req.params.id);
     if (!farm) {
       return res.status(404).send("Farm not found");
     }
