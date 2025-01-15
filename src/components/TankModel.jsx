@@ -7,7 +7,7 @@ import CameraSettings from "./Camera/CameraSettings";
 import { cameraViews } from "./Camera/CameraViews";
 import {Model}  from "./tank-models/HorizontalTank2Blades";
 
-const RealTimeTankModel = () => {
+const TankModel = () => {
 
   const { selectedTank } = useTankStore((state) => state);
   const {
@@ -19,7 +19,7 @@ const RealTimeTankModel = () => {
     airQualityData,
     selectedData,
   } = useDataStore((state) => state);
-  
+
   return (
     <div className="h-full relative">
       <Canvas>
@@ -52,4 +52,4 @@ const RealTimeTankModel = () => {
   );
 };
 
-export default RealTimeTankModel;
+export default TankModel;
