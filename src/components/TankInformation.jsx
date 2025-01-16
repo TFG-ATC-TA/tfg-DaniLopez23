@@ -8,13 +8,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import PropTypes from 'prop-types';
 import DataModeSwitch from './DataModeSwitch';
 import useDataStore from '@/Stores/useDataStore';
 
 const TankInformation = ({ selectedTank }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const {mode, setMode} = useDataStore((state) => state);
+  const { mode, setMode } = useDataStore((state) => state);
   const isRealTime = mode === 'realtime';
 
   const handleDataModeToggle = (isRealTimeMode) => {
@@ -23,43 +24,47 @@ const TankInformation = ({ selectedTank }) => {
 
   if (!selectedTank) {
     return (
-      <div className="text-center text-gray-500">
-        No tank selected
-      </div>
+      <Card className="w-full h-[88px] flex items-center justify-center">
+        <span className="text-gray-500">No tank selected</span>
+      </Card>
     );
   }
 
   return (
-    <div className="flex justify-between items-center">
-      <div className="flex items-center gap-4">
-        <h2 className="text-2xl font-bold">{selectedTank.name}</h2>
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <Info className="h-4 w-4" />
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="bg-white">
-            <DialogHeader>
-              <DialogTitle className="text-xl">{selectedTank.name} Information</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <InfoItem label="Capacity" value={`${selectedTank.capacity || 2500} liters`} />
-              <InfoItem label="Height" value="1.5 m" />
-              <InfoItem label="Weight" value="1000 kg" />
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-      <DataModeSwitch isRealTime={isRealTime} onToggle={handleDataModeToggle} />
-    </div>
+    <Card className="w-full">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 py-3">
+        <div className="flex items-center space-x-2">
+          <CardTitle className="text-xl font-semibold">{selectedTank.name}</CardTitle>
+          <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <Info className="h-4 w-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle className="text-xl">{selectedTank.name} Information</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <InfoItem label="Capacity" value={`${selectedTank.capacity || 2500} liters`} />
+                <InfoItem label="Height" value="1.5 m" />
+                <InfoItem label="Weight" value="1000 kg" />
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+        <div className="flex items-center space-x-4">
+          <DataModeSwitch isRealTime={isRealTime} onToggle={handleDataModeToggle} />
+        </div>
+      </CardHeader>
+    </Card>
   );
 };
 
 const InfoItem = ({ label, value }) => (
   <div className="flex justify-between items-center">
-    <span className="font-medium text-gray-700">{label}:</span>
-    <span className="text-gray-900">{value}</span>
+    <span className="text-sm text-gray-500">{label}</span>
+    <span className="text-base font-medium">{value}</span>
   </div>
 );
 

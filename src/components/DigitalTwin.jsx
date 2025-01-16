@@ -12,8 +12,8 @@ import { Label } from "@/components/ui/label";
 
 import { getHistoricalData } from "@/services/farm";
 import useDataStore from "@/Stores/useDataStore";
-import useTankStore from "@/Stores/useTankStore";
-import { getBoardIdsFromTank } from "@/services/tank";
+import useTankStore from '@/Stores/useTankStore';
+import { getBoardIdsFromTank } from '@/services/tank';
 
 const TankModelLayout = ({ children }) => {
   return (
@@ -48,6 +48,7 @@ const DigitalTwin = ({
 
   const [historicalData, setHistoricalData] = useState(null);
   const { mode } = useDataStore((state) => state);
+  const { selectedTank: storedSelectedTank } = useTankStore();
 
   const [filters, setFilters] = useState({
     date: null,
@@ -56,30 +57,26 @@ const DigitalTwin = ({
     showAnomalous: false,
     timeSlider: 0,
   });
-  const boardIds = getBoardIdsFromTank(selectedTank);
+
+
+  const boardIds = getBoardIdsFromTank(storedSelectedTank);
 
   useEffect(() => {
     if (mode === "historical" && filters.date) {
       fetchHistoricalData();
     }
-  }, [filters, mode]);
+  }, [filters]);
 
   const fetchHistoricalData = async () => {
     try {
       const data = await getHistoricalData({
-        date: new Date(
-          Date.UTC(
-            filters.date.getFullYear(),
-            filters.date.getMonth(),
-            filters.date.getDate()
-          )
-        ),
+        date: new Date(Date.UTC(filters.date.getFullYear(), filters.date.getMonth(), filters.date.getDate())),
         boardIds: boardIds,
         status: filters.selectedStatus,
         sensor: filters.selectedSensor,
         showAnomalous: filters.showAnomalous,
         hour: filters.timeSlider,
-        tankId: selectedTank?._id,
+        tankId: storedSelectedTank?._id,
       });
       setHistoricalData(data);
     } catch (error) {
@@ -138,7 +135,7 @@ const DigitalTwin = ({
 
   const formatTime = (value) => {
     const hours = value;
-    return `${hours.toString().padStart(2, "0")}:00`;
+    return `${hours.toString().padStart(2, '0')}:00`;
   };
 
   return (
@@ -147,19 +144,21 @@ const DigitalTwin = ({
         <SensorData className="w-full" />
       </div>
       <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex-shrink-0 bg-white shadow-md p-4">
-          <TankInformation selectedTank={selectedTank} />
-        </div>
-        <div className="flex-shrink-0 bg-white shadow-md p-4">
-          <TankStatus />
+        <div className="flex-shrink-0 p-4 pb-2 flex items-start gap-2">
+          <div className="flex-grow">
+            <TankInformation selectedTank={selectedTank} />
+          </div>
+          <div className="w-80">
+            <TankStatus />
+          </div>
         </div>
         <div className="flex-1 flex overflow-hidden">
           <div className="flex-1 flex flex-col">
-            <TankModelLayout className="flex-1 bg-gray-100">
+            <TankModelLayout className="flex-1">
               {renderTankModel()}
             </TankModelLayout>
             {mode === "historical" && filters.date && (
-              <div className="p-4 bg-white">
+              <div className="px-4 py-2">
                 <Label
                   htmlFor="time-slider"
                   className="block text-sm font-medium mb-1"
@@ -180,8 +179,10 @@ const DigitalTwin = ({
             )}
           </div>
           {mode === "historical" && (
-            <div className="w-80 bg-white shadow-md overflow-auto p-6">
-              <FilterComponent filters={filters} setFilters={setFilters} />
+            <div className="w-80 flex flex-col h-full">
+              <div className="flex-1 overflow-hidden">
+                <FilterComponent filters={filters} setFilters={setFilters} />
+              </div>
             </div>
           )}
         </div>

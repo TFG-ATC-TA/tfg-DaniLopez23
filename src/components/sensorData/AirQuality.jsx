@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils"
 
 const AirQuality = ({ airQualityData, isSelected, onSelect }) => {
 
-  console.log(airQualityData)
   return (
     <Card
       className={cn(
@@ -36,22 +35,22 @@ const AirQuality = ({ airQualityData, isSelected, onSelect }) => {
       </p>
       <CardContent>
         {airQualityData ? (
-          <div className="space-y-2">
+          <div className="space-y-2 ">
             {[
-              { label: "Breath VOC Equivalent", value: airQualityData.breath_voc_equivalent, unit: "ppb" },
-              { label: "CO2 Equivalent", value: airQualityData.co2_equivalent, unit: "ppm" },
-              { label: "Gas Percentage", value: airQualityData.gas_percentage, unit: "%" },
-              { label: "Humidity", value: airQualityData.heat_compensated_humidity, unit: "%" },
-              { label: "Temperature", value: airQualityData.heat_compensated_temperature, unit: "°C" },
-              { label: "IAQ", value: airQualityData.iaq, unit: "" },
-              { label: "Raw Gas", value: airQualityData.raw_gas, unit: "ohm" },
-              { label: "Raw Humidity", value: airQualityData.raw_humidity, unit: "%" },
-              { label: "Raw Pressure", value: airQualityData.raw_pressure, unit: "Pa" },
-              { label: "Raw Temperature", value: airQualityData.raw_temperature, unit: "°C" },
+              { label: "Breath VOC Equivalent", value: airQualityData.airQuality.breath_voc_equivalent, unit: " ppb" },
+              { label: "CO2 Equivalent", value: airQualityData.airQuality.co2_equivalent, unit: " ppm" },
+              { label: "Gas Percentage", value: airQualityData.airQuality.gas_percentage, unit: " %" },
+              { label: "Humidity", value: airQualityData.airQuality.heat_compensated_humidity, unit: " %" },
+              { label: "Temperature", value: airQualityData.airQuality.heat_compensated_temperature, unit: " °C" },
+              { label: "IAQ", value: airQualityData.airQuality.iaq, unit: "" },
+              { label: "Raw Gas", value: airQualityData.airQuality.raw_gas, unit: " ohm" },
+              { label: "Raw Humidity", value: airQualityData.airQuality.raw_humidity, unit: " %" },
+              { label: "Raw Pressure", value: airQualityData.airQuality.raw_pressure, unit: " Pa" },
+              { label: "Raw Temperature", value: airQualityData.airQuality.raw_temperature, unit: " °C" },
             ].map(({ label, value, unit }) => (
               <div key={label} className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">{label}:</span>
-                <span className="text-sm font-medium">
+                <span className="text-sm ms-2 font-medium">
                   {value !== undefined ? `${value.toFixed(2)}${unit}` : "N/A"}
                 </span>
               </div>

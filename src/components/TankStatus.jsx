@@ -33,11 +33,11 @@ const TankStatus = () => {
   const { color, icon: Icon, text } = statusConfig[status];
 
   return (
-    <Card className="w-full shadow-md">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-semibold">Tank Status</CardTitle>
+    <Card className="shadow-md ml-4">
+      <CardHeader className="pb-2 pt-3 px-4">
+        <CardTitle className="text-base font-semibold">Tank Status</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4 pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <div className={`w-3 h-3 rounded-full ${color}`}></div>
@@ -48,7 +48,7 @@ const TankStatus = () => {
             {text}
           </Badge>
         </div>
-        <div className="mt-4 text-sm text-gray-600">
+        <div className="mt-2 text-xs text-gray-600">
           Last updated: {new Date().toLocaleString()}
         </div>
       </CardContent>
