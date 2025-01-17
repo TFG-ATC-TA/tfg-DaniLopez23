@@ -4,7 +4,7 @@ const cors = require("cors");
 const config = require("./config/index");
 const mongoose = require('mongoose');
 
-const MONGO_URI = config.mongoDB.MONGO_URI_LOCAL;
+const MONGO_URI = config.mongoDB.MONGO_URI_CLUSTER;
 
 const farmRouter = require("./controllers/Farm"); 
 const historicalDataRouter = require("./controllers/HistoricalData");
@@ -35,6 +35,7 @@ mqttService.connect();
 
 app.use("/farms", farmRouter);
 app.use("/historical-data", historicalDataRouter);
+
 // Establece el manejador para los mensajes entrantes desde MQTT
 mqttService.onMessage((boardId, topic, data) => {  
   webSocketsService.emitToTank(boardId ,topic, data);
