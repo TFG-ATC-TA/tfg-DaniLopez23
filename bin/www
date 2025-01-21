@@ -1,0 +1,8 @@
+const server = require('../app').server // la aplicación Express real
+const config = require('../config/index')
+
+const port = config.port
+
+server.listen(port, function() {
+  console.log(`Listening on port ${port}`);
+});
