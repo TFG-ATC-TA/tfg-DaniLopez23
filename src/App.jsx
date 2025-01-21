@@ -1,15 +1,16 @@
-import { useSocket } from "./WebSockets/SocketProvider";
-
 import useDataStore from "./Stores/useDataStore";
 import Header from "./components/Header";
 import DigitalTwin from "./components/DigitalTwin";
-import useTankStore from "./Stores/useTankStore";
+
+import useSocketStore from "./Stores/useSocketStore";
+
+import { useSocketInitialization } from "./hooks/useSocketInitialization";
+import { useFarmInitialization } from "./hooks/useFarmInitialization";
 
 export default function App() {
-  const { serverStatus } = useSocket();
-  const { farmData } = useDataStore((state) => state);
-  const { selectedTank } = useTankStore((state) => state);
+
   const {
+    farmData,
     encoderData,
     milkQuantityData,
     switchStatus,
@@ -17,7 +18,21 @@ export default function App() {
     tankTemperaturesData,
     airQualityData,
     selectedData,
+    updateEncoderData,
+    updateGyroscopeData,
+    updateMilkQuantityData,
+    updateTankTemperaturesData,
+    updateSwitchStatus,
+    updateWeightData,
+    updateAirQualityData,
   } = useDataStore((state) => state);
+
+  const { serverStatus, joinRooms } = useSocketStore((state) => state);
+
+  useSocketInitialization();
+
+  // Inicializar la granja
+  useFarmInitialization(joinRooms);
 
   return (
     <div className="flex flex-col h-screen bg-gray-100">
@@ -30,7 +45,6 @@ export default function App() {
         tankTemperaturesData={tankTemperaturesData}
         airQualityData={airQualityData}
         selectedData={selectedData}
-        selectedTank={selectedTank}
       />
     </div>
   );

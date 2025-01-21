@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 
 import { useTank } from "@/hooks/useTank";
 import useDataStore from '@/Stores/useDataStore';
+import { useEffect } from 'react';
 
 const DataModeToggle = ({ isRealTime, onToggle }) => {
   return (
@@ -51,10 +52,11 @@ const DataModeToggle = ({ isRealTime, onToggle }) => {
 const Header = ({ serverStatus, farmData }) => {
   const { selectedTank, changeSelectedTank } = useTank();
   const {mode, setMode} = useDataStore((state) => state);
+
   const isRealTime = mode === 'realtime';
+
   const handleTankChange = (tankId) => {
     const tank = farmData.equipments.find((tank) => tank._id === tankId);
-    console.log("Changed tank:", tank.name);
 
     if (tank) {
       changeSelectedTank(tank);
@@ -68,6 +70,12 @@ const Header = ({ serverStatus, farmData }) => {
   const handleDataModeToggle = (isRealTimeMode) => {
     setMode(isRealTimeMode ? 'realtime' : 'historical');
   };
+
+  useEffect(() => {
+    if (!selectedTank && farmData.equipments) {
+      changeSelectedTank(farmData.equipments[0]);
+    }
+  }, [farmData.equipments, selectedTank, changeSelectedTank]);
 
   return (
     <div className="bg-white p-6 shadow-sm border-b flex justify-between items-center space-x-8">

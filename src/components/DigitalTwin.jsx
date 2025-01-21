@@ -34,8 +34,8 @@ const DigitalTwin = ({
   tankTemperaturesData,
   airQualityData,
   selectedData,
-  selectedTank,
 }) => {
+  
   const realTimeData = {
     encoderData,
     milkQuantityData,
@@ -48,7 +48,7 @@ const DigitalTwin = ({
 
   const [historicalData, setHistoricalData] = useState(null);
   const { mode } = useDataStore((state) => state);
-  const { selectedTank: storedSelectedTank } = useTankStore();
+  const { selectedTank } = useTankStore();
 
   const [filters, setFilters] = useState({
     date: null,
@@ -59,7 +59,7 @@ const DigitalTwin = ({
   });
 
 
-  const boardIds = getBoardIdsFromTank(storedSelectedTank);
+  const boardIds = getBoardIdsFromTank(selectedTank);
 
   useEffect(() => {
     if (mode === "historical" && filters.date) {
@@ -76,7 +76,7 @@ const DigitalTwin = ({
         sensor: filters.selectedSensor,
         showAnomalous: filters.showAnomalous,
         hour: filters.timeSlider,
-        tankId: storedSelectedTank?._id,
+        tankId: selectedTank?._id,
       });
       setHistoricalData(data);
     } catch (error) {

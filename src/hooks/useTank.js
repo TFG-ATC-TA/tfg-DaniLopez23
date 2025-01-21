@@ -1,15 +1,15 @@
-import { useEffect, useCallback } from "react";
+import { useCallback } from "react";
 import useTankStore from "@/Stores/useTankStore";
-import { useSocket } from "@/WebSockets/SocketProvider";
+import useSocketStore from "@/Stores/useSocketStore";
 
 export const useTank = () => {
-  const { selectedTank, setSelectedTank } = useTankStore((state) => state);
-  const { joinRooms } = useSocket();
+  const { setSelectedTank } = useTankStore((state) => state);
+
+  const {joinRooms} = useSocketStore((state) => state);
 
   const changeSelectedTank = useCallback((newTank) => {
     // Select the new tank
     setSelectedTank(newTank);
-
     // Join the rooms for the new tank
     if (newTank.devices && Array.isArray(newTank.devices)) {
       const boardIds = newTank.devices
@@ -22,18 +22,5 @@ export const useTank = () => {
     }
   }, [setSelectedTank, joinRooms]);
 
-  useEffect(() => {
-    if (selectedTank) {
-      // Join rooms for the initially selected tank
-      if (selectedTank.devices && Array.isArray(selectedTank.devices)) {
-        const boardIds = selectedTank.devices
-          .map(device => device.boardId)
-          .filter(Boolean);
-        
-        joinRooms(boardIds);
-      }
-    }
-  }, [selectedTank, joinRooms]);
-
-  return { selectedTank, changeSelectedTank };
+  return {changeSelectedTank };
 };
