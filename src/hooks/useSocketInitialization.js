@@ -4,7 +4,7 @@ import { createSocketEventHandlers } from "@/WebSockets/socketEventHandlers";
 import useSocketStore from "@/Stores/useSocketStore";
 
 export const useSocketInitialization = () => {
-  const { setSocket, setServerStatus } = useSocketStore((state) => state);
+  const { setSocket, setServerStatus, setMqttStatus } = useSocketStore((state) => state);
 
   useEffect(() => {
     const socket = createSocket();
@@ -15,7 +15,7 @@ export const useSocketInitialization = () => {
     const setupSocketListeners = () => {
       socket.on("connect", () => setServerStatus("connected"));
       socket.on("disconnect", () => setServerStatus("disconnected"));
-
+      socket.on("mqttStatus", (e) => setMqttStatus(e));
       // Registrar eventos dinámicamente
       Object.entries(eventHandlers).forEach(([event, handler]) => {
         socket.on(event, handler);
@@ -28,5 +28,5 @@ export const useSocketInitialization = () => {
     return () => {
       socket.disconnect();
     };
-  }, [setSocket, setServerStatus]);
+  }, [setSocket, setServerStatus, setMqttStatus]);
 };

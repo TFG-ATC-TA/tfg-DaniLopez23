@@ -2,10 +2,12 @@ import { create } from "zustand";
 
 const useSocketStore = create((set, get) => ({
   socket: null,
-  serverStatus: "disconnected",
+  serverStatus: "connecting",
+  mqttStatus: "connecting",
 
   setSocket: (socket) => set({ socket }),
   setServerStatus: (status) => set({ serverStatus: status }),
+  setMqttStatus: (status) => set({ mqttStatus: status }),
 
   joinRooms: (boardIds) => {
     const socket = get().socket;

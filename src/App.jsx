@@ -1,8 +1,9 @@
 import useDataStore from "./Stores/useDataStore";
 import Header from "./components/Header";
 import DigitalTwin from "./components/DigitalTwin";
-
+import ErrorDisplay from "./components/ErrorDisplay";
 import useSocketStore from "./Stores/useSocketStore";
+import useFarmStore from "./Stores/useFarmStore";
 
 import { useSocketInitialization } from "./hooks/useSocketInitialization";
 import { useFarmInitialization } from "./hooks/useFarmInitialization";
@@ -10,7 +11,6 @@ import { useFarmInitialization } from "./hooks/useFarmInitialization";
 export default function App() {
 
   const {
-    farmData,
     encoderData,
     milkQuantityData,
     switchStatus,
@@ -18,21 +18,28 @@ export default function App() {
     tankTemperaturesData,
     airQualityData,
     selectedData,
-    updateEncoderData,
-    updateGyroscopeData,
-    updateMilkQuantityData,
-    updateTankTemperaturesData,
-    updateSwitchStatus,
-    updateWeightData,
-    updateAirQualityData,
   } = useDataStore((state) => state);
 
-  const { serverStatus, joinRooms } = useSocketStore((state) => state);
 
   useSocketInitialization();
+  
+  const { serverStatus } = useSocketStore((state) => state);
+  
+  const {error, retryInitialization} = useFarmInitialization();
 
-  // Inicializar la granja
-  useFarmInitialization(joinRooms);
+  const { farmData } = useFarmStore((state) => state);
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <ErrorDisplay
+          title="Failed to load farm data"
+          message={error}
+          onRetry={retryInitialization}
+        />
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col h-screen bg-gray-100">

@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/dialog";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import PropTypes from 'prop-types';
-import DataModeSwitch from './DataModeSwitch';
 import useDataStore from '@/Stores/useDataStore';
+import DataModeToggle from './DataModeToogle';
 
 const TankInformation = ({ selectedTank }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -23,11 +23,7 @@ const TankInformation = ({ selectedTank }) => {
   };
 
   if (!selectedTank) {
-    return (
-      <Card className="w-full h-[88px] flex items-center justify-center">
-        <span className="text-gray-500">No tank selected</span>
-      </Card>
-    );
+    return 
   }
 
   return (
@@ -54,7 +50,7 @@ const TankInformation = ({ selectedTank }) => {
           </Dialog>
         </div>
         <div className="flex items-center space-x-4">
-          <DataModeSwitch isRealTime={isRealTime} onToggle={handleDataModeToggle} />
+          <DataModeToggle isRealTime={isRealTime} onToggle={handleDataModeToggle} />
         </div>
       </CardHeader>
     </Card>

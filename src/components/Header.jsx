@@ -1,4 +1,4 @@
-import { Home, Server, Wifi, WifiOff, History } from 'lucide-react';
+import { Home, Server, Wifi, WifiOff } from 'lucide-react';
 import PropTypes from "prop-types";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -8,53 +8,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { cn } from "@/lib/utils";
+
 
 import { useTank } from "@/hooks/useTank";
-import useDataStore from '@/Stores/useDataStore';
 import { useEffect } from 'react';
+import useTankStore from '@/Stores/useTankStore';
 
-const DataModeToggle = ({ isRealTime, onToggle }) => {
-  return (
-    <div className="flex items-center bg-gray-100 rounded-full p-1 shadow-inner">
-      <button
-        className={cn(
-          "px-3 py-1 rounded-full text-sm font-medium transition-colors flex items-center",
-          isRealTime
-            ? "bg-white text-primary shadow-sm"
-            : "text-gray-600 hover:bg-gray-200"
-        )}
-        onClick={() => onToggle(true)}
-      >
-        <Wifi className="mr-2 h-4 w-4" /> Real-time
-      </button>
-      <Switch
-        checked={!isRealTime}
-        onCheckedChange={(checked) => onToggle(!checked)}
-        className="mx-2"
-      />
-      <button
-        className={cn(
-          "px-3 py-1 rounded-full text-sm font-medium transition-colors flex items-center",
-          !isRealTime
-            ? "bg-white text-primary shadow-sm"
-            : "text-gray-600 hover:bg-gray-200"
-        )}
-        onClick={() => onToggle(false)}
-      >
-        <History className="mr-2 h-4 w-4" /> Historical
-      </button>
-    </div>
-  );
-};
+
 
 const Header = ({ serverStatus, farmData }) => {
-  const { selectedTank, changeSelectedTank } = useTank();
-  const {mode, setMode} = useDataStore((state) => state);
 
-  const isRealTime = mode === 'realtime';
-
+  const { changeSelectedTank } = useTank();
+  const {selectedTank} = useTankStore((state) => state);
   const handleTankChange = (tankId) => {
     const tank = farmData.equipments.find((tank) => tank._id === tankId);
 
@@ -67,9 +32,6 @@ const Header = ({ serverStatus, farmData }) => {
     return equipments.filter((tank) => tank.type === "Tanque de leche");
   };
 
-  const handleDataModeToggle = (isRealTimeMode) => {
-    setMode(isRealTimeMode ? 'realtime' : 'historical');
-  };
 
   useEffect(() => {
     if (!selectedTank && farmData.equipments) {
@@ -122,8 +84,6 @@ const Header = ({ serverStatus, farmData }) => {
       </div>
 
       <div className="flex items-center space-x-8">
-        {/* <DataModeToggle isRealTime={isRealTime} onToggle={handleDataModeToggle} /> */}
-
         <div className="flex items-center space-x-3">
           <Server className="text-2xl text-primary" />
           <h3 className="text-2xl font-bold">Server Status</h3>

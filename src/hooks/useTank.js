@@ -22,5 +22,5 @@ export const useTank = () => {
     }
   }, [setSelectedTank, joinRooms]);
 
-  return {changeSelectedTank };
+  return { changeSelectedTank };
 };
