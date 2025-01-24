@@ -79,7 +79,7 @@ const emitToTank = (boardId, event, data) => {
 const emitToAll = (event, data) => {
   if (io) {
     io.emit(event, data);
-    console.log(`Emitting to all: ${event}`);
+    //console.log(`Emitting to all: ${event}`);
   }
 };
 

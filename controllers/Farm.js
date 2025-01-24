@@ -11,6 +11,18 @@ farmRouter.get("/", async (req, res) => {
   }
 });
 
+farmRouter.get("/:id/tanks", async (req, res) => {
+  try {
+    console.log(req.query.id);
+    const tanks = await farmService.getTanksByFarmId(req.params.id);
+    res.json(tanks);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server Error");
+  }
+});
+
+
 farmRouter.get("/:id", async (req, res) => {
   try {
     const farm = await farmService.getFarmById(req.params.id);

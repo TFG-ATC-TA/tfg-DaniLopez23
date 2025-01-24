@@ -8,6 +8,7 @@ const MONGO_URI = config.mongoDB.MONGO_URI_CLUSTER;
 
 const farmRouter = require("./controllers/Farm"); 
 const historicalDataRouter = require("./controllers/HistoricalData");
+const equipmentRouter = require("./controllers/Equipment");
 
 const mqttService = require("./services/mqtt");
 const webSocketsService = require("./services/webSockets");
@@ -35,9 +36,10 @@ mqttService.connect();
 
 app.use("/farms", farmRouter);
 app.use("/historical-data", historicalDataRouter);
+app.use("/equipments", equipmentRouter)
 
 // Establece el manejador para los mensajes entrantes desde MQTT
-mqttService.onMessage((boardId, topic, data) => {  
+mqttService.setMessageHandler((boardId, topic, data) => {  
   webSocketsService.emitToTank(boardId ,topic, data);
 });
 
