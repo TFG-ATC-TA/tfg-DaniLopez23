@@ -1,4 +1,3 @@
-import React from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
@@ -26,7 +25,7 @@ const TankStatus = () => {
   const { selectedTank } = useTankStore();
   
   if (!selectedTank) {
-    return null;
+    return ;
   }
 
   const status = selectedTank.status || 'operational';
