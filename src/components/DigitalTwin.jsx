@@ -52,7 +52,6 @@ const DigitalTwin = ({
   const { selectedTank } = useTankStore();
 
   const [filters, setFilters] = useState({
-    date: null,
     selectedStatus: "all",
     selectedSensor: "all",
     showAnomalous: false,
