@@ -23,27 +23,15 @@ export default function App() {
 
   useSocketInitialization();
   
-  const { serverStatus } = useSocketStore((state) => state);
+  const { webSocketServerStatus, mqttStatus } = useSocketStore((state) => state);
   
-  const {error, retryInitialization} = useFarmInitialization();
+  useFarmInitialization();
 
-  const { farmData } = useFarmStore((state) => state);
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <ErrorDisplay
-          title="Failed to load farm data"
-          message={error}
-          onRetry={retryInitialization}
-        />
-      </div>
-    )
-  }
+  const { farmData, serverStatus } = useFarmStore((state) => state);
 
   return (
     <div className="flex flex-col h-screen bg-gray-100">
-      <Header serverStatus={serverStatus} farmData={farmData} />
+      <Header serverStatus={serverStatus} webSocketServerStatus={webSocketServerStatus} mqttStatus={mqttStatus} farmData={farmData} />
       <DigitalTwin
         encoderData={encoderData}
         milkQuantityData={milkQuantityData}

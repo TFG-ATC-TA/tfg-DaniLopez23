@@ -2,12 +2,11 @@ import { create } from "zustand";
 
 const useSocketStore = create((set, get) => ({
   socket: null,
-  serverStatus: "connecting",
-  mqttStatus: "connecting",
-
+  mqttStatus: { connectionState: 'connecting', error: null },
+  webSocketServerStatus: { connectionState: 'connecting', error: null },
   setSocket: (socket) => set({ socket }),
-  setServerStatus: (status) => set({ serverStatus: status }),
   setMqttStatus: (status) => set({ mqttStatus: status }),
+  setWebSocketServerStatus: (status) => set({ webSocketServerStatus: status }),
 
   joinRooms: (boardIds) => {
     const socket = get().socket;
@@ -16,5 +15,14 @@ const useSocketStore = create((set, get) => ({
       socket.emit("request last data", boardIds);
     }
   },
+
+  reconnectBroker : () => {
+    const socket = get().socket;
+    console.log("Reconnecting to MQTT Broker");
+    if (socket) {
+      socket.emit("reconnectMQTT");
+    }
+  },
+
 }));
 export default useSocketStore;

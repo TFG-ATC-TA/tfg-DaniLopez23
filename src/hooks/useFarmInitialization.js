@@ -11,12 +11,11 @@ const RETRY_DELAY = 2000; // 2 seconds
 
 export const useFarmInitialization = () => {
 
-  const { setFarmData } = useFarmStore((state) => state);
+  const { setFarmData, setServerStatus } = useFarmStore((state) => state);
 
   const { setSelectedTank } = useTankStore((state) => state);
   const { joinRooms } = useSocketStore((state) => state);
 
-  const [error, setError] = useState(null);
 
   const initialize = async (retryCount = 0) => {
     try {
@@ -33,13 +32,13 @@ export const useFarmInitialization = () => {
           .filter(Boolean);
         joinRooms(boardIds);
       }
-      setError(null);
+      setServerStatus({ status: "connected", error: null });
     } catch (error) {
-      setError(error.message);
-      if (retryCount < MAX_RETRIES) {
-        console.log(`Retrying in ${RETRY_DELAY / 1000} seconds...`);
-        setTimeout(() => initialize(retryCount + 1), RETRY_DELAY);
-      }
+      setServerStatus({ status: "disconnected", error: error.message });
+      // if (retryCount < MAX_RETRIES) {
+      //   console.log(`Retrying in ${RETRY_DELAY / 1000} seconds...`);
+      //   setTimeout(() => initialize(retryCount + 1), RETRY_DELAY);
+      // }
     }
   };
 
@@ -48,9 +47,9 @@ export const useFarmInitialization = () => {
   }, [setFarmData, setSelectedTank, joinRooms]);
 
   const retryInitialization = () => {
-    setError(null);
+    setServerStatus({ status: "connecting", error: null });
     initialize();
   };
 
-  return { error, retryInitialization };
+  return { retryInitialization };
 };

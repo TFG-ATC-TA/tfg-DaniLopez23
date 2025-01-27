@@ -1,32 +1,76 @@
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { createSocket } from "@/WebSockets/Socket";
 import { createSocketEventHandlers } from "@/WebSockets/socketEventHandlers";
 import useSocketStore from "@/Stores/useSocketStore";
 
 export const useSocketInitialization = () => {
-  const { setSocket, setServerStatus, setMqttStatus } = useSocketStore((state) => state);
+  const { 
+    setSocket, 
+    setMqttStatus, 
+    setWebSocketServerStatus, 
+  } = useSocketStore((state) => state);
 
-  useEffect(() => {
-    const socket = createSocket();
-    setSocket(socket);
+  const handleSocketError = useCallback((error) => {
+    console.error("WebSocket connection error:", error);
+    setWebSocketServerStatus({ 
+      status: "error", 
+      error: error.message || "Unknown error occurred" 
+    });
+  }, [setWebSocketServerStatus]);
+
+  const setupSocketListeners = useCallback((socket) => {
+    socket.on("connect", () => {
+      setWebSocketServerStatus({ status: "connected", error: null });
+    });
+
+    socket.on("disconnect", (reason) => {
+      if (reason === "io server disconnect" || reason === "io client disconnect") {
+        setWebSocketServerStatus({ status: "disconnected", error: null });
+      } else {
+        setWebSocketServerStatus({ 
+          status: "disconnected", 
+          error: `Disconnected: ${reason}` 
+        });
+      }
+    });
+
+    socket.on("connect_error", (error) => {
+      handleSocketError(error);
+    });
+
+    socket.on("error", (error) => {
+      handleSocketError(error);
+    });
+
+    socket.on("mqttStatus", (status) => {
+      setMqttStatus({
+        status: status.connected ? "connected" : "disconnected",
+        error: status.error || null
+      });
+    });
 
     const eventHandlers = createSocketEventHandlers();
+    Object.entries(eventHandlers).forEach(([event, handler]) => {
+      socket.on(event, handler);
+    });
+  }, [setWebSocketServerStatus, setMqttStatus, handleSocketError]);
 
-    const setupSocketListeners = () => {
-      socket.on("connect", () => setServerStatus("connected"));
-      socket.on("disconnect", () => setServerStatus("disconnected"));
-      socket.on("mqttStatus", (e) => setMqttStatus(e));
-      // Registrar eventos dinámicamente
-      Object.entries(eventHandlers).forEach(([event, handler]) => {
-        socket.on(event, handler);
-      });
-    };
+  useEffect(() => {
+    let socket;
 
-    setupSocketListeners();
-    socket.connect();
+    try {
+      socket = createSocket();
+      setSocket(socket);
+      setupSocketListeners(socket);
+      socket.connect();
+    } catch (error) {
+      handleSocketError(error);
+    }
 
     return () => {
-      socket.disconnect();
+      if (socket) {
+        socket.disconnect();
+      }
     };
-  }, [setSocket, setServerStatus, setMqttStatus]);
+  }, [setSocket, setupSocketListeners, handleSocketError]);
 };

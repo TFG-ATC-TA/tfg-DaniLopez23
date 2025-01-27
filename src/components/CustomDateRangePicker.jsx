@@ -1,12 +1,18 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { CalendarIcon } from 'lucide-react';
 import { format, set, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subMonths } from "date-fns";
 import { cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const CustomDateRangePicker = ({ value, onChange }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,8 +47,8 @@ const CustomDateRangePicker = ({ value, onChange }) => {
   };
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
         <Button
           variant="outline"
           className={cn(
@@ -53,8 +59,11 @@ const CustomDateRangePicker = ({ value, onChange }) => {
           <CalendarIcon className="mr-2 h-4 w-4" />
           {formatDateRange(value)}
         </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[750px]">
+        <DialogHeader>
+          <DialogTitle>Seleccionar rango de fecha y hora</DialogTitle>
+        </DialogHeader>
         <div className="flex p-3 gap-4">
           <div className="space-y-2">
             <Label>Selección rápida</Label>
@@ -166,8 +175,8 @@ const CustomDateRangePicker = ({ value, onChange }) => {
             </div>
           </div>
         </div>
-      </PopoverContent>
-    </Popover>
+      </DialogContent>
+    </Dialog>
   );
 };
 
