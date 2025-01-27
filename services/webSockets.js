@@ -2,7 +2,7 @@
 const socketIo = require("socket.io");
 const cacheData = require("./cache");
 
-let io;
+let io; 
 
 const initializeWebSocket = (server) => {
   io = socketIo(server, {
@@ -56,6 +56,11 @@ const initializeWebSocket = (server) => {
       socket.emit("last data", data);
 
     })
+
+    socket.on("reconnectMQTT", () => {
+      console.log("Manually Reconnecting MQTT...");
+    });
+
 
     socket.on("disconnect", () => {
       console.log(`Client disconnected: ${socket.id}`);

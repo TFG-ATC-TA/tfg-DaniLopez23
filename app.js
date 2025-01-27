@@ -30,9 +30,11 @@ mongoose.connect(MONGO_URI).then(() => {
 
 const server = http.createServer(app);
 
+mqttService.connect(); 
+
 webSocketsService.initializeWebSocket(server);
 
-mqttService.connect(); 
+
 
 app.use("/farms", farmRouter);
 app.use("/historical-data", historicalDataRouter);
