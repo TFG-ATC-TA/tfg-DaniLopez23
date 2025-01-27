@@ -1,7 +1,6 @@
 import useDataStore from "./Stores/useDataStore";
 import Header from "./components/Header";
 import DigitalTwin from "./components/DigitalTwin";
-import ErrorDisplay from "./components/ErrorDisplay";
 import useSocketStore from "./Stores/useSocketStore";
 import useFarmStore from "./Stores/useFarmStore";
 

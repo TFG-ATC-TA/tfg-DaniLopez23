@@ -14,7 +14,7 @@ const FilterComponent = ({ filters, setFilters }) => {
 
   const clearFilters = () => {
     setFilters({
-      dateRange: { from: undefined, to: undefined },
+      dateRange: null,
       selectedStatus: "all",
       selectedSensor: "all",
       showAnomalous: false,
@@ -23,7 +23,7 @@ const FilterComponent = ({ filters, setFilters }) => {
   console.log(filters)
   
   return (
-    <Card className="w-full h-full shadow-none border-none">
+    <Card className="w-full h-full shadow-0 border-5 me-3">
       <CardHeader className="pb-2 px-4 pt-3">
         <CardTitle className="text-lg font-semibold flex items-center gap-2">
           <Filter className="h-5 w-5" />
