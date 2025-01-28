@@ -13,29 +13,31 @@ export default function TimeSlider({ value, onChange, marks, minTime, maxTime })
   }
 
   return (
-    <div className="relative pt-6 pb-2">
-      <div className="absolute top-0 left-0 right-0 h-6">
-        {marks.map((mark, index) => (
-          <div
-            key={index}
-            className="absolute w-2 h-6 bg-blue-500 rounded-full cursor-pointer"
-            style={{
-              left: `${((mark.value - minMinutes) / (maxMinutes - minMinutes)) * 100}%`,
-              transform: "translateX(-50%)",
-            }}
-            title={mark.label}
-            onClick={() => onChange(mark.value)}
-          />
-        ))}
+    <div className="relative w-full">
+      <div className="relative pt-2 w-full">
+        <Slider
+          min={minMinutes}
+          max={maxMinutes}
+          step={MINUTES_STEP}
+          value={[Math.min(Math.max(value, minMinutes), maxMinutes)]}
+          onValueChange={(newValue) => onChange(newValue[0])}
+          className="w-full h-2 bg-gray-200"
+        />
+        <div className="absolute top-[-12px] left-0 right-0">
+          {marks.map((mark, index) => (
+            <div
+              key={index}
+              className="absolute w-2 h-2 bg-blue-500 rounded-full cursor-pointer"
+              style={{
+                left: `${((mark.value - minMinutes) / (maxMinutes - minMinutes)) * 100}%`,
+                transform: "translateX(-50%)",
+              }}
+              title={mark.label}
+              onClick={() => onChange(mark.value)}
+            />
+          ))}
+        </div>
       </div>
-      <Slider
-        min={minMinutes}
-        max={maxMinutes}
-        step={MINUTES_STEP}
-        value={[Math.min(Math.max(value, minMinutes), maxMinutes)]}
-        onValueChange={(newValue) => onChange(newValue[0])}
-        className="w-full"
-      />
       <div className="mt-2 flex justify-between text-sm text-gray-500">
         <span>{formatTime(minMinutes)}</span>
         <span>{formatTime(maxMinutes)}</span>
