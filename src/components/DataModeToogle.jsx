@@ -5,15 +5,13 @@ import { cn } from "@/lib/utils";
 
 import useFarmStore from "@/Stores/useFarmStore";
 
-const DataModeToggle = () => {
+const DataModeToggle = ({onToggle}) => {
 
   const {mode, setMode} = useFarmStore((state) => state);
   
   const isRealTime = mode === 'realtime';
 
-  const handleDataModeToggle = (isRealTimeMode) => {
-    setMode(isRealTimeMode ? 'realtime' : 'historical');
-  };
+
     return (
       <div className="flex items-center bg-gray-100 rounded-full p-1 shadow-inner">
         <button
@@ -23,13 +21,13 @@ const DataModeToggle = () => {
               ? "bg-white text-primary shadow-sm"
               : "text-gray-600 hover:bg-gray-200"
           )}
-          onClick={() => handleDataModeToggle(true)}
+          onClick={() => onToggle(true)}
         >
           <Wifi className="mr-2 h-4 w-4" /> Real-time
         </button>
         <Switch
           checked={!isRealTime}
-          onCheckedChange={(checked) => handleDataModeToggle(!checked)}
+          onCheckedChange={(checked) => onToggle(!checked)}
           className="mx-2"
         />
         <button
@@ -39,7 +37,7 @@ const DataModeToggle = () => {
               ? "bg-white text-primary shadow-sm"
               : "text-gray-600 hover:bg-gray-200"
           )}
-          onClick={() => handleDataModeToggle(false)}
+          onClick={() => onToggle(false)}
         >
           <History className="mr-2 h-4 w-4" /> Historical
         </button>

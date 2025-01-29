@@ -1,23 +1,12 @@
-import React, { useState } from "react";
-import { Filter } from "lucide-react";
+import { Filter } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { DateRangePicker } from "react-date-range";
-import { format } from "date-fns";
-import "react-date-range/dist/styles.css"; // Estilos generales
-import "react-date-range/dist/theme/default.css"; // Estilos del tema
+import CustomDateRangePicker from '@/components/CustomDateRangePicker';
 
 const FilterComponent = ({ filters, setFilters }) => {
-  const [dateRange, setDateRange] = useState([
-    {
-      startDate: filters.dateRange?.from ? new Date(filters.dateRange.from) : new Date(),
-      endDate: filters.dateRange?.to ? new Date(filters.dateRange.to) : new Date(),
-      key: "selection",
-    },
-  ]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -25,24 +14,16 @@ const FilterComponent = ({ filters, setFilters }) => {
 
   const clearFilters = () => {
     setFilters({
-      dateRange: { from: undefined, to: undefined },
+      dateRange: null,
       selectedStatus: "all",
       selectedSensor: "all",
       showAnomalous: false,
     });
-    setDateRange([{ startDate: new Date(), endDate: new Date(), key: "selection" }]);
   };
-
-  const handleApply = () => {
-    const { startDate, endDate } = dateRange[0];
-    handleFilterChange("dateRange", { from: startDate, to: endDate });
-  };
-
-  const formatDateRange = ({ startDate, endDate }) =>
-    `${format(startDate, "d MMM yyyy")} - ${format(endDate, "d MMM yyyy")}`;
-
+  console.log(filters)
+  
   return (
-    <Card className="w-full h-full shadow-none border-none">
+    <Card className="w-full h-full shadow-0 border-5 me-3">
       <CardHeader className="pb-2 px-4 pt-3">
         <CardTitle className="text-lg font-semibold flex items-center gap-2">
           <Filter className="h-5 w-5" />
@@ -51,25 +32,14 @@ const FilterComponent = ({ filters, setFilters }) => {
       </CardHeader>
       <CardContent className="px-4 overflow-y-auto">
         <div className="space-y-4">
-          {/* Selector de rango de fecha */}
           <div>
-            <Label className="block text-sm font-medium mb-1">Rango de Fecha</Label>
-            <DateRangePicker
-              onChange={(ranges) => setDateRange([ranges.selection])}
-              ranges={dateRange}
-              showSelectionPreview={true}
-              moveRangeOnFirstSelection={false}
-              rangeColors={["#4F46E5"]}
+            <Label className="block text-sm font-medium mb-1">Rango de Fecha y Hora</Label>
+            <CustomDateRangePicker
+              value={filters.dateRange}
+              onChange={(range) => handleFilterChange("dateRange", range)}
             />
-            <div className="text-sm text-muted-foreground mt-2">
-              {formatDateRange(dateRange[0])}
-            </div>
-            <Button className="mt-4 w-full" onClick={handleApply}>
-              Aplicar Rango de Fecha
-            </Button>
           </div>
 
-          {/* Filtro de Estado */}
           <div>
             <Label htmlFor="status-select" className="block text-sm font-medium mb-1">
               Estado
@@ -90,7 +60,6 @@ const FilterComponent = ({ filters, setFilters }) => {
             </Select>
           </div>
 
-          {/* Filtro de Sensor */}
           <div>
             <Label htmlFor="sensor-select" className="block text-sm font-medium mb-1">
               Sensor
@@ -111,7 +80,6 @@ const FilterComponent = ({ filters, setFilters }) => {
             </Select>
           </div>
 
-          {/* Mostrar datos anómalos */}
           <div className="flex items-center space-x-2">
             <Switch
               id="anomalous-data"
@@ -121,7 +89,6 @@ const FilterComponent = ({ filters, setFilters }) => {
             <Label htmlFor="anomalous-data">Mostrar Datos Anómalos</Label>
           </div>
 
-          {/* Botón para limpiar filtros */}
           <div className="flex justify-end pt-2">
             <Button variant="outline" size="sm" onClick={clearFilters}>
               Limpiar Filtros

@@ -10,16 +10,22 @@ import {
 } from "@/components/ui/dialog";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import PropTypes from 'prop-types';
-import useDataStore from '@/Stores/useDataStore';
 import DataModeToggle from './DataModeToogle';
+import useFarmStore from '@/Stores/useFarmStore';
 
-const TankInformation = ({ selectedTank }) => {
+const TankInformation = ({ selectedTank, setFilters, filters }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { mode, setMode } = useDataStore((state) => state);
+  const { mode, setMode } = useFarmStore((state) => state);
   const isRealTime = mode === 'realtime';
 
   const handleDataModeToggle = (isRealTimeMode) => {
     setMode(isRealTimeMode ? 'realtime' : 'historical');
+    setFilters({
+      dateRange: null,
+      selectedStatus: "all",
+      selectedSensor: "all",
+      showAnomalous: false,
+    });
   };
 
   if (!selectedTank) {

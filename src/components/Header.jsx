@@ -1,6 +1,5 @@
-import { Home, Server, Wifi, WifiOff } from 'lucide-react';
-import PropTypes from "prop-types";
-import { Badge } from "@/components/ui/badge";
+import { useEffect } from 'react';
+import { Home } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -9,20 +8,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-
 import { useTank } from "@/hooks/useTank";
-import { useEffect } from 'react';
 import useTankStore from '@/Stores/useTankStore';
+import ServerStatus from './ServerStatus';
 
-
-
-const Header = ({ serverStatus, farmData }) => {
-
+const Header = ({ serverStatus, mqttStatus, webSocketServerStatus, farmData }) => {
   const { changeSelectedTank } = useTank();
-  const {selectedTank} = useTankStore((state) => state);
+  const { selectedTank } = useTankStore((state) => state);
+
   const handleTankChange = (tankId) => {
     const tank = farmData.equipments.find((tank) => tank._id === tankId);
-
     if (tank) {
       changeSelectedTank(tank);
     }
@@ -31,7 +26,6 @@ const Header = ({ serverStatus, farmData }) => {
   const getMilkTanks = (equipments) => {
     return equipments.filter((tank) => tank.type === "Tanque de leche");
   };
-
 
   useEffect(() => {
     if (!selectedTank && farmData.equipments) {
@@ -84,55 +78,11 @@ const Header = ({ serverStatus, farmData }) => {
       </div>
 
       <div className="flex items-center space-x-8">
-        <div className="flex items-center space-x-3">
-          <Server className="text-2xl text-primary" />
-          <h3 className="text-2xl font-bold">Server Status</h3>
-          {serverStatus === "connected" ? (
-            <>
-              <Wifi className="text-green-500 h-5 w-5" />
-              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                Connected
-              </Badge>
-            </>
-          ) : serverStatus === "disconnected" ? (
-            <>
-              <WifiOff className="text-red-500 h-5 w-5" />
-              <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
-                Disconnected
-              </Badge>
-            </>
-          ) : (
-            <>
-              <Wifi className="text-yellow-500 animate-pulse h-5 w-5" />
-              <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
-                Connecting
-              </Badge>
-            </>
-          )}
-        </div>
+        <ServerStatus serverStatus={serverStatus} mqttStatus={mqttStatus} webSocketServerStatus={webSocketServerStatus}/>
       </div>
     </div>
   );
 };
 
-Header.propTypes = {
-  serverStatus: PropTypes.string.isRequired,
-  farmData: PropTypes.shape({
-    idname: PropTypes.string,
-    name: PropTypes.string,
-    equipments: PropTypes.arrayOf(
-      PropTypes.shape({
-        _id: PropTypes.string,
-        name: PropTypes.string,
-        type: PropTypes.string,
-        devices: PropTypes.arrayOf(
-          PropTypes.shape({
-            boardId: PropTypes.string,
-          })
-        ),
-      })
-    ),
-  }),
-};
 
 export default Header;
