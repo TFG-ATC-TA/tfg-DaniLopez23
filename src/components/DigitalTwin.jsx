@@ -37,6 +37,7 @@ const DigitalTwin = ({
   airQualityData,
   selectedData,
 }) => {
+
   const realTimeData = {
     encoderData,
     milkQuantityData,
@@ -84,7 +85,7 @@ const DigitalTwin = ({
   const boardIds = getBoardIdsFromTank(selectedTank);
 
   useEffect(() => {
-    if (mode === "historical" && filters.date) {
+    if (mode === "historical" && filters.dateRange) {
       fetchHistoricalData();
     }
   }, [filters]);
@@ -92,13 +93,8 @@ const DigitalTwin = ({
   const fetchHistoricalData = async () => {
     try {
       const data = await getHistoricalData({
-        date: new Date(
-          Date.UTC(
-            filters.date.getFullYear(),
-            filters.date.getMonth(),
-            filters.date.getDate()
-          )
-        ),
+        dateRangeFrom: filters.dateRange.from.toISOString(),
+        dateRangeTo: filters.dateRange.to.toISOString(),
         boardIds: boardIds,
         status: filters.selectedStatus,
         sensor: filters.selectedSensor,
@@ -175,13 +171,13 @@ const DigitalTwin = ({
                   startDate={filters.dateRange.from}
                   endDate={filters.dateRange.to}
                   states={states}
-                />{" "}
+                />
               </div>
             )}
           </div>
           {mode === "historical" && (
             <div className="w-80">
-              <FilterComponent filters={filters} setFilters={setFilters} />
+              <FilterComponent filters={filters} setFilters={setFilters}/>
             </div>
           )}
         </div>

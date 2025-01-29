@@ -1,10 +1,10 @@
-import { Slider } from "@/components/ui/slider"
-import { format, differenceInDays } from "date-fns"
+import { Slider } from "@/components/ui/slider";
+import { format, differenceInCalendarDays } from "date-fns";
 
 export default function DateSlider({ startDate, endDate, currentDay, onChange }) {
-  const totalDays = Math.max(differenceInDays(endDate, startDate), 0)
+  const totalDays = differenceInCalendarDays(endDate, startDate);
 
-  const formatDate = (date) => format(date, "d MMM yyyy")
+  const formatDate = (date) => format(date, "d MMM yyyy");
 
   return (
     <div className="w-full">
@@ -12,7 +12,7 @@ export default function DateSlider({ startDate, endDate, currentDay, onChange })
         min={0}
         max={totalDays}
         step={1}
-        value={[Math.min(currentDay, totalDays)]}
+        value={[Math.min(Math.max(currentDay, 0), totalDays)]}
         onValueChange={(value) => onChange(value[0])}
         className="w-full h-2 bg-gray-200"
       />
@@ -21,5 +21,5 @@ export default function DateSlider({ startDate, endDate, currentDay, onChange })
         <span>{formatDate(endDate)}</span>
       </div>
     </div>
-  )
+  );
 }

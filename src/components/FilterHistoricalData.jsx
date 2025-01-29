@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import CustomDateRangePicker from '@/components/CustomDateRangePicker';
 
 const FilterComponent = ({ filters, setFilters }) => {
+
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
