@@ -10,6 +10,8 @@ export default function TimeSlider({ value, onChange, marks, min, max }) {
     return format(date, "HH:mm");
   };
 
+  const v = [Math.min(Math.max(value, min), max)]
+
   return (
     <div className="relative w-full">
       <div className="relative pt-2 w-full">
@@ -17,7 +19,7 @@ export default function TimeSlider({ value, onChange, marks, min, max }) {
           min={min}
           max={max}
           step={MINUTES_STEP}
-          value={[Math.min(Math.max(value, min), max)]}
+          value={v}
           onValueChange={(newValue) => {
             const clampedValue = Math.min(Math.max(newValue[0], min), max);
             onChange(clampedValue);
@@ -36,7 +38,7 @@ export default function TimeSlider({ value, onChange, marks, min, max }) {
                   transform: "translateX(-50%)",
                 }}
                 title={mark.label}
-                onClick={() => onChange(mark.value)}
+                //onClick={() => onChange(mark.value)}
               />
             ))}
         </div>
