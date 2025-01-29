@@ -19,11 +19,11 @@ console.log("url:", url);
 
 // Ruta para obtener datos históricos
 HistoricalDataRouter.post("/", async (req, res) => {
-  const { date, hour, boardIds } = req.body;
+  const { dateRangeFrom, dateRangeTo, boardIds } = req.body;
   console.log(req.body);
   try {
     // Validate parameters
-    if (!date) {
+    if (!dateRangeFrom || !dateRangeTo) {
       return res.status(400).json({ message: "No date selected." });
     }
 
@@ -43,14 +43,12 @@ HistoricalDataRouter.post("/", async (req, res) => {
         .json({ message: "All provided board IDs are invalid." });
     }
 
-    const selectedDate = new Date(date); // Esto ya es correcto
-    const startTime = new Date(selectedDate.setUTCHours(hour, 0, 0, 0));
-    const endTime = new Date(selectedDate.setUTCHours(hour + 1, 0, 0, 0));
+    
 
     // Construct Flux query with valid IDs
     const fluxQuery = `
       from(bucket: "synthetic-farm-1")
-        |> range(start: ${startTime.toISOString()}, stop: ${endTime.toISOString()})
+        |> range(start: ${dateRangeFrom}, stop: ${dateRangeTo})
         |> filter(fn: (r) => ${validBoardIds
           .map((id) => `r.board_id == "${id}"`)
           .join(" or ")})
