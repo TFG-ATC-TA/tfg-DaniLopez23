@@ -171,7 +171,7 @@ const DigitalTwin = ({
 
   return selectedTank ? (
     <div className="flex h-screen overflow-hidden ">
-      <div className="w-64 bg-background pt-1 shadow-lg border-r overflow-auto">
+      <div className="w-64 bg-background pt-1 shadow-lg border-r overflow-auto bg-background shadow-sm border overflow-hidden">
         <SensorData />
       </div>
 
@@ -223,7 +223,7 @@ const DigitalTwin = ({
           </div>
 
           {mode === "historical" && (
-            <div className="w-80 bg-background overflow-hidden flex flex-col">
+            <div className="w-80 overflow-hidden flex flex-col">
               <FilterComponent 
                 filters={filters} 
                 setFilters={setFilters}  // Añade padding interno consistente

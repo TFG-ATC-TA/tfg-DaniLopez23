@@ -7,7 +7,7 @@ const useFarmStore = create((set) => ({
   setFarmData: (data) => set({ farmData: data }),
   setMode: (data) => set({ mode: data }),
   setServerStatus: (data) => set({ serverStatus: data }),
-  
+  farms: [],
 }));
 
 export default useFarmStore;
