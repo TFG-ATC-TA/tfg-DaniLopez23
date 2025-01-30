@@ -4,6 +4,7 @@ const equipmentService = require("../services/equipmentService");
 equipmentRouter.get("/", async (req, res) => {
   try {
     const equipments = await equipmentService.getEquipments();
+    
     res.json(equipments);
   } catch (error) {
     console.error(error);
