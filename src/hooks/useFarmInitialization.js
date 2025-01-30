@@ -1,17 +1,17 @@
 // src/hooks/useFarmInitialization.js
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import useFarmStore from "@/Stores/useFarmStore";
 import useTankStore from "@/Stores/useTankStore";
 import useSocketStore from "@/Stores/useSocketStore";
-import { getFarmById } from "@/services/farm";
+import { getFarms } from "@/services/farm";
+import { set } from "date-fns";
 
-const defaultFarmId = "673b5c5ed5c203a653ace69a";
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 2000; // 2 seconds
 
 export const useFarmInitialization = () => {
 
-  const { setFarmData, setServerStatus } = useFarmStore((state) => state);
+  const { setFarms, setSelectedFarm, setServerStatus } = useFarmStore((state) => state);
 
   const { setSelectedTank } = useTankStore((state) => state);
   const { joinRooms } = useSocketStore((state) => state);
@@ -19,8 +19,11 @@ export const useFarmInitialization = () => {
 
   const initialize = async (retryCount = 0) => {
     try {
-      const farmData = await getFarmById(defaultFarmId);
-      setFarmData(farmData);
+
+      const farms = await getFarms();
+      setFarms(farms);
+      const farmData = farms[1];
+      setSelectedFarm(farmData);
       const firstMilkTank = farmData.equipments.find(
         (tank) => tank.type === "Tanque de leche"
       );
@@ -44,7 +47,7 @@ export const useFarmInitialization = () => {
 
   useEffect(() => {
     initialize();
-  }, [setFarmData, setSelectedTank, joinRooms]);
+  }, [setSelectedFarm, setSelectedTank, joinRooms]);
 
   const retryInitialization = () => {
     setServerStatus({ status: "connecting", error: null });

@@ -16,10 +16,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import useFarmStore from "@/Stores/useFarmStore";
 
-const FarmSelector = ({ farmData }) => {
+const FarmSelector = ({ farms }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
+  const selectedFarm = useFarmStore((state) => state.selectedFarm);
+  console.log(farms);
   return (
     <div className="flex flex-col space-y-4">
       {/* Fila superior: Título y botón de información */}
@@ -37,27 +39,26 @@ const FarmSelector = ({ farmData }) => {
               <DialogTitle>Farm Specifications</DialogTitle>
             </DialogHeader>
 
-            {farmData ? (
+            {farms ? (
               <div className="space-y-4 mt-4">
                 <div>
                   <strong className="block text-sm font-medium mb-1">
                     Farm ID:
                   </strong>
-                  <p className="text-sm">{farmData.idname}</p>
+                  <p className="text-sm">{selectedFarm._id}</p>
                 </div>
                 <div>
                   <strong className="block text-sm font-medium mb-1">
                     Location:
                   </strong>
-                  <p className="text-sm">{farmData.name}</p>
+                  <p className="text-sm">{selectedFarm.name}</p>
                 </div>
                 <div>
                   <strong className="block text-sm font-medium mb-1">
                     Total Tanks:
                   </strong>
-                  <p className="text-sm">{farmData.equipments?.length || 0}</p>
+                  <p className="text-sm">{selectedFarm.equipments?.length || 0}</p>
                 </div>
-                {/* Agregar más campos según sea necesario */}
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">
@@ -69,13 +70,16 @@ const FarmSelector = ({ farmData }) => {
       </div>
 
       {/* Selector de granja */}
-      <Select>
+      <Select value={selectedFarm._id} onChange={(farmId) => console.log(farmId)}>
         <SelectTrigger className="w-[200px]">
           <SelectValue placeholder="Select Farm" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="main-farm">Main Farm</SelectItem>
-          {/* Agregar más opciones según sea necesario */}
+          {farms.map((farm) => (
+            <SelectItem key={farm._id} value={farm._id}>
+              {farm.name}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
     </div>
