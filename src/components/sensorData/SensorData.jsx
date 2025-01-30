@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Thermometer, Droplet, ToggleLeft, Compass, Gauge, Weight, Wind } from 'lucide-react';
 
-const SensorData = ({ className }) => {
+const SensorData = () => {
   const { setSelectedData, selectedData } = useDataStore((state) => state);
 
   const sensors = [
@@ -25,29 +25,34 @@ const SensorData = ({ className }) => {
   };
 
   return (
-    <div className={`p-4 ${className}`}>
-      <h2 className="text-xl font-bold mb-4">Sensor Data</h2>
-      <div className="flex flex-col space-y-2">
+    <div className="p-4 w-full">
+      <h2 className="text-lg font-semibold mb-4 px-2 text-foreground">Sensor Data</h2>
+      <div className="flex flex-col gap-2">
         {sensors.map((sensor) => (
           <Button
             key={sensor.name}
             onClick={() => handleCardSelect(sensor.name)}
-            variant="outline"
+            variant="ghost"
             className={cn(
-              "flex items-center justify-between w-full px-4 py-2 h-12",
-              selectedData === sensor.name && "ring-2 ring-blue-500"
+              "h-14 justify-between px-4 rounded-xl transition-all",
+              "hover:bg-accent/50 hover:shadow-sm",
+              "border hover:border-primary/30",
+              selectedData === sensor.name && 
+              "bg-primary/10 border-primary/30 shadow-sm ring-1 ring-primary/20"
             )}
           >
-            <div className="flex items-center gap-2">
-              <sensor.icon size={16} className="text-blue-500" />
-              <span>{sensor.name}</span>
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <sensor.icon size={20} className="text-primary" />
+              </div>
+              <span className="font-medium text-foreground">{sensor.name}</span>
             </div>
-            <div
-              className={cn(
-                "w-3 h-3 rounded-full border border-blue-500 transition-all duration-300",
-                selectedData === sensor.name ? "bg-blue-500" : "bg-transparent"
-              )}
-            />
+            <div className={cn(
+              "w-2.5 h-2.5 rounded-full border-2 transition-colors",
+              selectedData === sensor.name ? 
+                "bg-primary border-primary" : 
+                "bg-transparent border-muted-foreground/30"
+            )} />
           </Button>
         ))}
       </div>

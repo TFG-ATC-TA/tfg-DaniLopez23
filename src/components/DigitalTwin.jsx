@@ -2,14 +2,14 @@ import { useState, useEffect, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import SensorData from "./SensorData/SensorData";
 import TankStatus from "./TankStatus";
-import TankInformation from "./TankInformation";
+import DataModeToggle from "./DataModeToogle";
 import SelectedSensorData from "./sensorData/SelectedSensorData";
 import TimeSeriesSlider from "./TimeSeriesSlider";
 import FilterComponent from "./FilterHistoricalData";
 import CameraSettings from "./Camera/CameraSettings";
 import { Model } from "./tank-models/HorizontalTank2Blades";
-import { Slider } from "@/components/ui/slider";
-import { Label } from "@/components/ui/label";
+import { OrbitControls } from "@react-three/drei";
+import { Button } from "./ui/button";
 
 import { getHistoricalData } from "@/services/farm";
 
@@ -37,7 +37,6 @@ const DigitalTwin = ({
   airQualityData,
   selectedData,
 }) => {
-
   const realTimeData = {
     encoderData,
     milkQuantityData,
@@ -108,12 +107,13 @@ const DigitalTwin = ({
     { date: new Date("2025-01-23T17:30:00"), label: "Work End" },
     { date: new Date("2025-01-24T08:00:00"), label: "Project Start" },
     { date: new Date("2025-01-24T12:30:00"), label: "Lunch Break" },
-    { date: new Date("2025-01-24T17:00:00"), label: "Project End" }
+    { date: new Date("2025-01-24T17:00:00"), label: "Project End" },
   ];
-  
 
   const [historicalData, setHistoricalData] = useState(null);
-  const { mode } = useFarmStore((state) => state);
+  const [error, setError] = useState(null);
+
+  const { mode, setMode } = useFarmStore((state) => state);
   const { selectedTank } = useTankStore();
 
   const [filters, setFilters] = useState({
@@ -134,6 +134,7 @@ const DigitalTwin = ({
 
   const fetchHistoricalData = async () => {
     try {
+      setHistoricalData("loading");
       const data = await getHistoricalData({
         dateRangeFrom: filters.dateRange.from.toISOString(),
         dateRangeTo: filters.dateRange.to.toISOString(),
@@ -147,6 +148,8 @@ const DigitalTwin = ({
       setHistoricalData(data);
     } catch (error) {
       console.error("Error fetching historical data:", error);
+      setHistoricalData(null);
+      setError(error);
     }
   };
 
@@ -157,6 +160,31 @@ const DigitalTwin = ({
       return (
         <div className="flex items-center justify-center h-full text-lg text-gray-500">
           Select a date to view historical data
+        </div>
+      );
+    }
+
+    if (mode === "historical" && historicalData === "loading") {
+      return (
+        <div className="flex items-center justify-center h-full text-lg text-gray-500">
+          Loading historical data...
+        </div>
+      );
+    }
+
+    if (mode === "historical" && error) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full p-4 text-center">
+          <p className="text-lg text-gray-500 mb-4">
+            Error loading historical data. Please try again later.
+          </p>
+          <Button
+            variant="outline"
+            onClick={fetchHistoricalData} // Asegúrate de implementar la función fetchData
+            className="mt-2"
+          >
+            Try Again
+          </Button>
         </div>
       );
     }
@@ -183,51 +211,64 @@ const DigitalTwin = ({
     );
   };
 
-  const formatTime = (value) => {
-    const hours = value;
-    return `${hours.toString().padStart(2, "0")}:00`;
-  };
-
   return selectedTank ? (
-    <div className="flex h-screen overflow-hidden">
-      <div className="w-64 bg-white shadow-md overflow-auto">
-        <SensorData className="w-full" />
+    <div className="flex h-screen overflow-hidden bg-muted/40">
+      <div className="w-64 bg-background shadow-lg border-r overflow-auto">
+        <SensorData />
       </div>
+
       <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex-shrink-0 p-4 pb-2 flex items-start gap-2">
-          <div className="flex-grow">
-            <TankInformation selectedTank={selectedTank} setFilters={setFilters} filters={filters}/>
+        {/* Header section - modificado */}
+        <div className="flex items-center justify-between p-4 bg-background border-b">
+          <div className="flex items-center gap-4">
+            <DataModeToggle
+              isRealTime={mode === "realtime"}
+              onToggle={() =>
+                setMode(mode === "realtime" ? "historical" : "realtime")
+              }
+              className="bg-background shadow-sm border"
+            />
           </div>
-          <div className="w-80">
-            <TankStatus />
-          </div>
+          <TankStatus />
         </div>
-        <div className="flex-1 flex overflow-hidden">
-          <div className="flex-1 flex flex-col">
+
+        {/* Main content - modificado */}
+        <div className="flex-1 flex overflow-hidden gap-1 p-2 pt-0 h-[calc(100vh-140px)]">
+          {/* Model container - modificado */}
+          <div className="flex-1 flex flex-col bg-background rounded-xl shadow-sm border overflow-hidden">
             <TankModelLayout className="flex-1">
               {renderTankModel()}
             </TankModelLayout>
-            {mode === "historical" && filters.dateRange && (
-              <div className="px-4 py-2">
-                <TimeSeriesSlider
-                  startDate={filters.dateRange.from}
-                  endDate={filters.dateRange.to}
-                  states={states}
-                />
-              </div>
-            )}
+
+            {mode === "historical" &&
+              filters.dateRange &&
+              historicalData != "loading" &&
+              !error && (
+                <div className="px-4 py-3 border-t">
+                  <TimeSeriesSlider
+                    startDate={filters.dateRange.from}
+                    endDate={filters.dateRange.to}
+                    states={states}
+                  />
+                </div>
+              )}
           </div>
+
+          {/* Filters panel - modificado */}
           {mode === "historical" && (
-            <div className="w-80">
-              <FilterComponent filters={filters} setFilters={setFilters}/>
+            <div className="w-96 bg-background rounded-xl shadow-sm border overflow-hidden flex flex-col">
+              <FilterComponent filters={filters} setFilters={setFilters} />
             </div>
           )}
         </div>
       </div>
     </div>
   ) : (
-    <div className="flex items-center justify-center h-full text-lg text-gray-500">
-      No tank selected. Please select a tank to view its data.
+    <div className="flex items-center justify-center h-full text-lg text-muted-foreground">
+      <div className="flex items-center gap-2">
+        <span className="text-2xl">⛽</span>
+        <p>No tank selected</p>
+      </div>
     </div>
   );
 };
