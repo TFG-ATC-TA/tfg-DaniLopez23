@@ -1,6 +1,7 @@
 // services/websockets.js
 const socketIo = require("socket.io");
 const cacheData = require("./cache");
+const debug = require('debug')('app:websockets');
 
 let io; 
 
@@ -12,14 +13,14 @@ const initializeWebSocket = (server) => {
   });
 
   io.on("connection", (socket) => {
-    console.log(`New client connected: ${socket.id}`);
-
+    debug(`New client connected: ${socket.id}`)
     // Escucha el evento de cambio de tanque
     let currentRooms = new Set(); // Almacena las rooms a las que está conectado el socket
 
     socket.on("selectTank", (boards) => {
       if (!Array.isArray(boards)) {
         console.error("Invalid boardIds format. Expected an array.");
+        debug('Invalid boardIds format. Expected an array.');
         return;
       }
 
@@ -30,6 +31,7 @@ const initializeWebSocket = (server) => {
         if (!newRooms.has(room)) {
           socket.leave(room);
           console.log(`Socket ${socket.id} left room: ${room}`);
+          debug(`Socket ${socket.id} left room: ${room}`);
         }
       }
 
@@ -37,7 +39,7 @@ const initializeWebSocket = (server) => {
       for (const room of newRooms) {
         if (!currentRooms.has(room)) {
           socket.join(room);
-          console.log(`Socket ${socket.id} joined room: ${room}`);
+          debug(`Socket ${socket.id} joined room: ${room}`);
         }
       }
 
@@ -48,7 +50,7 @@ const initializeWebSocket = (server) => {
     socket.on("request last data", (boards) => {
 
       if (!Array.isArray(boards)) {
-        console.error("Invalid boardIds format. Expected an array.");
+        debug('Invalid boardIds format. Expected an array.');
         return;
       }
 
@@ -58,12 +60,12 @@ const initializeWebSocket = (server) => {
     })
 
     socket.on("reconnectMQTT", () => {
-      console.log("Manually Reconnecting MQTT...");
+      debug("Manually Reconnecting MQTT...");
     });
 
 
     socket.on("disconnect", () => {
-      console.log(`Client disconnected: ${socket.id}`);
+      debug(`Client disconnected: ${socket.id}`);
     });
   });
 };
@@ -77,14 +79,13 @@ const emitToTank = (boardId, event, data) => {
 
   if (io) {
     io.to(boardId).emit(event, data);
-    console.log(`Emitting to room ${boardId}: ${event}`);
+    debug(`Emitting to room ${boardId}: ${event}`);
   }
 };
 
 const emitToAll = (event, data) => {
   if (io) {
     io.emit(event, data);
-    //console.log(`Emitting to all: ${event}`);
   }
 };
 

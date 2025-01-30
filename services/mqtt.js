@@ -4,6 +4,7 @@ const topics = require("../config/topics");
 const dataHandling = require("../utils/dataHandling");
 const dataCache = require("./cache");
 const webSocketsService = require("./webSockets");
+const debug = require('debug')('app:mqtt');
 
 const url = `mqtts://${config.mqtt.MQTT_HOST}:${config.mqtt.MQTT_PORT}`;
 
@@ -26,7 +27,7 @@ const connect = () => {
   });
 
   mqttClient.on("connect", () => {
-    console.log("MQTT client connected " + url);
+    debug('MQTT client connected %s', url);
     webSocketsService.emitToAll("mqttStatus", { status: "connected" });
     reconnecting = false;
     reconnectAttempts = 0; // Reset attempts on successful connection
@@ -34,13 +35,13 @@ const connect = () => {
 
     mqttClient.subscribe(topics, (err) => {
       if (err) {
-        console.error("MQTT Subscription Error:", err);
+        debug('MQTT Subscription Error: %O', err);
         webSocketsService.emitToAll("mqttStatus", {
           status: "subscriptionError",
           error: err.message,
         });
       } else {
-        console.log("Subscribed to topics");
+        debug('Subscribed to topics');
         webSocketsService.emitToAll("mqttStatus", { status: "subscribed" });
       }
     });
@@ -60,7 +61,7 @@ const connect = () => {
         messageHandler(boardId, topic, processedData);
       }
     } catch (err) {
-      console.error("MQTT Message Processing Error:", err);
+      debug('MQTT Message Processing Error: %O', err);
       webSocketsService.emitToAll("mqttStatus", {
         status: "messageError",
         error: err.message,
@@ -69,7 +70,7 @@ const connect = () => {
   });
 
   mqttClient.on("error", (err) => {
-    console.error("MQTT Connection Error:", err);
+    debug('MQTT Connection Error: %O', err);
     webSocketsService.emitToAll("mqttStatus", {
       status: "error",
       error: err.message,
@@ -79,10 +80,9 @@ const connect = () => {
   mqttClient.on("reconnect", () => {
     reconnectAttempts++;
     reconnecting = true;
-    console.log(`MQTT client reconnecting... Attempt ${reconnectAttempts}`);
-
+    debug ('MQTT client reconnecting... Attempt %d', reconnectAttempts);
     if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
-      console.log("Max reconnection attempts reached. Disconnecting client.");
+      debug('Max reconnection attempts reached. Disconnecting client.');
       webSocketsService.emitToAll("mqttStatus", {
         status: "maxAttemptsReached",
       });
@@ -98,14 +98,14 @@ const connect = () => {
 
   mqttClient.on("offline", () => {
     if (!reconnecting) {
-      console.log("MQTT client is offline");
+      debug('MQTT client is offline');
       webSocketsService.emitToAll("mqttStatus", { status: "offline" });
     }
   });
 
   mqttClient.on("close", () => {
     if (!reconnecting) {
-      console.log("MQTT client disconnected");
+      debug('MQTT client disconnected');
       webSocketsService.emitToAll("mqttStatus", { status: "disconnected" });
     }
   });
@@ -118,7 +118,7 @@ const setMessageHandler = (handler) => {
 const disconnect = () => {
   if (mqttClient) {
     mqttClient.end(true, () => {
-      console.log("MQTT client disconnected manually");
+      debug('MQTT client disconnected manually');
       webSocketsService.emitToAll("mqttStatus", { status: "disconnected" });
     });
   }
@@ -126,11 +126,11 @@ const disconnect = () => {
 
 const manualReconnect = () => {
   if (isManuallyReconnecting) {
-    console.log("Manual reconnection already in progress.");
+    debug('Manual reconnection already in progress.');
     return;
   }
 
-  console.log("Manually reconnecting MQTT client...");
+  debug('Manually reconnecting MQTT client...');
   isManuallyReconnecting = true;
 
   disconnect(); // Ensure the client is disconnected before reconnecting
