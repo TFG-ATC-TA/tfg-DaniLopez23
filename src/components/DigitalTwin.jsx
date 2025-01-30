@@ -2,17 +2,18 @@ import { useState, useEffect, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import SensorData from "./SensorData/SensorData";
 import TankStatus from "./TankStatus";
-import TankInformation from "./TankInformation";
+import DataModeToggle from "./DataModeToogle";
 import SelectedSensorData from "./sensorData/SelectedSensorData";
 import TimeSeriesSlider from "./TimeSeriesSlider";
 import FilterComponent from "./FilterHistoricalData";
 import CameraSettings from "./Camera/CameraSettings";
 import { Model } from "./tank-models/HorizontalTank2Blades";
-import { Slider } from "@/components/ui/slider";
-import { Label } from "@/components/ui/label";
-
+import { Button } from "./ui/button";
+import { Card, CardContent } from "./ui/card";
+import { CalendarIcon } from "lucide-react";
 import { getHistoricalData } from "@/services/farm";
-
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 import useTankStore from "@/Stores/useTankStore";
 import { getBoardIdsFromTank } from "@/services/tank";
 import useFarmStore from "@/Stores/useFarmStore";
@@ -37,7 +38,6 @@ const DigitalTwin = ({
   airQualityData,
   selectedData,
 }) => {
-
   const realTimeData = {
     encoderData,
     milkQuantityData,
@@ -49,71 +49,14 @@ const DigitalTwin = ({
   };
 
   const states = [
-    { date: new Date("2025-01-05T08:00:00"), label: "Work Start" },
-    { date: new Date("2025-01-05T12:30:00"), label: "Lunch Break" },
-    { date: new Date("2025-01-05T17:00:00"), label: "Work End" },
-    { date: new Date("2025-01-06T09:00:00"), label: "Project Start" },
-    { date: new Date("2025-01-06T13:00:00"), label: "Lunch Break" },
-    { date: new Date("2025-01-06T17:30:00"), label: "Project End" },
-    { date: new Date("2025-01-07T08:00:00"), label: "Work Start" },
-    { date: new Date("2025-01-07T12:00:00"), label: "Meeting" },
-    { date: new Date("2025-01-07T15:00:00"), label: "Work End" },
-    { date: new Date("2025-01-08T09:30:00"), label: "Work Start" },
-    { date: new Date("2025-01-08T12:30:00"), label: "Lunch Break" },
-    { date: new Date("2025-01-08T16:30:00"), label: "Work End" },
-    { date: new Date("2025-01-09T08:00:00"), label: "Project Start" },
-    { date: new Date("2025-01-09T12:00:00"), label: "Lunch Break" },
-    { date: new Date("2025-01-09T17:00:00"), label: "Project End" },
-    { date: new Date("2025-01-10T08:30:00"), label: "Work Start" },
-    { date: new Date("2025-01-10T13:00:00"), label: "Lunch Break" },
-    { date: new Date("2025-01-10T17:00:00"), label: "Work End" },
-    { date: new Date("2025-01-11T09:00:00"), label: "Project Start" },
-    { date: new Date("2025-01-11T12:30:00"), label: "Lunch Break" },
-    { date: new Date("2025-01-11T17:00:00"), label: "Project End" },
-    { date: new Date("2025-01-12T08:30:00"), label: "Work Start" },
-    { date: new Date("2025-01-12T12:00:00"), label: "Meeting" },
-    { date: new Date("2025-01-12T16:00:00"), label: "Work End" },
-    { date: new Date("2025-01-13T08:00:00"), label: "Work Start" },
-    { date: new Date("2025-01-13T12:30:00"), label: "Lunch Break" },
-    { date: new Date("2025-01-13T17:30:00"), label: "Work End" },
-    { date: new Date("2025-01-14T08:30:00"), label: "Project Start" },
-    { date: new Date("2025-01-14T12:00:00"), label: "Lunch Break" },
-    { date: new Date("2025-01-14T17:00:00"), label: "Project End" },
-    { date: new Date("2025-01-15T09:00:00"), label: "Work Start" },
-    { date: new Date("2025-01-15T12:30:00"), label: "Lunch Break" },
-    { date: new Date("2025-01-15T16:30:00"), label: "Work End" },
-    { date: new Date("2025-01-16T09:30:00"), label: "Project Start" },
-    { date: new Date("2025-01-16T12:00:00"), label: "Lunch Break" },
-    { date: new Date("2025-01-16T17:30:00"), label: "Project End" },
-    { date: new Date("2025-01-17T08:00:00"), label: "Work Start" },
-    { date: new Date("2025-01-17T12:30:00"), label: "Lunch Break" },
-    { date: new Date("2025-01-17T17:00:00"), label: "Work End" },
-    { date: new Date("2025-01-18T09:00:00"), label: "Project Start" },
-    { date: new Date("2025-01-18T12:00:00"), label: "Lunch Break" },
-    { date: new Date("2025-01-18T17:30:00"), label: "Project End" },
-    { date: new Date("2025-01-19T08:30:00"), label: "Work Start" },
-    { date: new Date("2025-01-19T12:30:00"), label: "Lunch Break" },
-    { date: new Date("2025-01-19T17:00:00"), label: "Work End" },
-    { date: new Date("2025-01-20T09:00:00"), label: "Project Start" },
-    { date: new Date("2025-01-20T12:00:00"), label: "Lunch Break" },
-    { date: new Date("2025-01-20T17:30:00"), label: "Project End" },
-    { date: new Date("2025-01-21T08:30:00"), label: "Work Start" },
-    { date: new Date("2025-01-21T12:00:00"), label: "Lunch Break" },
-    { date: new Date("2025-01-21T17:00:00"), label: "Work End" },
-    { date: new Date("2025-01-22T09:00:00"), label: "Project Start" },
-    { date: new Date("2025-01-22T12:30:00"), label: "Lunch Break" },
-    { date: new Date("2025-01-22T17:00:00"), label: "Project End" },
-    { date: new Date("2025-01-23T08:00:00"), label: "Work Start" },
-    { date: new Date("2025-01-23T12:00:00"), label: "Lunch Break" },
-    { date: new Date("2025-01-23T17:30:00"), label: "Work End" },
-    { date: new Date("2025-01-24T08:00:00"), label: "Project Start" },
-    { date: new Date("2025-01-24T12:30:00"), label: "Lunch Break" },
-    { date: new Date("2025-01-24T17:00:00"), label: "Project End" }
+    /* ... tus estados existentes ... */
   ];
-  
 
   const [historicalData, setHistoricalData] = useState(null);
-  const { mode } = useFarmStore((state) => state);
+  const [error, setError] = useState(null);
+  const [lastUpdate, setLastUpdate] = useState(new Date());
+
+  const { mode, setMode } = useFarmStore((state) => state);
   const { selectedTank } = useTankStore();
 
   const [filters, setFilters] = useState({
@@ -134,6 +77,7 @@ const DigitalTwin = ({
 
   const fetchHistoricalData = async () => {
     try {
+      setHistoricalData("loading");
       const data = await getHistoricalData({
         dateRangeFrom: filters.dateRange.from.toISOString(),
         dateRangeTo: filters.dateRange.to.toISOString(),
@@ -147,8 +91,25 @@ const DigitalTwin = ({
       setHistoricalData(data);
     } catch (error) {
       console.error("Error fetching historical data:", error);
+      setHistoricalData(null);
+      setError(error);
     }
   };
+
+  const getDisplayDate = () => {
+    if (mode === "historical") {
+      if (filters.dateRange) {
+        const from = format(filters.dateRange.from, "d 'de' MMMM yyyy", { locale: es });
+        const to = format(filters.dateRange.to, "d 'de' MMMM yyyy", { locale: es });
+        return from === to ? from : `${from} - ${to}`;
+      }
+      return "Selecciona un rango de fechas";
+    }
+    return format(lastUpdate, "d 'de' MMMM yyyy, HH:mm:ss", { locale: es });
+  };
+
+
+  const formattedDate = format(Date.now(), "d 'de' MMMM yyyy, EEEE HH:mm", { locale: es });
 
   const renderTankModel = () => {
     const data = mode === "realtime" ? realTimeData : historicalData;
@@ -157,6 +118,31 @@ const DigitalTwin = ({
       return (
         <div className="flex items-center justify-center h-full text-lg text-gray-500">
           Select a date to view historical data
+        </div>
+      );
+    }
+
+    if (mode === "historical" && historicalData === "loading") {
+      return (
+        <div className="flex items-center justify-center h-full text-lg text-gray-500">
+          Loading historical data...
+        </div>
+      );
+    }
+
+    if (mode === "historical" && error) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full p-4 text-center">
+          <p className="text-lg text-gray-500 mb-4">
+            Error loading historical data. Please try again later.
+          </p>
+          <Button
+            variant="outline"
+            onClick={fetchHistoricalData}
+            className="mt-2"
+          >
+            Try Again
+          </Button>
         </div>
       );
     }
@@ -183,51 +169,75 @@ const DigitalTwin = ({
     );
   };
 
-  const formatTime = (value) => {
-    const hours = value;
-    return `${hours.toString().padStart(2, "0")}:00`;
-  };
-
   return selectedTank ? (
-    <div className="flex h-screen overflow-hidden">
-      <div className="w-64 bg-white shadow-md overflow-auto">
-        <SensorData className="w-full" />
+    <div className="flex h-screen overflow-hidden ">
+      <div className="w-64 bg-background pt-1 shadow-lg border-r overflow-auto">
+        <SensorData />
       </div>
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex-shrink-0 p-4 pb-2 flex items-start gap-2">
-          <div className="flex-grow">
-            <TankInformation selectedTank={selectedTank} setFilters={setFilters} filters={filters}/>
+
+      <div className="flex-1 flex flex-col overflow-hidden ">
+        <div className="flex items-center justify-between gap-1 p-4 bg-background shadow-sm border overflow-hidden">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4">
+              <Card className="w-90 shadow-sm rounded-2xl">
+                <CardContent className="flex items-center justify-start gap-3 p-5">
+                  <div className="flex items-center justify-center bg-gray-300/70 p-2 rounded-full">
+                    <CalendarIcon className="text-gray-600 w-7 h-7" />
+                  </div>
+                  <p className="text-lg font-semibold text-gray-700 capitalize">
+                    {formattedDate}
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <DataModeToggle
+              isRealTime={mode === "realtime"}
+              onToggle={() =>
+                setMode(mode === "realtime" ? "historical" : "realtime")
+              }
+              className="bg-background shadow-sm border"
+            />
           </div>
-          <div className="w-80">
-            <TankStatus />
-          </div>
+          <TankStatus />
         </div>
-        <div className="flex-1 flex overflow-hidden">
-          <div className="flex-1 flex flex-col">
+
+        <div className="flex-1 flex overflow-hidden gap-1 p-0 h-[calc(100vh-140px)]">
+          <div className="flex-1 flex flex-col bg-background shadow-sm border overflow-hidden">
             <TankModelLayout className="flex-1">
               {renderTankModel()}
             </TankModelLayout>
-            {mode === "historical" && filters.dateRange && (
-              <div className="px-4 py-2">
-                <TimeSeriesSlider
-                  startDate={filters.dateRange.from}
-                  endDate={filters.dateRange.to}
-                  states={states}
-                />
-              </div>
-            )}
+
+            {mode === "historical" &&
+              filters.dateRange &&
+              historicalData != "loading" &&
+              !error && (
+                <div className="px-4 py-3 border-t">
+                  <TimeSeriesSlider
+                    startDate={filters.dateRange.from}
+                    endDate={filters.dateRange.to}
+                    states={states}
+                  />
+                </div>
+              )}
           </div>
+
           {mode === "historical" && (
-            <div className="w-80">
-              <FilterComponent filters={filters} setFilters={setFilters}/>
-            </div>
-          )}
+            <div className="w-80 bg-background overflow-hidden flex flex-col">
+              <FilterComponent 
+                filters={filters} 
+                setFilters={setFilters}  // Añade padding interno consistente
+              />
+            </div>)}
         </div>
       </div>
     </div>
   ) : (
-    <div className="flex items-center justify-center h-full text-lg text-gray-500">
-      No tank selected. Please select a tank to view its data.
+    <div className="flex items-center justify-center h-full text-lg text-muted-foreground">
+      <div className="flex items-center gap-2">
+        <span className="text-2xl">⛽</span>
+        <p>No tank selected</p>
+      </div>
     </div>
   );
 };

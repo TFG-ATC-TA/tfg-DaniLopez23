@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Info } from 'lucide-react';
+import { Info, Database, Gauge, Waves, Thermometer } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,13 +9,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import PropTypes from 'prop-types';
 import DataModeToggle from './DataModeToogle';
 import useFarmStore from '@/Stores/useFarmStore';
 
 const TankInformation = ({ selectedTank, setFilters, filters }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const { mode, setMode } = useFarmStore((state) => state);
+  const { mode, setMode } = useFarmStore();
   const isRealTime = mode === 'realtime';
 
   const handleDataModeToggle = (isRealTimeMode) => {
@@ -28,55 +26,76 @@ const TankInformation = ({ selectedTank, setFilters, filters }) => {
     });
   };
 
-  if (!selectedTank) {
-    return 
-  }
+  if (!selectedTank) return null;
 
   return (
-    <Card className="w-full">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 py-3">
-        <div className="flex items-center space-x-2">
-          <CardTitle className="text-xl font-semibold">{selectedTank.name}</CardTitle>
-          <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+    <Card className="w-full border-0 rounded-xl shadow-sm">
+      <CardHeader className="flex flex-row items-center justify-between p-4">
+        <div className="flex items-center gap-3">
+          <div className="bg-primary/10 p-2 rounded-lg">
+            <Database className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <CardTitle className="text-xl font-semibold text-foreground">
+              {selectedTank.name}
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">Milk Storage Tank</p>
+          </div>
+          <Dialog>
             <DialogTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8 text-muted-foreground hover:text-primary"
+              >
                 <Info className="h-4 w-4" />
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="rounded-xl max-w-md">
               <DialogHeader>
-                <DialogTitle className="text-xl">{selectedTank.name} Information</DialogTitle>
+                <DialogTitle className="text-2xl flex items-center gap-2">
+                  <Database className="h-6 w-6 text-primary" />
+                  Technical Specifications
+                </DialogTitle>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <InfoItem label="Capacity" value={`${selectedTank.capacity || 2500} liters`} />
-                <InfoItem label="Height" value="1.5 m" />
-                <InfoItem label="Weight" value="1000 kg" />
+              <div className="grid gap-3 py-4">
+                <InfoItem 
+                  icon={<Gauge className="w-5 h-5 text-primary" />}
+                  label="Capacity"
+                  value={`${selectedTank.capacity || 2500} L`}
+                />
+                <InfoItem
+                  icon={<Waves className="w-5 h-5 text-primary" />}
+                  label="Current Volume"
+                  value={`${selectedTank.currentVolume || 0} L`}
+                />
+                <InfoItem
+                  icon={<Thermometer className="w-5 h-5 text-primary" />}
+                  label="Temperature"
+                  value={`${selectedTank.temperature || 4}°C`}
+                />
               </div>
             </DialogContent>
           </Dialog>
         </div>
-        <div className="flex items-center space-x-4">
-          <DataModeToggle isRealTime={isRealTime} onToggle={handleDataModeToggle} />
-        </div>
+        <DataModeToggle 
+          isRealTime={isRealTime} 
+          onToggle={handleDataModeToggle}
+          className="bg-background shadow-sm border"
+        />
       </CardHeader>
     </Card>
   );
 };
 
-const InfoItem = ({ label, value }) => (
-  <div className="flex justify-between items-center">
-    <span className="text-sm text-gray-500">{label}</span>
-    <span className="text-base font-medium">{value}</span>
+const InfoItem = ({ icon, label, value }) => (
+  <div className="flex items-center gap-4 p-3 bg-muted/20 rounded-lg">
+    <div className="bg-primary/10 p-2 rounded-lg">{icon}</div>
+    <div className="flex-1">
+      <div className="text-sm text-muted-foreground">{label}</div>
+      <div className="font-medium text-foreground">{value}</div>
+    </div>
   </div>
 );
-
-InfoItem.propTypes = {
-  label: PropTypes.string.isRequired,
-  value: PropTypes.node.isRequired,
-};
-
-TankInformation.propTypes = {
-  selectedTank: PropTypes.object,
-};
 
 export default TankInformation;
