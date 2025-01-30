@@ -24,8 +24,8 @@ const FilterComponent = ({ filters, setFilters }) => {
   console.log(filters)
   
   return (
-    <Card className="w-full h-full rounded-xl border">
-      <CardHeader className="sticky top-0 bg-background/95 backdrop-blur z-10 border-b p-4">
+    <Card className="w-full h-full p-4">
+      <CardHeader className="sticky  bg-background/95 z-10 border-b p-4">
         <CardTitle className="text-lg font-semibold flex items-center gap-2">
           <Filter className="h-5 w-5 text-primary" />
           Filtros Históricos

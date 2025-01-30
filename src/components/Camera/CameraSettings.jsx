@@ -42,7 +42,6 @@ const CameraSettings = ({ view }) => {
         maxDistance={5}
       />
       
-      
         <GizmoHelper
           alignment="bottom-right"
           margin={[60, 60]}
