@@ -1,13 +1,14 @@
 import { create } from "zustand";
 
 const useFarmStore = create((set) => ({
-  farmData: {},
+  farms: [],
+  selectedFarm: {},
   mode: "realtime",
   serverStatus: { status: 'connecting', error: null },
-  setFarmData: (data) => set({ farmData: data }),
+  setFarms: (data) => set({ farms: data }),
+  setSelectedFarm: (data) => set({ selectedFarm: data }),
   setMode: (data) => set({ mode: data }),
   setServerStatus: (data) => set({ serverStatus: data }),
-  farms: [],
 }));
 
 export default useFarmStore;

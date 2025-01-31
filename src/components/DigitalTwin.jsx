@@ -99,17 +99,14 @@ const DigitalTwin = ({
   const getDisplayDate = () => {
     if (mode === "historical") {
       if (filters.dateRange) {
-        const from = format(filters.dateRange.from, "d 'de' MMMM yyyy", { locale: es });
-        const to = format(filters.dateRange.to, "d 'de' MMMM yyyy", { locale: es });
+        const from = format(filters.dateRange.from, "d MMMM yyyy, EEEE HH:mm", { locale: es });
+        const to = format(filters.dateRange.to, "d MMMM yyyy, EEEE HH:mm", { locale: es });
         return from === to ? from : `${from} - ${to}`;
       }
       return "Selecciona un rango de fechas";
     }
-    return format(lastUpdate, "d 'de' MMMM yyyy, HH:mm:ss", { locale: es });
+    return format(lastUpdate, "d MMMM yyyy, EEEE HH:mm", { locale: es });
   };
-
-
-  const formattedDate = format(Date.now(), "d 'de' MMMM yyyy, EEEE HH:mm", { locale: es });
 
   const renderTankModel = () => {
     const data = mode === "realtime" ? realTimeData : historicalData;
@@ -178,17 +175,13 @@ const DigitalTwin = ({
       <div className="flex-1 flex flex-col overflow-hidden ">
         <div className="flex items-center justify-between gap-1 p-4 bg-background shadow-sm border overflow-hidden">
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-4">
-              <Card className="w-90 shadow-sm rounded-2xl">
-                <CardContent className="flex items-center justify-start gap-3 p-5">
+            <div className="flex items-center gap-4 border-r pr-4">
                   <div className="flex items-center justify-center bg-gray-300/70 p-2 rounded-full">
                     <CalendarIcon className="text-gray-600 w-7 h-7" />
                   </div>
                   <p className="text-lg font-semibold text-gray-700 capitalize">
-                    {formattedDate}
+                    {getDisplayDate()}
                   </p>
-                </CardContent>
-              </Card>
             </div>
 
             <DataModeToggle
@@ -234,10 +227,7 @@ const DigitalTwin = ({
     </div>
   ) : (
     <div className="flex items-center justify-center h-full text-lg text-muted-foreground">
-      <div className="flex items-center gap-2">
-        <span className="text-2xl">⛽</span>
         <p>No tank selected</p>
-      </div>
     </div>
   );
 };

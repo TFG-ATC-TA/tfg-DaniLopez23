@@ -17,7 +17,6 @@ export const getFarmById = async (id) => {
 export const getFarms = async () => {
   try {
     const response = await api.get('/farms');
-    console.log("Farms:", response.data);
     return response.data;
   } catch (error) {
     if (error.response) {

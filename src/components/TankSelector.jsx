@@ -23,7 +23,6 @@ const TankSelector = ({ selectedTank, handleTankChange, farmData }) => {
   const getMilkTanks = (equipments) => {
     return equipments?.filter((tank) => tank.type === "Tanque de leche") || [];
   };
-
   return (
     <div className="flex flex-col space-y-4">
       {/* Fila superior: Título y botón de información */}

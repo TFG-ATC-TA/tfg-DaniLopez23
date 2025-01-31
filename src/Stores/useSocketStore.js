@@ -2,8 +2,8 @@ import { create } from "zustand";
 
 const useSocketStore = create((set, get) => ({
   socket: null,
-  mqttStatus: { connectionState: 'connecting', error: null },
-  webSocketServerStatus: { connectionState: 'connecting', error: null },
+  mqttStatus: { status: 'connecting', error: null },
+  webSocketServerStatus: { status: 'connecting', error: null },
   setSocket: (socket) => set({ socket }),
   setMqttStatus: (status) => set({ mqttStatus: status }),
   setWebSocketServerStatus: (status) => set({ webSocketServerStatus: status }),
