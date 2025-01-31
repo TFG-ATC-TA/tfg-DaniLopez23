@@ -5,7 +5,7 @@ const User = require("../models/User");
 const { get } = require("mongoose");
 
 const getFarms = async () => {
-  const farms = await Farm.find({});
+  const farms = await Farm.find({}).populate({ path: "equipments", populate: { path: "devices" } });
   return farms;
 };
 
