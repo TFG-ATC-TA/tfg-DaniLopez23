@@ -19,7 +19,7 @@ import {
 
 const TankSelector = ({ selectedTank, handleTankChange, farmData }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
+  console.log(farmData);
   const getMilkTanks = (equipments) => {
     return equipments?.filter((tank) => tank.type === "Tanque de leche") || [];
   };
