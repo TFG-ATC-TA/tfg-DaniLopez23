@@ -45,7 +45,7 @@ const CameraSettings = ({ view }) => {
         <GizmoHelper
           alignment="bottom-right"
           margin={[60, 60]}
-          onUpdate={() => cameraControlsRef.current?.updateCameraUp()}
+          onUpdate={() => cameraControlsRef.current}
         >
           <GizmoViewport
             axisColors={["#9d4b4b", "#2f7f4f", "#3b5b9d"]}
