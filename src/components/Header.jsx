@@ -9,7 +9,6 @@ import ServerStatus from './ServerStatus';
 const Header = ({ serverStatus, mqttStatus, webSocketServerStatus, farmData }) => {
   const { changeSelectedTank } = useTank();
   const { selectedTank } = useTankStore((state) => state);
-  const  {farms} = useFarmStore((state) => state);
   const handleTankChange = (tankId) => {
     const tank = farmData.equipments.find((tank) => tank._id === tankId);
     if (tank) changeSelectedTank(tank);
@@ -17,7 +16,7 @@ const Header = ({ serverStatus, mqttStatus, webSocketServerStatus, farmData }) =
 
   return (
     <div className="bg-white p-6 shadow-sm border-b flex justify-between items-center">
-      <FarmSelector farms={farms}/>
+      <FarmSelector/>
       
       <div className="flex-1 px-8">
         <TankSelector

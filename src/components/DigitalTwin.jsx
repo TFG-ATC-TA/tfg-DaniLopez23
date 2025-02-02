@@ -169,7 +169,7 @@ const DigitalTwin = ({
   return selectedTank ? (
     <div className="flex h-screen overflow-hidden ">
       <div className="w-64 bg-background pt-1 shadow-lg border-r overflow-auto bg-background shadow-sm border overflow-hidden">
-        <SensorData />
+        <SensorData historicalData={historicalData} isRealTime={mode === "realtime"}/>
       </div>
 
       <div className="flex-1 flex flex-col overflow-hidden ">

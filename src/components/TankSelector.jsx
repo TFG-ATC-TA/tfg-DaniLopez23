@@ -67,7 +67,6 @@ const TankSelector = ({ selectedTank, handleTankChange, farmData }) => {
                   </strong>
                   <p className="text-sm">{selectedTank.status || "N/A"}</p>
                 </div>
-                {/* Agregar más campos según sea necesario */}
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">No tank selected</p>
@@ -77,7 +76,7 @@ const TankSelector = ({ selectedTank, handleTankChange, farmData }) => {
       </div>
 
       {/* Selector de tanque */}
-      <Select value={selectedTank?._id} onValueChange={handleTankChange}>
+      {farmData.equipments?.length > 0 ? (<Select value={selectedTank?._id} onValueChange={handleTankChange}>
         <SelectTrigger className="w-[200px]">
           <SelectValue placeholder="Select a tank" />
         </SelectTrigger>
@@ -88,7 +87,7 @@ const TankSelector = ({ selectedTank, handleTankChange, farmData }) => {
             </SelectItem>
           ))}
         </SelectContent>
-      </Select>
+      </Select>) : <p className="text-sm text-muted-foreground">No tanks available</p>}
     </div>
   );
 };

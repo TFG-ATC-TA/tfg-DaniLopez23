@@ -3,9 +3,9 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Thermometer, Droplet, ToggleLeft, Compass, Gauge, Weight, Wind } from 'lucide-react';
 
-const SensorData = () => {
+const SensorData = ({isRealTime, historicalData}) => {
   const { setSelectedData, selectedData } = useDataStore((state) => state);
-
+  console.log(historicalData, isRealTime);
   const sensors = [
     { name: "MilkQuantity", icon: Droplet },
     { name: "TankTemperatures", icon: Thermometer },
@@ -27,7 +27,7 @@ const SensorData = () => {
   return (
     <div className="p-4 w-full">
       <h2 className="text-lg font-semibold mb-4 px-2 text-foreground">Sensor Data</h2>
-      <div className="flex flex-col gap-2">
+      { (isRealTime || (historicalData && historicalData != "loading"))  && (<div className="flex flex-col gap-2">
         {sensors.map((sensor) => (
           <Button
             key={sensor.name}
@@ -55,7 +55,7 @@ const SensorData = () => {
             )} />
           </Button>
         ))}
-      </div>
+      </div>)}
     </div>
   );
 };
