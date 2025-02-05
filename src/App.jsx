@@ -1,14 +1,14 @@
-import { useSocket } from "./WebSockets/SocketProvider";
-
 import useDataStore from "./Stores/useDataStore";
 import Header from "./components/Header";
 import DigitalTwin from "./components/DigitalTwin";
-import useTankStore from "./Stores/useTankStore";
+import useSocketStore from "./Stores/useSocketStore";
+import useFarmStore from "./Stores/useFarmStore";
+
+import { useSocketInitialization } from "./hooks/useSocketInitialization";
+import { useFarmInitialization } from "./hooks/useFarmInitialization";
 
 export default function App() {
-  const { serverStatus } = useSocket();
-  const { farmData } = useDataStore((state) => state);
-  const { selectedTank } = useTankStore((state) => state);
+
   const {
     encoderData,
     milkQuantityData,
@@ -19,9 +19,18 @@ export default function App() {
     selectedData,
   } = useDataStore((state) => state);
 
+
+  useSocketInitialization();
+  
+  const { webSocketServerStatus, mqttStatus } = useSocketStore((state) => state);
+  
+  useFarmInitialization();
+
+  const { selectedFarm, serverStatus } = useFarmStore((state) => state);
+  
   return (
     <div className="flex flex-col h-screen bg-gray-100">
-      <Header serverStatus={serverStatus} farmData={farmData} />
+      <Header serverStatus={serverStatus} webSocketServerStatus={webSocketServerStatus} mqttStatus={mqttStatus} farmData={selectedFarm} />
       <DigitalTwin
         encoderData={encoderData}
         milkQuantityData={milkQuantityData}
@@ -30,7 +39,6 @@ export default function App() {
         tankTemperaturesData={tankTemperaturesData}
         airQualityData={airQualityData}
         selectedData={selectedData}
-        selectedTank={selectedTank}
       />
     </div>
   );

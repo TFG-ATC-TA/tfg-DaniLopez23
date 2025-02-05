@@ -2,29 +2,21 @@ import { useState, useEffect, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import SensorData from "./SensorData/SensorData";
 import TankStatus from "./TankStatus";
-import TankInformation from "./TankInformation";
+import DataModeToggle from "./DataModeToogle";
 import SelectedSensorData from "./sensorData/SelectedSensorData";
+import TimeSeriesSlider from "./TimeSeriesSlider";
 import FilterComponent from "./FilterHistoricalData";
 import CameraSettings from "./Camera/CameraSettings";
 import { Model } from "./tank-models/HorizontalTank2Blades";
-import { Slider } from "@/components/ui/slider";
-import { Label } from "@/components/ui/label";
-
+import { Button } from "./ui/button";
+import { CalendarIcon, Activity, Sliders } from "lucide-react";
 import { getHistoricalData } from "@/services/farm";
-import useDataStore from "@/Stores/useDataStore";
-import useTankStore from '@/Stores/useTankStore';
-import { getBoardIdsFromTank } from '@/services/tank';
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import useTankStore from "@/Stores/useTankStore";
+import { getBoardIdsFromTank } from "@/services/tank";
+import useFarmStore from "@/Stores/useFarmStore";
 
-const TankModelLayout = ({ children }) => {
-  return (
-    <div className="relative w-full h-full">
-      <div className="absolute top-4 left-4 z-10">
-        <SelectedSensorData />
-      </div>
-      {children}
-    </div>
-  );
-};
 
 const DigitalTwin = ({
   encoderData,
@@ -34,7 +26,6 @@ const DigitalTwin = ({
   tankTemperaturesData,
   airQualityData,
   selectedData,
-  selectedTank,
 }) => {
   const realTimeData = {
     encoderData,
@@ -46,48 +37,75 @@ const DigitalTwin = ({
     selectedData,
   };
 
+  const states = [
+    /* ... tus estados existentes ... */
+  ];
+
   const [historicalData, setHistoricalData] = useState(null);
-  const { mode } = useDataStore((state) => state);
-  const { selectedTank: storedSelectedTank } = useTankStore();
+  const [error, setError] = useState(null);
+  const [lastUpdate, setLastUpdate] = useState(new Date());
+  const [isSensorsVisible, setIsSensorsVisible] = useState(true);
+  const [isFiltersVisible, setIsFiltersVisible] = useState(true);
+  const { mode, setMode } = useFarmStore((state) => state);
+  const { selectedTank } = useTankStore();
 
   const [filters, setFilters] = useState({
-    date: null,
+    dateRange: null,
     selectedStatus: "all",
     selectedSensor: "all",
     showAnomalous: false,
     timeSlider: 0,
   });
 
-
-  const boardIds = getBoardIdsFromTank(storedSelectedTank);
+  const boardIds = getBoardIdsFromTank(selectedTank);
 
   useEffect(() => {
-    if (mode === "historical" && filters.date) {
+    if (mode === "historical" && filters.dateRange) {
       fetchHistoricalData();
     }
   }, [filters]);
 
   const fetchHistoricalData = async () => {
     try {
+      setHistoricalData("loading");
       const data = await getHistoricalData({
-        date: new Date(Date.UTC(filters.date.getFullYear(), filters.date.getMonth(), filters.date.getDate())),
+        dateRangeFrom: filters.dateRange.from.toISOString(),
+        dateRangeTo: filters.dateRange.to.toISOString(),
         boardIds: boardIds,
         status: filters.selectedStatus,
         sensor: filters.selectedSensor,
         showAnomalous: filters.showAnomalous,
         hour: filters.timeSlider,
-        tankId: storedSelectedTank?._id,
+        tankId: selectedTank?._id,
       });
       setHistoricalData(data);
     } catch (error) {
       console.error("Error fetching historical data:", error);
+      setHistoricalData(null);
+      setError(error);
     }
+  };
+
+  const getDisplayDate = () => {
+    if (mode === "historical") {
+      if (filters.dateRange) {
+        const from = format(filters.dateRange.from, "d MMMM yyyy, EEEE HH:mm", {
+          locale: es,
+        });
+        const to = format(filters.dateRange.to, "d MMMM yyyy, EEEE HH:mm", {
+          locale: es,
+        });
+        return from === to ? from : `${from} - ${to}`;
+      }
+      return "Selecciona un rango de fechas";
+    }
+    return format(lastUpdate, "d MMMM yyyy, EEEE HH:mm", { locale: es });
   };
 
   const renderTankModel = () => {
     const data = mode === "realtime" ? realTimeData : historicalData;
 
-    if (mode === "historical" && !filters.date) {
+    if (mode === "historical" && !filters.dateRange) {
       return (
         <div className="flex items-center justify-center h-full text-lg text-gray-500">
           Select a date to view historical data
@@ -95,21 +113,30 @@ const DigitalTwin = ({
       );
     }
 
-    // if (mode === "historical" && !data) {
-    //   return (
-    //     <div className="flex items-center justify-center h-full text-lg text-gray-500">
-    //       Loading historical data...
-    //     </div>
-    //   );
-    // }
+    if (mode === "historical" && historicalData === "loading") {
+      return (
+        <div className="flex items-center justify-center h-full text-lg text-gray-500">
+          Loading historical data...
+        </div>
+      );
+    }
 
-    // if (!data) {
-    //   return (
-    //     <div className="flex items-center justify-center h-full text-lg text-gray-500">
-    //       Loading...
-    //     </div>
-    //   );
-    // }
+    if (mode === "historical" && error) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full p-4 text-center">
+          <p className="text-lg text-gray-500 mb-4">
+            Error loading historical data. Please try again later.
+          </p>
+          <Button
+            variant="outline"
+            onClick={fetchHistoricalData}
+            className="mt-2"
+          >
+            Try Again
+          </Button>
+        </div>
+      );
+    }
 
     return (
       <Canvas className="w-full h-full">
@@ -133,60 +160,107 @@ const DigitalTwin = ({
     );
   };
 
-  const formatTime = (value) => {
-    const hours = value;
-    return `${hours.toString().padStart(2, '0')}:00`;
-  };
 
-  return (
-    <div className="flex h-screen overflow-hidden">
-      <div className="w-64 bg-white shadow-md overflow-auto">
-        <SensorData className="w-full" />
-      </div>
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex-shrink-0 p-4 pb-2 flex items-start gap-2">
-          <div className="flex-grow">
-            <TankInformation selectedTank={selectedTank} />
-          </div>
-          <div className="w-80">
-            <TankStatus />
-          </div>
+  return selectedTank ? (
+    <div className="flex h-screen overflow-hidden ">
+      {isSensorsVisible ? (
+        <div className="w-64 bg-background pt-1 shadow-lg border-r overflow-auto">
+          <SensorData
+            historicalData={historicalData}
+            isRealTime={mode === "realtime"}
+            onToggle={() => setIsSensorsVisible(false)}
+          />
         </div>
-        <div className="flex-1 flex overflow-hidden">
-          <div className="flex-1 flex flex-col">
-            <TankModelLayout className="flex-1">
-              {renderTankModel()}
-            </TankModelLayout>
-            {mode === "historical" && filters.date && (
-              <div className="px-4 py-2">
-                <Label
-                  htmlFor="time-slider"
-                  className="block text-sm font-medium mb-1"
-                >
-                  Time: {formatTime(filters.timeSlider)}
-                </Label>
-                <Slider
-                  id="time-slider"
-                  min={0}
-                  max={23}
-                  step={1}
-                  value={[filters.timeSlider]}
-                  onValueChange={(value) =>
-                    setFilters((prev) => ({ ...prev, timeSlider: value[0] }))
-                  }
-                />
+      ) : (
+        <div className="border-r p-2 flex items-start justify-center h-full">
+          <Button
+            variant="ghost"
+            onClick={() => setIsSensorsVisible(true)}
+            className="h-auto p-3 flex flex-col gap-2 text-primary hover:bg-primary/10"
+          >
+            <Activity className="h-5 w-5 rotate-90" />
+            <span className="text-xs font-medium">Sensores</span>
+          </Button>
+        </div>
+      )}
+
+
+      <div className="flex-1 flex flex-col overflow-hidden ">
+        <div className="flex items-center justify-between gap-1 p-4 bg-background shadow-sm border overflow-hidden">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 border-r pr-4">
+              <div className="flex items-center justify-center bg-gray-300/70 p-2 rounded-full">
+                <CalendarIcon className="text-gray-600 w-7 h-7" />
               </div>
-            )}
-          </div>
-          {mode === "historical" && (
-            <div className="w-80 flex flex-col h-full">
-              <div className="flex-1 overflow-hidden">
-                <FilterComponent filters={filters} setFilters={setFilters} />
-              </div>
+              <p className="text-lg font-semibold text-gray-700 capitalize">
+                {getDisplayDate()}
+              </p>
             </div>
-          )}
+
+            <DataModeToggle
+              isRealTime={mode === "realtime"}
+              onToggle={() =>
+                setMode(mode === "realtime" ? "historical" : "realtime")
+              }
+              className="bg-background shadow-sm border"
+            />
+          </div>
+          <TankStatus />
+        </div>
+
+        <div className="flex-1 flex overflow-hidden gap-1 p-0 h-[calc(100vh-140px)]">
+          <div className="flex-1 flex flex-col bg-background shadow-sm border overflow-hidden">
+            <div className="relative w-full h-full">
+              {(mode === "realtime" ||
+                (historicalData && historicalData != "loading")) && (
+                <div className="absolute top-4 left-4 z-10">
+                  <SelectedSensorData />
+                </div>
+              )}
+              {renderTankModel()}
+            </div>
+
+            {mode === "historical" &&
+              filters.dateRange &&
+              historicalData != "loading" &&
+              !error && (
+                <div className="px-4 py-3 border-t">
+                  <TimeSeriesSlider
+                    startDate={filters.dateRange.from}
+                    endDate={filters.dateRange.to}
+                    states={states}
+                  />
+                </div>
+              )}
+          </div>
+
+          {mode === "historical" && isFiltersVisible ? (
+            <div className="w-80 overflow-hidden flex flex-col">
+              <FilterComponent
+                filters={filters}
+                setFilters={setFilters}
+                onToggle={() => setIsFiltersVisible(false)}
+              />
+            </div>
+          ) : mode === "historical" ? (
+            <div className="p-2 flex items-start justify-center h-full">
+              <Button
+                variant="ghost"
+                onClick={() => setIsFiltersVisible(true)}
+                className="h-auto p-3 flex flex-col gap-2 text-primary hover:bg-primary/10"
+              >
+                <Sliders className="h-5 w-5 rotate-90" />
+                <span className="text-xs font-medium">Filtros</span>
+              </Button>
+            </div>
+          ) : null}
+
         </div>
       </div>
+    </div>
+  ) : (
+    <div className="flex items-center justify-center h-full text-lg text-muted-foreground">
+      <p>No tank selected</p>
     </div>
   );
 };

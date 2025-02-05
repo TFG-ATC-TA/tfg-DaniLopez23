@@ -1,60 +1,62 @@
-import React, { useState } from "react";
+import React from "react";
 import { Thermometer } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 
-const TankTemperatures = ({ tankTemperaturesData, isSelected, onSelect }) => {
-
-  const { over_surface_temperature, surface_temperature, submerged_temperature } = tankTemperaturesData || {};
-
+const TankTemperatures = ({ tankTemperaturesData }) => {
+  const { 
+    over_surface_temperature, 
+    surface_temperature, 
+    submerged_temperature,
+    sensorId,
+    readableDate
+  } = tankTemperaturesData || {};
 
   return (
-    <Card
-      className={cn(
-        "transition-all duration-300 hover:shadow-lg",
-        isSelected && "ring-2 ring-red-200"
-      )}
-      onClick={onSelect}
-      tabIndex={0}
-      role="button"
-      aria-pressed={isSelected}
-    >
+    <Card className="ring-2 ring-red-200 bg-red-50/20">
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Thermometer size={16} className="text-red-500" />
-            <span>Milk Temperatures</span>
-          </div>
-          <div
-            className={cn(
-              "w-2 h-2 rounded-full transition-all duration-300",
-              isSelected ? "bg-red-500" : "bg-gray-300"
-            )}
-          />
+        <CardTitle className="text-sm font-medium flex items-center space-x-2">
+          <Thermometer size={16} className="text-red-500" />
+          <span>Temperature Sensors</span>
         </CardTitle>
       </CardHeader>
-      <p className="text-xs text-muted-foreground mb-3 px-6">
-        Last update: {tankTemperaturesData?.readableDate}
-      </p>
+      
       <CardContent>
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <span className="text-xs text-muted-foreground">Over Surface:</span>
-            <span className="text-sm font-medium">
-              {over_surface_temperature !== undefined ? `${over_surface_temperature}°C` : "No data"}
-            </span>
+        <div className="space-y-4">
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs">
+              <span className="text-muted-foreground">Sensor ID:</span>
+              <span className="font-medium">{sensorId || 'N/A'}</span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-muted-foreground">Last Reading:</span>
+              <span className="font-medium">{readableDate || 'N/A'}</span>
+            </div>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-xs text-muted-foreground">On Surface:</span>
-            <span className="text-sm font-medium">
-              {surface_temperature !== undefined ? `${surface_temperature}°C` : "No data"}
-            </span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-xs text-muted-foreground">Under Surface:</span>
-            <span className="text-sm font-medium">
-              {submerged_temperature !== undefined ? `${submerged_temperature}°C` : "No data"}
-            </span>
+
+          <div className="space-y-3">
+            <div className="flex justify-between items-center bg-red-100/30 p-2 rounded-md">
+              <span className="text-xs text-muted-foreground">Over Surface:</span>
+              <span className="text-sm font-medium text-red-600">
+                {over_surface_temperature !== undefined ? 
+                  `${over_surface_temperature}°C` : "N/A"}
+              </span>
+            </div>
+            
+            <div className="flex justify-between items-center bg-red-100/30 p-2 rounded-md">
+              <span className="text-xs text-muted-foreground">On Surface:</span>
+              <span className="text-sm font-medium text-red-600">
+                {surface_temperature !== undefined ? 
+                  `${surface_temperature}°C` : "N/A"}
+              </span>
+            </div>
+            
+            <div className="flex justify-between items-center bg-red-100/30 p-2 rounded-md">
+              <span className="text-xs text-muted-foreground">Submerged:</span>
+              <span className="text-sm font-medium text-red-600">
+                {submerged_temperature !== undefined ? 
+                  `${submerged_temperature}°C` : "N/A"}
+              </span>
+            </div>
           </div>
         </div>
       </CardContent>
