@@ -34,7 +34,9 @@ mqttService.connect();
 
 webSocketsService.initializeWebSocket(server);
 
-
+app.get("/", (req, res) => {
+  res.json({ status: "Healthy" });
+});
 
 app.use("/farms", farmRouter);
 app.use("/historical-data", historicalDataRouter);
