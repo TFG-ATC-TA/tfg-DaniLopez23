@@ -26,13 +26,14 @@ const connect = () => {
     resubscribe: true,
   });
 
+  debug('Connecting to MQTT broker %s', url);
+
   mqttClient.on("connect", () => {
     debug('MQTT client connected %s', url);
     webSocketsService.emitToAll("mqttStatus", { status: "connected" });
     reconnecting = false;
     reconnectAttempts = 0; // Reset attempts on successful connection
     isManuallyReconnecting = false;
-
     mqttClient.subscribe(topics, (err) => {
       if (err) {
         debug('MQTT Subscription Error: %O', err);
