@@ -27,7 +27,7 @@ export default function App() {
   useFarmInitialization();
 
   const { selectedFarm, serverStatus } = useFarmStore((state) => state);
-  console.log(selectedFarm);
+  
   return (
     <div className="flex flex-col h-screen bg-gray-100">
       <Header serverStatus={serverStatus} webSocketServerStatus={webSocketServerStatus} mqttStatus={mqttStatus} farmData={selectedFarm} />

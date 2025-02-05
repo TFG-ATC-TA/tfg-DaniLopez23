@@ -1,47 +1,39 @@
-import React, { useState } from "react"
-import { Droplet } from 'lucide-react'
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { cn } from "@/lib/utils"
+import React from "react";
+import { Droplet } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
-const MilkQuantity = ({ milkQuantityData, isSelected, onSelect }) => {
-  const percentage = milkQuantityData?.milkQuantity || null
-  const fillHeight = percentage ? `${percentage}%` : '0%'
-
+const MilkQuantity = ({ milkQuantityData }) => {
+  const percentage = milkQuantityData?.milkQuantity || null;
+  const fillHeight = percentage ? `${percentage}%` : '0%';
 
   return (
-    <Card
-      className={cn(
-        "transition-all duration-300 hover:shadow-lg",
-        isSelected && "ring-2 ring-blue-200"
-      )}
-      onClick={onSelect}
-      tabIndex={0}
-      role="button"
-      aria-pressed={isSelected}
-    >
+    <Card className="ring-2 ring-blue-200 bg-blue-50/20">
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Droplet size={16} className="text-blue-500" />
-            <span>Milk Quantity</span>
-          </div>
-          <div
-            className={cn(
-              "w-2 h-2 rounded-full transition-all duration-300",
-              isSelected ? "bg-blue-500" : "bg-gray-300"
-            )}
-          />
+        <CardTitle className="text-sm font-medium flex items-center space-x-2">
+          <Droplet size={16} className="text-blue-500" />
+          <span>Milk Quantity Sensor</span>
         </CardTitle>
       </CardHeader>
-      <p className="text-xs text-muted-foreground mb-2 px-6">
-        Last update: {milkQuantityData?.readableDate}
-      </p>
+      
       <CardContent>
-        {percentage !== null ? (
-          <>
-            <div className="relative h-24 bg-gray-200 rounded-md overflow-hidden">
+        <div className="space-y-4">
+          {/* Sección de información del sensor */}
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs">
+              <span className="text-muted-foreground">Sensor ID:</span>
+              <span className="font-medium">{milkQuantityData?.sensorId || 'N/A'}</span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-muted-foreground">Last Reading:</span>
+              <span className="font-medium">{milkQuantityData?.readableDate || 'N/A'}</span>
+            </div>
+          </div>
+
+          {/* Visualización de porcentaje */}
+          {percentage !== null ? (
+            <div className="relative h-24 bg-gray-200 rounded-md overflow-hidden mt-4">
               <div
-                className="absolute bottom-0 left-0 right-0 bg-blue-500 transition-all duration-500 ease-in-out"
+                className="absolute bottom-0 left-0 right-0 bg-blue-500"
                 style={{ height: fillHeight }}
               ></div>
               <div className="absolute inset-0 flex items-center justify-center">
@@ -50,13 +42,15 @@ const MilkQuantity = ({ milkQuantityData, isSelected, onSelect }) => {
                 </span>
               </div>
             </div>
-          </>
-        ) : (
-          <span className="text-sm text-muted-foreground">No data available</span>
-        )}
+          ) : (
+            <div className="h-24 flex items-center justify-center text-sm text-muted-foreground">
+              No data available
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
-export default MilkQuantity
+export default MilkQuantity;

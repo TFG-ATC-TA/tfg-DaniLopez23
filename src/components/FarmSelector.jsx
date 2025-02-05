@@ -17,11 +17,28 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import useFarmStore from "@/Stores/useFarmStore";
+import useTankStore from "@/Stores/useTankStore";
 
-const FarmSelector = ({ farms }) => {
+const FarmSelector = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const selectedFarm = useFarmStore((state) => state.selectedFarm);
-  console.log(farms);
+
+  const {farms, setSelectedFarm, selectedFarm} = useFarmStore((state) => state);
+  const {setSelectedTank} = useTankStore((state) => state);
+
+  const handleFarmChange = (value) => {
+    const selectedFarmId = value;
+    const farm = farms.find((farm) => farm._id === selectedFarmId);
+    console.log(farm);
+    if(farm){
+      setSelectedFarm(farm);
+      if(farm.equipments.length > 0){
+        setSelectedTank(farm.equipments[0]);
+      }else{
+        setSelectedTank(null);
+      }
+    }  
+  };
+
   return (
     <div className="flex flex-col space-y-4">
       {/* Fila superior: Título y botón de información */}
@@ -70,9 +87,11 @@ const FarmSelector = ({ farms }) => {
       </div>
 
       {/* Selector de granja */}
-      <Select value={selectedFarm._id} onChange={(farmId) => console.log(farmId)}>
+      <Select value={selectedFarm._id} onValueChange={handleFarmChange}>
         <SelectTrigger className="w-[200px]">
-          <SelectValue placeholder="Select Farm" />
+          <SelectValue placeholder="Select Farm">
+            {selectedFarm ? selectedFarm.name : "Select Farm"}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           {farms.map((farm) => (

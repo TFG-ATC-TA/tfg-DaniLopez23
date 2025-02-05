@@ -1,13 +1,13 @@
-import { Filter } from 'lucide-react';
+import { CircleX } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from 'lucide-react';
+import { Trash2, Sliders } from 'lucide-react';
 import CustomDateRangePicker from '@/components/CustomDateRangePicker';
 
-const FilterComponent = ({ filters, setFilters }) => {
+const FilterComponent = ({ filters, setFilters, onToggle }) => {
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -26,10 +26,20 @@ const FilterComponent = ({ filters, setFilters }) => {
   return (
     <Card className="w-full h-full shadow-sm border overflow-hidden">
       <CardHeader className="sticky z-10 border-b p-">
-        <CardTitle className="text-lg font-semibold flex items-center gap-2">
-          <Filter className="h-5 w-5 text-primary" />
-          Filtros Históricos
-        </CardTitle>
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-lg font-semibold flex items-center gap-2">
+            <Sliders className="h-5 w-5 text-primary" />
+            Filtros Datos Históricos
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onToggle}
+            className="h-8 w-8 p-0 text-primary hover:bg-primary/10"
+          >
+            <CircleX className="h-4 w-4" />
+          </Button>
+        </div>
       </CardHeader>
       
       <CardContent className="p-4 space-y-6 overflow-y-auto">

@@ -9,8 +9,7 @@ import FilterComponent from "./FilterHistoricalData";
 import CameraSettings from "./Camera/CameraSettings";
 import { Model } from "./tank-models/HorizontalTank2Blades";
 import { Button } from "./ui/button";
-import { Card, CardContent } from "./ui/card";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Activity, Sliders } from "lucide-react";
 import { getHistoricalData } from "@/services/farm";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -18,16 +17,6 @@ import useTankStore from "@/Stores/useTankStore";
 import { getBoardIdsFromTank } from "@/services/tank";
 import useFarmStore from "@/Stores/useFarmStore";
 
-const TankModelLayout = ({ children }) => {
-  return (
-    <div className="relative w-full h-full">
-      <div className="absolute top-4 left-4 z-10">
-        <SelectedSensorData />
-      </div>
-      {children}
-    </div>
-  );
-};
 
 const DigitalTwin = ({
   encoderData,
@@ -55,7 +44,8 @@ const DigitalTwin = ({
   const [historicalData, setHistoricalData] = useState(null);
   const [error, setError] = useState(null);
   const [lastUpdate, setLastUpdate] = useState(new Date());
-
+  const [isSensorsVisible, setIsSensorsVisible] = useState(true);
+  const [isFiltersVisible, setIsFiltersVisible] = useState(true);
   const { mode, setMode } = useFarmStore((state) => state);
   const { selectedTank } = useTankStore();
 
@@ -99,8 +89,12 @@ const DigitalTwin = ({
   const getDisplayDate = () => {
     if (mode === "historical") {
       if (filters.dateRange) {
-        const from = format(filters.dateRange.from, "d MMMM yyyy, EEEE HH:mm", { locale: es });
-        const to = format(filters.dateRange.to, "d MMMM yyyy, EEEE HH:mm", { locale: es });
+        const from = format(filters.dateRange.from, "d MMMM yyyy, EEEE HH:mm", {
+          locale: es,
+        });
+        const to = format(filters.dateRange.to, "d MMMM yyyy, EEEE HH:mm", {
+          locale: es,
+        });
         return from === to ? from : `${from} - ${to}`;
       }
       return "Selecciona un rango de fechas";
@@ -166,22 +160,41 @@ const DigitalTwin = ({
     );
   };
 
+
   return selectedTank ? (
     <div className="flex h-screen overflow-hidden ">
-      <div className="w-64 bg-background pt-1 shadow-lg border-r overflow-auto bg-background shadow-sm border overflow-hidden">
-        <SensorData />
-      </div>
+      {isSensorsVisible ? (
+        <div className="w-64 bg-background pt-1 shadow-lg border-r overflow-auto">
+          <SensorData
+            historicalData={historicalData}
+            isRealTime={mode === "realtime"}
+            onToggle={() => setIsSensorsVisible(false)}
+          />
+        </div>
+      ) : (
+        <div className="border-r p-2 flex items-start justify-center h-full">
+          <Button
+            variant="ghost"
+            onClick={() => setIsSensorsVisible(true)}
+            className="h-auto p-3 flex flex-col gap-2 text-primary hover:bg-primary/10"
+          >
+            <Activity className="h-5 w-5 rotate-90" />
+            <span className="text-xs font-medium">Sensores</span>
+          </Button>
+        </div>
+      )}
+
 
       <div className="flex-1 flex flex-col overflow-hidden ">
         <div className="flex items-center justify-between gap-1 p-4 bg-background shadow-sm border overflow-hidden">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-4 border-r pr-4">
-                  <div className="flex items-center justify-center bg-gray-300/70 p-2 rounded-full">
-                    <CalendarIcon className="text-gray-600 w-7 h-7" />
-                  </div>
-                  <p className="text-lg font-semibold text-gray-700 capitalize">
-                    {getDisplayDate()}
-                  </p>
+              <div className="flex items-center justify-center bg-gray-300/70 p-2 rounded-full">
+                <CalendarIcon className="text-gray-600 w-7 h-7" />
+              </div>
+              <p className="text-lg font-semibold text-gray-700 capitalize">
+                {getDisplayDate()}
+              </p>
             </div>
 
             <DataModeToggle
@@ -197,9 +210,15 @@ const DigitalTwin = ({
 
         <div className="flex-1 flex overflow-hidden gap-1 p-0 h-[calc(100vh-140px)]">
           <div className="flex-1 flex flex-col bg-background shadow-sm border overflow-hidden">
-            <TankModelLayout className="flex-1">
+            <div className="relative w-full h-full">
+              {(mode === "realtime" ||
+                (historicalData && historicalData != "loading")) && (
+                <div className="absolute top-4 left-4 z-10">
+                  <SelectedSensorData />
+                </div>
+              )}
               {renderTankModel()}
-            </TankModelLayout>
+            </div>
 
             {mode === "historical" &&
               filters.dateRange &&
@@ -215,19 +234,33 @@ const DigitalTwin = ({
               )}
           </div>
 
-          {mode === "historical" && (
+          {mode === "historical" && isFiltersVisible ? (
             <div className="w-80 overflow-hidden flex flex-col">
-              <FilterComponent 
-                filters={filters} 
-                setFilters={setFilters}  // Añade padding interno consistente
+              <FilterComponent
+                filters={filters}
+                setFilters={setFilters}
+                onToggle={() => setIsFiltersVisible(false)}
               />
-            </div>)}
+            </div>
+          ) : mode === "historical" ? (
+            <div className="p-2 flex items-start justify-center h-full">
+              <Button
+                variant="ghost"
+                onClick={() => setIsFiltersVisible(true)}
+                className="h-auto p-3 flex flex-col gap-2 text-primary hover:bg-primary/10"
+              >
+                <Sliders className="h-5 w-5 rotate-90" />
+                <span className="text-xs font-medium">Filtros</span>
+              </Button>
+            </div>
+          ) : null}
+
         </div>
       </div>
     </div>
   ) : (
     <div className="flex items-center justify-center h-full text-lg text-muted-foreground">
-        <p>No tank selected</p>
+      <p>No tank selected</p>
     </div>
   );
 };
