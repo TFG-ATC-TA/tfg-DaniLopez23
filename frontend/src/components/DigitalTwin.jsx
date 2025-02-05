@@ -109,7 +109,7 @@ const DigitalTwin = ({
       return (
         <div className="flex items-center justify-center h-full text-lg text-gray-500">
           Select a date to view historical data
-        </div>
+         </div>
       );
     }
 

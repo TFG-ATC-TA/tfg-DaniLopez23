@@ -12,10 +12,6 @@ const url = config.influxDB.INFLUX_URL;
 const client = new InfluxDB({ url, token });
 const queryApi = client.getQueryApi(org);
 
-console.log("token:", token);
-console.log("org:", org);
-console.log("bucket:", bucket);
-console.log("url:", url);
 
 // Ruta para obtener datos históricos
 HistoricalDataRouter.post("/", async (req, res) => {

@@ -1,0 +1,34 @@
+name: tfg-digital-twin
+
+services:
+  backend: 
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: ./backend/.env
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - tfg-digital-twin
+    ports:
+      - "3001:3001"
+
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: ./frontend/.env
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - tfg-digital-twin
+    ports:
+      - "5173:5173"
+    command: npm run dev -- --host
+networks:
+  tfg-digital-twin:
+    driver: bridge
