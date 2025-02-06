@@ -1,5 +1,5 @@
 import { FARM_ID } from "@/config/config";
-import useDataStore from "@/Stores/useDataStore";
+import useDataStore from "@/stores/useDataStore";
 
 export const createSocketEventHandlers = () => {
   const {

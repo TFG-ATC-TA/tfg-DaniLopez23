@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Info } from 'lucide-react';
-import useTankStore from '@/Stores/useTankStore';
+import useTankStore from '@/stores/useTankStore';
 
 const statusConfig = {
   operational: {

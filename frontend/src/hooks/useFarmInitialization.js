@@ -1,8 +1,8 @@
 // src/hooks/useFarmInitialization.js
 import { useEffect } from "react";
-import useFarmStore from "@/Stores/useFarmStore";
-import useTankStore from "@/Stores/useTankStore";
-import useSocketStore from "@/Stores/useSocketStore";
+import useFarmStore from "@/stores/useFarmStore";
+import useTankStore from "@/stores/useTankStore";
+import useSocketStore from "@/stores/useSocketStore";
 import { getFarms } from "@/services/farm";
 import { set } from "date-fns";
 

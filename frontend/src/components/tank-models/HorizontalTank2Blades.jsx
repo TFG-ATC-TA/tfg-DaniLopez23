@@ -1,8 +1,7 @@
-import React from "react";
 import { useGLTF } from "@react-three/drei";
 import { useSpring, animated } from "@react-spring/three";
 import CallOutText from "./CallOutText";
-
+import {ParticleField} from "./ParticleField";
 export function Model({
   encoderData,
   milkQuantityData,
@@ -54,7 +53,7 @@ export function Model({
       return (
         <mesh
           geometry={range.node.geometry}
-          material={materials["MilkMaterial.003"]}
+          material={materials["MilkMaterial"]}
           position={[-0.026, 1.597, -0.096]}
           scale={[2.531, 2.531, 2.615]}
         />
@@ -81,20 +80,20 @@ export function Model({
         <mesh
           name="AlcalineCilinder"
           geometry={nodes.AlcalineCilinder.geometry}
-          material={materials["MilkMaterial.003"]}
+          material={materials["AlcalineMaterial"]}
           morphTargetDictionary={nodes.AlcalineCilinder.morphTargetDictionary}
           morphTargetInfluences={alcalineMorph}
-          position={[1.265, -0.001, 2.908]}
-          scale={[0.188, 0.015, 0.188]}
+          position={[1.27, 0, 2.91]}
+          scale={[0.19, 0.01, 0.19]}
         />
         <mesh
           name="AcidCilinder"
           geometry={nodes.AcidCilinder.geometry}
-          material={materials["MilkMaterial.003"]}
+          material={materials["AcidMaterial"]}
           morphTargetDictionary={nodes.AcidCilinder.morphTargetDictionary}
           morphTargetInfluences={acidMorph}
-          position={[2.112, -0.001, 3.149]}
-          scale={[0.188, 0.015, 0.188]}
+          position={[1.91, 0, 3.25]}
+          scale={[0.19, 0.01, 0.19]}
         />
       </>
     );
@@ -123,37 +122,34 @@ export function Model({
   });
 
   const renderMilkQuantity = () => (
-    <>
-      {getVisibleMilkCilinder(milkQuantityData?.milkQuantity ?? 0)}
-    </>
+    <>{getVisibleMilkCilinder(milkQuantityData?.milkQuantity ?? 0)}</>
   );
 
   const renderEncoder = () => (
     <>
-      
       <animated.mesh
         geometry={nodes.Blade2.geometry}
-        material={materials["BladeMaterial.002"]}
+        material={materials["BladeMaterial"]}
         position={[0, 0.737, 0.918]}
         scale={-0.148}
         rotation={rotationBlade1.rotation}
       />
       <animated.mesh
         geometry={nodes.Blade1.geometry}
-        material={materials["BladeMaterial.002"]}
+        material={materials["BladeMaterial"]}
         position={[0, 0.737, -0.982]}
         scale={-0.148}
         rotation={rotationBlade2.rotation}
       />
       <mesh
         geometry={nodes.Blade2Hat.geometry}
-        material={materials["BladeMaterial.002"]}
+        material={materials["BladeMaterial"]}
         position={[-0.003, 2.451, 0.916]}
         scale={[0.107, 0.078, 0.107]}
       />
       <mesh
         geometry={nodes.Blade1Hat.geometry}
-        material={materials["BladeMaterial.002"]}
+        material={materials["BladeMaterial"]}
         position={[-0.003, 2.451, -0.988]}
         scale={[0.104, 0.076, 0.104]}
       />
@@ -174,7 +170,7 @@ export function Model({
     <>
       <animated.mesh
         geometry={nodes.Hatch.geometry}
-        material={materials["HatchMaterial.002"]}
+        material={materials["HatchMaterial"]}
         position={[0, 2.377, -0.206]}
         rotation={rotationHatch}
       />
@@ -191,7 +187,6 @@ export function Model({
     </>
   );
 
-  
   const renderWeight = () => (
     <>
       {getAlcalineAcidCylinders({
@@ -201,35 +196,43 @@ export function Model({
       <mesh
         geometry={nodes.BarrelAlcaline.geometry}
         material={nodes.BarrelAlcaline.material}
-        position={[1.356, 0.27, 2.848]}
+        position={[1.36, 0.27, 2.85]}
       />
       <mesh
         geometry={nodes.BarrelAcid.geometry}
         material={nodes.BarrelAcid.material}
-        position={[2.204, 0.27, 3.091]}
+        position={[2, 0.27, 3.19]}
       />
       <CallOutText
-        position={[1.356, 0.9, 2.848]}
-        text={`Alkaline\n${weightData?.weight ?? "No Data"} kg`}
+        position={[1.356, 1.05, 2.848]}
+        title={"Alcaline"}
+        value={weightData?.weight}
+        unit={"kg"}
       />
       <CallOutText
-        position={[2.204, 0.9, 3.091]}
-        text={`Acid\n${weightData?.weight ?? "No Data"} kg`}
+        position={[2.02, 1.05, 2.848]}
+        title={"Acid"}
+        value={weightData?.weight}
+        unit={"kg"}
       />
     </>
   );
 
   const renderTankTemperatures = () => (
-    <>
-      {getVisibleMilkCilinder(milkQuantityData?.milkQuantity ?? 0)}
-    </>
+    <>{getVisibleMilkCilinder(milkQuantityData?.milkQuantity ?? 0)}</>
   );
 
+  const renderAirQuality = () => (
+    <>
+      <ParticleField temperature={32} humidity={60} />
+    </>
+  );
+  console.log("selectedData", selectedData);
   return (
     <group dispose={null}>
       <mesh
         geometry={nodes.TankCilinder.geometry}
-        material={materials["TankMaterial.002"]}
+        material={materials["TankMaterial"]}
         position={[0.548, 0.399, -1.476]}
       />
       {(selectedData === "MilkQuantity" || selectedData == null) &&
@@ -240,6 +243,7 @@ export function Model({
       {(selectedData === "Weight" || selectedData == null) && renderWeight()}
       {(selectedData === "TankTemperatures" || selectedData == null) &&
         renderTankTemperatures()}
+      {selectedData === "AirQuality" && renderAirQuality()}
     </group>
   );
 }

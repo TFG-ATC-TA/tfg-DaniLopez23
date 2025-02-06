@@ -1,21 +1,21 @@
 import { useState, useEffect, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
-import SensorData from "./SensorData/SensorData";
+import SensorData from "./sensorData/SensorData";
 import TankStatus from "./TankStatus";
 import DataModeToggle from "./DataModeToogle";
 import SelectedSensorData from "./sensorData/SelectedSensorData";
 import TimeSeriesSlider from "./TimeSeriesSlider";
 import FilterComponent from "./FilterHistoricalData";
-import CameraSettings from "./Camera/CameraSettings";
+import CameraSettings from "./camera/CameraSettings";
 import { Model } from "./tank-models/HorizontalTank2Blades";
 import { Button } from "./ui/button";
 import { CalendarIcon, Activity, Sliders } from "lucide-react";
 import { getHistoricalData } from "@/services/farm";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import useTankStore from "@/Stores/useTankStore";
+import useTankStore from "@/stores/useTankStore";
 import { getBoardIdsFromTank } from "@/services/tank";
-import useFarmStore from "@/Stores/useFarmStore";
+import useFarmStore from "@/stores/useFarmStore";
 
 
 const DigitalTwin = ({
