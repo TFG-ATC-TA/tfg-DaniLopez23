@@ -7,7 +7,8 @@ import SelectedSensorData from "./sensorData/SelectedSensorData";
 import TimeSeriesSlider from "./TimeSeriesSlider";
 import FilterComponent from "./FilterHistoricalData";
 import CameraSettings from "./camera/CameraSettings";
-import { Model } from "./tank-models/HorizontalTank2Blades";
+import { HorizontalTank2Blades } from "./tankModels/horizontal/HorizontalTank2Blades";
+import { HorizontalTank1Blade } from "./tankModels/horizontal/HorizontalTank1Blade";
 import { Button } from "./ui/button";
 import { CalendarIcon, Activity, Sliders } from "lucide-react";
 import { getHistoricalData } from "@/services/farm";
@@ -16,7 +17,7 @@ import { es } from "date-fns/locale";
 import useTankStore from "@/stores/useTankStore";
 import { getBoardIdsFromTank } from "@/services/tank";
 import useFarmStore from "@/stores/useFarmStore";
-
+import { VerticalTank1Blade } from "./tankModels/vertical/VerticalTank1Blade";
 
 const DigitalTwin = ({
   encoderData,
@@ -109,7 +110,7 @@ const DigitalTwin = ({
       return (
         <div className="flex items-center justify-center h-full text-lg text-gray-500">
           Select a date to view historical data
-         </div>
+        </div>
       );
     }
 
@@ -144,7 +145,7 @@ const DigitalTwin = ({
         <directionalLight position={[-10, -10, -10]} intensity={0.5} />
         <Suspense fallback={null}>
           <group>
-            <Model
+            <HorizontalTank2Blades
               encoderData={data?.encoderData}
               milkQuantityData={data?.milkQuantityData}
               switchStatus={data?.switchStatus}
@@ -153,13 +154,14 @@ const DigitalTwin = ({
               airQualityData={data?.airQualityData}
               selectedData={data?.selectedData}
             />
+            {/* <HorizontalTank1Blade /> */}
+            {/* <VerticalTank1Blade /> */}
           </group>
           <CameraSettings view={data?.selectedData} />
         </Suspense>
       </Canvas>
     );
   };
-
 
   return selectedTank ? (
     <div className="flex h-screen overflow-hidden ">
@@ -183,7 +185,6 @@ const DigitalTwin = ({
           </Button>
         </div>
       )}
-
 
       <div className="flex-1 flex flex-col overflow-hidden ">
         <div className="flex items-center justify-between gap-1 p-4 bg-background shadow-sm border overflow-hidden">
@@ -254,7 +255,6 @@ const DigitalTwin = ({
               </Button>
             </div>
           ) : null}
-
         </div>
       </div>
     </div>

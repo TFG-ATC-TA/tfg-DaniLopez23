@@ -5,7 +5,7 @@ import useTankStore from "@/stores/useTankStore";
 import { Button } from "@/components/ui/button";
 import CameraSettings from "./camera/CameraSettings";
 import { cameraViews } from "./camera/CameraViews";
-import {Model}  from "./tank-models/HorizontalTank2Blades";
+import {Model}  from "./tankModels/horizontal/HorizontalTank2Blades";
 
 const TankModel = () => {
 
