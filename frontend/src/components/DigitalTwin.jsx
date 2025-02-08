@@ -221,10 +221,21 @@ const DigitalTwin = ({
               {renderTankModel()}
             </div>
 
-            {mode === "historical" &&
+            {/* {mode === "historical" &&
               filters.dateRange &&
               historicalData != "loading" &&
               !error && (
+                <div className="px-4 py-3 border-t">
+                  <TimeSeriesSlider
+                    startDate={filters.dateRange.from}
+                    endDate={filters.dateRange.to}
+                    states={states}
+                  />
+                </div>
+              )} */}
+
+            {mode === "historical" &&
+              filters.dateRange &&(
                 <div className="px-4 py-3 border-t">
                   <TimeSeriesSlider
                     startDate={filters.dateRange.from}

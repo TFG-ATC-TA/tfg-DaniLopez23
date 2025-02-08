@@ -1,13 +1,8 @@
-// src/hooks/useFarmInitialization.js
 import { useEffect } from "react";
 import useFarmStore from "@/stores/useFarmStore";
 import useTankStore from "@/stores/useTankStore";
 import useSocketStore from "@/stores/useSocketStore";
 import { getFarms } from "@/services/farm";
-import { set } from "date-fns";
-
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 2000; // 2 seconds
 
 export const useFarmInitialization = () => {
 
@@ -17,7 +12,7 @@ export const useFarmInitialization = () => {
   const { joinRooms } = useSocketStore((state) => state);
 
 
-  const initialize = async (retryCount = 0) => {
+  const initialize = async () => {
     try {
 
       const farms = await getFarms();
