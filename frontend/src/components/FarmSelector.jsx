@@ -16,8 +16,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import useFarmStore from "@/Stores/useFarmStore";
-import useTankStore from "@/Stores/useTankStore";
+import useFarmStore from "@/stores/useFarmStore";
+import useTankStore from "@/stores/useTankStore";
 
 const FarmSelector = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);

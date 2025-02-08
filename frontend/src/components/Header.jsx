@@ -1,7 +1,7 @@
 // Header.jsx
 import { useTank } from "@/hooks/useTank";
-import useTankStore from '@/Stores/useTankStore';
-import useFarmStore from '@/Stores/useFarmStore';
+import useTankStore from '@/stores/useTankStore';
+import useFarmStore from '@/stores/useFarmStore';
 import FarmSelector from './FarmSelector';
 import TankSelector from './TankSelector';
 import ServerStatus from './ServerStatus';

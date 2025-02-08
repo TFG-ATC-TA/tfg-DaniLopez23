@@ -1,7 +1,7 @@
 import { useEffect, useCallback } from "react";
-import { createSocket } from "@/WebSockets/Socket";
-import { createSocketEventHandlers } from "@/WebSockets/socketEventHandlers";
-import useSocketStore from "@/Stores/useSocketStore";
+import { createSocket } from "@/webSockets/Socket";
+import { createSocketEventHandlers } from "@/webSockets/socketEventHandlers";
+import useSocketStore from "@/stores/useSocketStore";
 
 export const useSocketInitialization = () => {
   const { 

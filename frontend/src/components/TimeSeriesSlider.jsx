@@ -1,41 +1,51 @@
-import { useState, useMemo } from "react";
+'use client';
+
+import { useState, useMemo, useEffect, useCallback } from "react";
 import {
   format,
   addDays,
   setHours,
   setMinutes,
   isSameDay,
-  startOfDay,
-  endOfDay,
+  differenceInCalendarDays,
+  addMinutes
 } from "date-fns";
+import { Play, Pause } from 'lucide-react';
 
-import DateSlider from "@/components/ui/DateSlider";
+import { Button } from "@/components/ui/button";
+import DateSelector from "@/components/ui/DateSelector";
 import TimeSlider from "@/components/ui/TimeSlider";
 
 export default function TimeSeriesSlider({ startDate, endDate, states }) {
   const [currentDate, setCurrentDate] = useState(startDate);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const handleDateChange = (newDay) => {
     const newDate = addDays(startDate, newDay);
 
-    // Al cambiar de día, el tiempo debe ajustarse al inicio permitido de ese día
     let adjustedDate;
     if (isSameDay(newDate, startDate)) {
       adjustedDate = setMinutes(setHours(newDate, startDate.getHours()), startDate.getMinutes());
     } else if (isSameDay(newDate, endDate)) {
-      adjustedDate = setMinutes(setHours(newDate, 0), 0); // Inicio del último día
+      adjustedDate = setMinutes(setHours(newDate, 0), 0);
     } else {
-      adjustedDate = setMinutes(setHours(newDate, 0), 0); // Días intermedios comienzan a las 00:00
+      adjustedDate = setMinutes(setHours(newDate, 0), 0);
     }
 
     setCurrentDate(adjustedDate);
   };
 
-  const handleTimeChange = (newMinutes) => {
-    setCurrentDate((prevDate) => setMinutes(setHours(prevDate, Math.floor(newMinutes / 60)), newMinutes % 60));
-  };
+  const handleTimeChange = useCallback((newMinutes) => {
+    setCurrentDate((prevDate) => {
+      const newDate = setMinutes(setHours(prevDate, Math.floor(newMinutes / 60)), newMinutes % 60);
+      if (newDate > endDate) {
+        return endDate;
+      }
+      return newDate;
+    });
+  }, [endDate]);
 
-  const formatTime = (date) => format(date, "HH:mm");
+  const formatTime = useCallback((date) => format(date, "HH:mm"), []);
 
   const stateMarkers = useMemo(() => {
     return states
@@ -44,9 +54,9 @@ export default function TimeSeriesSlider({ startDate, endDate, states }) {
         value: state.date.getHours() * 60 + state.date.getMinutes(),
         label: `${state.label} at ${formatTime(state.date)}`,
       }));
-  }, [currentDate, states]);
+  }, [currentDate, states, formatTime]);
 
-  const handleTimeSliderLimits = () => {
+  const handleTimeSliderLimits = useCallback(() => {
     let minTime = 0;
     let maxTime = 23 * 60 + 59;
 
@@ -58,24 +68,55 @@ export default function TimeSeriesSlider({ startDate, endDate, states }) {
     }
 
     return { minTime, maxTime };
+  }, [currentDate, startDate, endDate]);
+
+  const currentDay = differenceInCalendarDays(currentDate, startDate);
+
+  const togglePlay = () => {
+    setIsPlaying(!isPlaying);
   };
 
+  useEffect(() => {
+    let intervalId;
+    if (isPlaying) {
+      intervalId = setInterval(() => {
+        setCurrentDate((prevDate) => {
+          const newDate = addMinutes(prevDate, 15);
+          if (newDate > endDate) {
+            setIsPlaying(false);
+            return endDate;
+          }
+          return newDate;
+        });
+      }, 500);
+    }
+    return () => clearInterval(intervalId);
+  }, [isPlaying, endDate]);
+
   return (
-    <div className="w-full max-w-4xl">
-      <div className="flex items-center mb-2">
-        <label className="w-16 text-left text-lg font-semibold h-12">Date</label>
-        <div className="flex-grow">
-          <DateSlider
+    <div className="w-full max-w-4xl bg-white shadow-sm rounded-lg p-6">
+      <div className="flex items-start space-x-6">
+        <div className="w-1/3">
+          <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+          <DateSelector
             startDate={startDate}
             endDate={endDate}
-            currentDay={Math.floor((currentDate - startDate) / (24 * 60 * 60 * 1000))}
+            currentDay={currentDay}
             onChange={handleDateChange}
           />
         </div>
-      </div>
-      <div className="flex items-center">
-        <label className="w-16 text-left text-lg font-semibold h-12">Time</label>
-        <div className="flex-grow">
+        <div className="w-2/3">
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-sm font-medium text-gray-700">Time</label>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={togglePlay}
+              className="ml-2"
+            >
+              {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+            </Button>
+          </div>
           <TimeSlider
             value={currentDate.getHours() * 60 + currentDate.getMinutes()}
             onChange={handleTimeChange}

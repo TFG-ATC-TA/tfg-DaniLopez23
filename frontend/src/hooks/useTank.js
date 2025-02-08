@@ -1,6 +1,6 @@
 import { useCallback } from "react";
-import useTankStore from "@/Stores/useTankStore";
-import useSocketStore from "@/Stores/useSocketStore";
+import useTankStore from "@/stores/useTankStore";
+import useSocketStore from "@/stores/useSocketStore";
 
 export const useTank = () => {
   const { setSelectedTank } = useTankStore((state) => state);
