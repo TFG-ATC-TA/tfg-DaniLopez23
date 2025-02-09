@@ -155,12 +155,14 @@ export function HorizontalTank2Blades({
       />
       <CallOutText
         position={[0, 2.9, 0.92]}
-        text={`${encoderData?.value + " rad/s" ?? "No data"}`}
+        value={`${encoderData?.value ?? "No data"}`}
+        title={"Encoder"}
         radius={0.05}
       />
       <CallOutText
         position={[0, 2.9, -0.92]}
-        text={`${encoderData?.value + " rad/s" ?? "No data"}`}
+        title={"Encoder"}
+        text={`${encoderData?.value ?? "No data"}`}
         radius={0.05}
       />
     </>
@@ -183,6 +185,7 @@ export function HorizontalTank2Blades({
             ? "Open"
             : "Closed"
         }`}
+        title={"Magnetic Switch"}
       />
     </>
   );
@@ -207,13 +210,11 @@ export function HorizontalTank2Blades({
         position={[1.356, 1.05, 2.848]}
         title={"Alcaline"}
         value={weightData?.weight}
-        unit={"kg"}
       />
       <CallOutText
         position={[2.02, 1.05, 2.848]}
         title={"Acid"}
         value={weightData?.weight}
-        unit={"kg"}
       />
     </>
   );
@@ -222,12 +223,13 @@ export function HorizontalTank2Blades({
     <>{getVisibleMilkCilinder(milkQuantityData?.milkQuantity ?? 0)}</>
   );
 
-  
   const renderAirQuality = () => (
-    console.log("selectedData", selectedData),
-    (<ParticleField temperature={32} humidity={60} airQuality={80} />)
+    <ParticleField
+      particleCount={1000}
+      humidity={10}
+      temperature={20}
+    />
   );
-
 
   return (
     <group dispose={null}>

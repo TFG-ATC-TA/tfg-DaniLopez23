@@ -1,6 +1,6 @@
 import { Html } from '@react-three/drei';
 
-const CallOutText = ({ position, title, value, unit}) => {
+const CallOutText = ({ position, title, value}) => {
   return (
     <Html position={position} center distanceFactor={4} occlude>
       <div className="">
@@ -13,7 +13,7 @@ const CallOutText = ({ position, title, value, unit}) => {
           
           {/* Valor y Unidad */}
           <div className="text-lg font-bold text-gray-900">
-            {value ?? "No Data"} <span className="text-sm text-gray-600">{unit}</span>
+            {value ?? "No Data"} <span className="text-sm text-gray-600"></span>
           </div>
           
           {/* Indicador de posición */}

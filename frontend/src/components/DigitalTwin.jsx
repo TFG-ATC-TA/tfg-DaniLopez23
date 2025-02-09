@@ -18,6 +18,7 @@ import useTankStore from "@/stores/useTankStore";
 import { getBoardIdsFromTank } from "@/services/tank";
 import useFarmStore from "@/stores/useFarmStore";
 import { VerticalTank1Blade } from "./tankModels/vertical/VerticalTank1Blade";
+import AirQualityLegend from "./sensorData/AirQualityLegend";
 
 const DigitalTwin = ({
   encoderData,
@@ -214,14 +215,23 @@ const DigitalTwin = ({
             <div className="relative w-full h-full">
               {(mode === "realtime" ||
                 (historicalData && historicalData != "loading")) && (
-                <div className="absolute top-4 left-4 z-10">
-                  <SelectedSensorData />
-                </div>
+                <>
+                  <div className="absolute top-4 left-4 z-10">
+                    <SelectedSensorData />
+                  </div>
+                  <div className="absolute top-4 right-4 z-10">
+                    <AirQualityLegend
+                      particleCount={1000}
+                      humidity={10}
+                      temperature={20}
+                    />
+                  </div>
+                </>
               )}
               {renderTankModel()}
             </div>
 
-            {/* {mode === "historical" &&
+            {mode === "historical" &&
               filters.dateRange &&
               historicalData != "loading" &&
               !error && (
@@ -232,8 +242,8 @@ const DigitalTwin = ({
                     states={states}
                   />
                 </div>
-              )} */}
-
+              )}
+            {/* 
             {mode === "historical" &&
               filters.dateRange &&(
                 <div className="px-4 py-3 border-t">
@@ -243,7 +253,7 @@ const DigitalTwin = ({
                     states={states}
                   />
                 </div>
-              )}
+              )} */}
           </div>
 
           {mode === "historical" && isFiltersVisible ? (
