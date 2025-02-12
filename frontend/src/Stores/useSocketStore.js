@@ -12,7 +12,7 @@ const useSocketStore = create((set, get) => ({
     const socket = get().socket;
     if (socket && Array.isArray(boardIds)) {
       socket.emit("selectTank", boardIds);
-      socket.emit("request last data", boardIds);
+      socket.emit("requestLastData", boardIds);
     }
   },
 
