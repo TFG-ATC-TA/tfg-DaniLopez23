@@ -11,7 +11,7 @@ const Header = ({ serverStatus, mqttStatus, webSocketServerStatus, farmData }) =
   const { selectedTank } = useTankStore((state) => state);
   const handleTankChange = (tankId) => {
     const tank = farmData.equipments.find((tank) => tank._id === tankId);
-    if (tank) changeSelectedTank(tank);
+    if (tank) changeSelectedTank(tank, farmData._id);
   };
 
   return (
