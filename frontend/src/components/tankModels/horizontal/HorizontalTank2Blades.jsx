@@ -2,6 +2,7 @@ import { useGLTF } from "@react-three/drei";
 import { useSpring, animated } from "@react-spring/three";
 import CallOutText from "../CallOutText";
 import ParticleField from "../ParticleField";
+import { getRotationDuration, getAlcalineAcidCylinders, getVisibleMilkCilinder } from "../Transformations";
 export function HorizontalTank2Blades({
   encoderData,
   milkQuantityData,
@@ -14,90 +15,6 @@ export function HorizontalTank2Blades({
   const { nodes, materials } = useGLTF(
     "./horizontalTankModel/horizontalTank2Blades.glb"
   );
-
-  const getRotationDuration = (encoderData) => {
-    if (encoderData === null || encoderData <= 0) return 0;
-    const minDuration = 1000;
-    const maxDuration = 10000;
-    const minRPM = 0;
-    const maxRPM = 100;
-
-    const rpm = Math.min(Math.max(encoderData, minRPM), maxRPM);
-    const duration =
-      maxDuration -
-      ((rpm - minRPM) * (maxDuration - minDuration)) / (maxRPM - minRPM);
-
-    return duration;
-  };
-
-  const getVisibleMilkCilinder = (quantity) => {
-    const ranges = [
-      { min: 1, max: 10, node: nodes.MilkCilinder10 },
-      { min: 10, max: 20, node: nodes.MilkCilinder20 },
-      { min: 20, max: 30, node: nodes.MilkCilinder30 },
-      { min: 30, max: 40, node: nodes.MilkCilinder40 },
-      { min: 40, max: 50, node: nodes.MilkCilinder50 },
-      { min: 50, max: 60, node: nodes.MilkCilinder60 },
-      { min: 60, max: 70, node: nodes.MilkCilinder70 },
-      { min: 70, max: 80, node: nodes.MilkCilinder80 },
-      { min: 80, max: 90, node: nodes.MilkCilinder90 },
-      { min: 90, max: 100, node: nodes.MilkCilinder100 },
-    ];
-
-    if (quantity == null) return null;
-    const range = ranges.find(
-      ({ min, max }) => quantity >= min && quantity < max
-    );
-
-    if (range && range.node) {
-      return (
-        <mesh
-          geometry={range.node.geometry}
-          material={materials["MilkMaterial"]}
-          position={[-0.026, 1.597, -0.096]}
-          scale={[2.531, 2.531, 2.615]}
-        />
-      );
-    }
-
-    return null;
-  };
-
-  const getAlcalineAcidCylinders = ({ quantity, maxValue }) => {
-    const calculateMorphTargets = (quantity, maxValue) => {
-      const percentage = Math.min(quantity / maxValue, 1);
-      const morph1 = percentage * 0.5;
-      const morph2 = percentage * 0.3;
-      const morph3 = percentage * 0.2;
-      return [morph1, morph2, morph3];
-    };
-
-    const alcalineMorph = calculateMorphTargets(quantity, maxValue);
-    const acidMorph = calculateMorphTargets(quantity, maxValue);
-
-    return (
-      <>
-        <mesh
-          name="AlcalineCilinder"
-          geometry={nodes.AlcalineCilinder.geometry}
-          material={materials["AlcalineMaterial"]}
-          morphTargetDictionary={nodes.AlcalineCilinder.morphTargetDictionary}
-          morphTargetInfluences={alcalineMorph}
-          position={[1.27, 0, 2.91]}
-          scale={[0.19, 0.01, 0.19]}
-        />
-        <mesh
-          name="AcidCilinder"
-          geometry={nodes.AcidCilinder.geometry}
-          material={materials["AcidMaterial"]}
-          morphTargetDictionary={nodes.AcidCilinder.morphTargetDictionary}
-          morphTargetInfluences={acidMorph}
-          position={[1.91, 0, 3.25]}
-          scale={[0.19, 0.01, 0.19]}
-        />
-      </>
-    );
-  };
 
   const rotationBlade1 = useSpring({
     loop: true,
@@ -121,9 +38,23 @@ export function HorizontalTank2Blades({
     config: { duration: 1000 },
   });
 
-  const renderMilkQuantity = () => (
-    <>{getVisibleMilkCilinder(milkQuantityData?.milkQuantity ?? 0)}</>
-  );
+  const renderMilkQuantity = () => {
+    const range = getVisibleMilkCilinder(milkQuantityData?.milkQuantity ?? 0);
+
+    if (!range) return null;
+
+    const nodeKey = `MilkCilinder${range.max}`;
+    const node = nodes[nodeKey];
+
+    return (
+      <mesh
+        geometry={node.geometry}
+        material={materials["MilkMaterial"]}
+        position={[-0.026, 1.597, -0.096]}
+        scale={[2.531, 2.531, 2.615]}
+      />
+    );
+  };
 
   const renderEncoder = () => (
     <>
@@ -190,45 +121,77 @@ export function HorizontalTank2Blades({
     </>
   );
 
-  const renderWeight = () => (
-    <>
-      {getAlcalineAcidCylinders({
-        quantity: weightData?.weight ?? 0,
-        maxValue: 35000,
-      })}
-      <mesh
-        geometry={nodes.BarrelAlcaline.geometry}
-        material={nodes.BarrelAlcaline.material}
-        position={[1.36, 0.27, 2.85]}
-      />
-      <mesh
-        geometry={nodes.BarrelAcid.geometry}
-        material={nodes.BarrelAcid.material}
-        position={[2, 0.27, 3.19]}
-      />
-      <CallOutText
-        position={[1.356, 1.05, 2.848]}
-        title={"Alcaline"}
-        value={weightData?.weight}
-      />
-      <CallOutText
-        position={[2.02, 1.05, 2.848]}
-        title={"Acid"}
-        value={weightData?.weight}
-      />
-    </>
-  );
+  const renderWeight = () => {
 
-  const renderTankTemperatures = () => (
-    <>{getVisibleMilkCilinder(milkQuantityData?.milkQuantity ?? 0)}</>
-  );
+    const { alcalineMorph, acidMorph } = getAlcalineAcidCylinders({
+      quantity: weightData?.weight,
+      maxValue: 100,
+    });
+
+    return (
+      <>
+        <mesh
+          name="AlcalineCilinder"
+          geometry={nodes.AlcalineCilinder.geometry}
+          material={materials["AlcalineMaterial"]}
+          morphTargetDictionary={nodes.AlcalineCilinder.morphTargetDictionary}
+          morphTargetInfluences={alcalineMorph}
+          position={[1.27, 0, 2.91]}
+          scale={[0.19, 0.01, 0.19]}
+        />
+        <mesh
+          name="AcidCilinder"
+          geometry={nodes.AcidCilinder.geometry}
+          material={materials["AcidMaterial"]}
+          morphTargetDictionary={nodes.AcidCilinder.morphTargetDictionary}
+          morphTargetInfluences={acidMorph}
+          position={[1.91, 0, 3.25]}
+          scale={[0.19, 0.01, 0.19]}
+        />
+        <mesh
+          geometry={nodes.BarrelAlcaline.geometry}
+          material={nodes.BarrelAlcaline.material}
+          position={[1.36, 0.27, 2.85]}
+        />
+        <mesh
+          geometry={nodes.BarrelAcid.geometry}
+          material={nodes.BarrelAcid.material}
+          position={[2, 0.27, 3.19]}
+        />
+        <CallOutText
+          position={[1.356, 1.05, 2.848]}
+          title={"Alcaline"}
+          value={weightData?.weight}
+        />
+        <CallOutText
+          position={[2.02, 1.05, 2.848]}
+          title={"Acid"}
+          value={weightData?.weight}
+        />
+      </>
+    );
+  };
+
+  const renderTankTemperatures = () => {
+    const range = getVisibleMilkCilinder(milkQuantityData?.milkQuantity ?? 0);
+
+    if (!range) return null;
+
+    const nodeKey = `MilkCilinder${range.max}`;
+    const node = nodes[nodeKey];
+
+    return (
+      <mesh
+        geometry={node.geometry}
+        material={materials["MilkMaterial"]}
+        position={[-0.026, 1.597, -0.096]}
+        scale={[2.531, 2.531, 2.615]}
+      />
+    );
+  };
 
   const renderAirQuality = () => (
-    <ParticleField
-      particleCount={1000}
-      humidity={10}
-      temperature={20}
-    />
+    <ParticleField particleCount={1000} humidity={10} temperature={20} />
   );
 
   return (
