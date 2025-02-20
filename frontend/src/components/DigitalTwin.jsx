@@ -141,7 +141,6 @@ const DigitalTwin = ({
     }
 
     const selectTankDisplayType = (tankType, numberBlades) => {
-      console.log(tankType, numberBlades);
       if (tankType === "horizontal" && numberBlades == 2) {
         return (
           <HorizontalTank2Blades
