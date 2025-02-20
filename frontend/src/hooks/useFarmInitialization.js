@@ -3,7 +3,6 @@ import useFarmStore from "@/stores/useFarmStore";
 import useTankStore from "@/stores/useTankStore";
 import useSocketStore from "@/stores/useSocketStore";
 import { getFarms } from "@/services/farm";
-import { se } from "date-fns/locale";
 
 export const useFarmInitialization = () => {
 

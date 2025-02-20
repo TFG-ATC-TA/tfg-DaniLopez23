@@ -76,11 +76,13 @@ export const useSocketInitialization = () => {
   }, [setSocket, setWebSocketServerStatus, setMqttStatus, handleSocketError]);
 
   useEffect(() => {
-    if (!socket || !selectedFarm?.id || !selectedTank?.board_id) {
+
+    if (!socket?.connected || !selectedFarm?._id) {
+      console.warn("No socket or selected farm");
       return;
     }
 
-    const farmId = selectedFarm.id;
+    const farmId = selectedFarm.broker;
 
     const eventHandlers = {
       [`${farmId}/encoder`]: updateEncoderData,
@@ -91,7 +93,7 @@ export const useSocketInitialization = () => {
       [`${farmId}/weight`]: updateWeightData,
       [`${farmId}/air_quality`]: updateAirQualityData,
     };
-
+    console.log("EventHandlers (farm_broker):", eventHandlers);
     Object.entries(eventHandlers).forEach(([event, handler]) => {
       socket.on(event, handler);
       console.log(`Listening to event: ${event}`);
