@@ -1,8 +1,8 @@
-import useDataStore from "./Stores/useDataStore";
+import useDataStore from "./stores/useDataStore";
 import Header from "./components/Header";
 import DigitalTwin from "./components/DigitalTwin";
-import useSocketStore from "./Stores/useSocketStore";
-import useFarmStore from "./Stores/useFarmStore";
+import useSocketStore from "./stores/useSocketStore";
+import useFarmStore from "./stores/useFarmStore";
 
 import { useSocketInitialization } from "./hooks/useSocketInitialization";
 import { useFarmInitialization } from "./hooks/useFarmInitialization";

@@ -17,20 +17,24 @@ const initializeWebSocket = (server) => {
     // Escucha el evento de cambio de tanque
     let currentRooms = new Set(); // Almacena las rooms a las que está conectado el socket
 
-    socket.on("selectTank", (boards) => {
-      if (!Array.isArray(boards)) {
-        console.error("Invalid boardIds format. Expected an array.");
-        debug('Invalid boardIds format. Expected an array.');
+    socket.on("selectTank", (farmId, boards) => {
+      debug(`Client ${socket.id} selected Farm-Tank: ${farmId} - ${boards}`);
+      if (!farmId) {
+        debug("Invalid input for selectFarmAndTank. Expected farmId.");
         return;
       }
 
-      const newRooms = new Set(boards);
+      if (!boards) {
+        debug("Invalid boardIds format. Expected an array.");
+        return;
+      }
+
+      const newRooms = new Set(boards.map((boardId) => `${farmId}-${boardId}`));
 
       // Salir de las rooms que ya no están en los nuevos boardIds
       for (const room of currentRooms) {
         if (!newRooms.has(room)) {
           socket.leave(room);
-          console.log(`Socket ${socket.id} left room: ${room}`);
           debug(`Socket ${socket.id} left room: ${room}`);
         }
       }
@@ -47,14 +51,14 @@ const initializeWebSocket = (server) => {
       currentRooms = newRooms;
     });
 
-    socket.on("request last data", (boards) => {
+    socket.on("requestLastData", (farmId, boards) => {
 
-      if (!Array.isArray(boards)) {
+      if (!boards) {
         debug('Invalid boardIds format. Expected an array.');
         return;
       }
 
-      const data = cacheData.getDataByBoards(boards);
+      const data = cacheData.getDataByBoards(farmId, boards);
       socket.emit("last data", data);
 
     })
@@ -73,7 +77,7 @@ const initializeWebSocket = (server) => {
 // Función para emitir mensajes solo a la room del tanque seleccionado
 const emitToTank = (boardId, event, data) => {
   if (boardId === undefined) {
-    console.log("No tank selected");
+    debug("No tank selected");
     return;
   }
 

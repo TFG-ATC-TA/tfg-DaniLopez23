@@ -16,23 +16,25 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import useFarmStore from "@/Stores/useFarmStore";
-import useTankStore from "@/Stores/useTankStore";
+import useFarmStore from "@/stores/useFarmStore";
+import useTankStore from "@/stores/useTankStore";
+import { useTank } from "@/hooks/useTank";
 
 const FarmSelector = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const {farms, setSelectedFarm, selectedFarm} = useFarmStore((state) => state);
   const {setSelectedTank} = useTankStore((state) => state);
+  const {changeSelectedTank} = useTank();
+  
 
   const handleFarmChange = (value) => {
     const selectedFarmId = value;
     const farm = farms.find((farm) => farm._id === selectedFarmId);
-    console.log(farm);
     if(farm){
       setSelectedFarm(farm);
       if(farm.equipments.length > 0){
-        setSelectedTank(farm.equipments[0]);
+        changeSelectedTank(farm.equipments[0], farm._id);
       }else{
         setSelectedTank(null);
       }

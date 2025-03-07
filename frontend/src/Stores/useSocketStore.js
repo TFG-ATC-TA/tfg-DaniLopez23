@@ -8,11 +8,12 @@ const useSocketStore = create((set, get) => ({
   setMqttStatus: (status) => set({ mqttStatus: status }),
   setWebSocketServerStatus: (status) => set({ webSocketServerStatus: status }),
 
-  joinRooms: (boardIds) => {
+  joinRooms: (boardIds, farmId) => {
     const socket = get().socket;
     if (socket && Array.isArray(boardIds)) {
-      socket.emit("selectTank", boardIds);
-      socket.emit("request last data", boardIds);
+      console.log("Joining rooms", farmId, boardIds);
+      socket.emit("selectTank", farmId, boardIds);
+      socket.emit("requestLastData", farmId, boardIds);
     }
   },
 

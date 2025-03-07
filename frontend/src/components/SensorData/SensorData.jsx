@@ -1,7 +1,7 @@
 import { Activity, CircleX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import useDataStore from "@/Stores/useDataStore";
+import useDataStore from "@/stores/useDataStore";
 import { Thermometer, Droplet, ToggleLeft, Compass, Gauge, Weight, Wind } from "lucide-react";
 
 const SensorData = ({ isRealTime, historicalData, onToggle }) => {

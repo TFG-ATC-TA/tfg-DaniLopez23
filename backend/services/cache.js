@@ -1,68 +1,105 @@
 const NodeCache = require("node-cache");
-
-// Initialize the cache with optional TTL (default: no expiration)
+const debug = require("debug")("app:cache");
+// Inicializa la caché sin TTL (tiempo de vida ilimitado por defecto)
 const sensorCache = new NodeCache({ stdTTL: 0 });
 
 /**
- * Get all sensor data for a given boardId.
- * @param {string} boardId - The ID of the board.
- * @returns {object|null} - An object containing sensor types and their latest messages, or null if the boardId doesn't exist.
+ * Obtiene todos los datos de los sensores para un boardId dentro de una granja.
+ * @param {string} farmId - El ID de la granja.
+ * @param {string} boardId - El ID de la placa.
+ * @returns {object|null} - Un objeto con los sensores y sus datos o null si no existen.
  */
-function getBoardData(boardId) {
-  return sensorCache.get(boardId) || null;
+function getBoardData(farmId, boardId) {
+  return sensorCache.get(`${farmId}-${boardId}`) || null;
 }
 
-function getDataByBoards(boards) {
-    const result = {};
-  
-    boards.forEach((boardId) => {
-      const boardData = sensorCache.get(boardId);
-      if (boardData) {
-        Object.entries(boardData).forEach(([sensorType, sensorData]) => {
-          // Si el sensorType ya existe, sobrescribimos con los últimos datos
-          result[sensorType] = sensorData;
-        });
-      }
-    });
-  
-    return result;
-  }
-  
+/**
+ * Obtiene los datos de múltiples boards dentro de una granja específica.
+ * @param {string} farmId - El ID de la granja.
+ * @param {string[]} boards - Lista de boardIds.
+ * @returns {object} - Objeto con los datos de los sensores por cada board.
+ */
+function getDataByBoards(farmId, boards) {
+  const result = {};
+  boards.forEach((boardId) => {
+    const boardData = sensorCache.get(`${farmId}-${boardId}`);
+    if (boardData) {
+      Object.entries(boardData).forEach(([sensorType, sensorData]) => {
+        result[`${boardId}-${sensorType}`] = sensorData;
+      });
+    }
+  });
 
+  return result;
+}
 
 /**
- * Update or add the latest message for a specific sensorType on a given boardId.
- * @param {string} boardId - The ID of the board.
- * @param {string} sensorType - The type of the sensor (e.g., temperature, humidity).
- * @param {any} message - The latest message for the sensor.
+ * Obtiene los datos de todos los boards dentro de una granja.
+ * @param {string} farmId - El ID de la granja.
+ * @returns {object} - Datos de todos los sensores de todos los boards de la granja.
  */
-function updateSensorData(boardId, sensorType, message) {
-  const boardData = sensorCache.get(boardId) || {};
+function getDataByFarm(farmId) {
+  const result = {};
+  const allKeys = sensorCache.keys();
+
+  allKeys.forEach((key) => {
+    if (key.startsWith(`${farmId}-`)) {
+      result[key] = sensorCache.get(key);
+    }
+  });
+
+  return result;
+}
+
+/**
+ * Actualiza o agrega el último mensaje de un sensor dentro de una granja y un board específico.
+ * @param {string} farmId - El ID de la granja.
+ * @param {string} boardId - El ID de la placa.
+ * @param {string} sensorType - El tipo de sensor (e.g., temperatura, humedad).
+ * @param {any} message - El último mensaje del sensor.
+ */
+function updateSensorData(farmId, boardId, sensorType, message) {
+  const key = `${farmId}-${boardId}`;
+  const boardData = sensorCache.get(key) || {};
   boardData[sensorType] = message;
-  sensorCache.set(boardId, boardData);
+  sensorCache.set(key, boardData);
 }
 
 /**
- * Print the current state of the cache in the desired structure.
+ * Muestra el estado actual de la caché en la consola.
  */
 function printCache() {
-  console.log("Current Cache State:");
-  console.log(sensorCache.keys().map((key) => ({
-    boardId: key,
-    data: sensorCache.get(key),
-  })));
+  console.log("Estado actual de la caché:");
+  console.log(
+    sensorCache.keys().map((key) => ({
+      key,
+      data: sensorCache.get(key),
+    }))
+  );
 }
 
 /**
- * Clear the cache for a specific boardId.
- * @param {string} boardId - The ID of the board to clear.
+ * Limpia los datos de un board específico dentro de una granja.
+ * @param {string} farmId - El ID de la granja.
+ * @param {string} boardId - El ID de la placa.
  */
-function clearBoardData(boardId) {
-  sensorCache.del(boardId);
+function clearBoardData(farmId, boardId) {
+  sensorCache.del(`${farmId}-${boardId}`);
 }
 
 /**
- * Clear all cache entries.
+ * Limpia todos los datos de una granja específica.
+ * @param {string} farmId - El ID de la granja.
+ */
+function clearFarmData(farmId) {
+  const keysToDelete = sensorCache.keys().filter((key) =>
+    key.startsWith(`${farmId}-`)
+  );
+  sensorCache.del(keysToDelete);
+}
+
+/**
+ * Borra toda la caché.
  */
 function clearAllData() {
   sensorCache.flushAll();
@@ -70,9 +107,11 @@ function clearAllData() {
 
 module.exports = {
   getBoardData,
+  getDataByBoards,
+  getDataByFarm,
   updateSensorData,
   printCache,
   clearBoardData,
+  clearFarmData,
   clearAllData,
-  getDataByBoards
 };

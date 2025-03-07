@@ -1,22 +1,24 @@
 import { useState, useEffect, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
-import SensorData from "./SensorData/SensorData";
+import SensorData from "./sensorData/SensorData";
 import TankStatus from "./TankStatus";
 import DataModeToggle from "./DataModeToogle";
 import SelectedSensorData from "./sensorData/SelectedSensorData";
 import TimeSeriesSlider from "./TimeSeriesSlider";
 import FilterComponent from "./FilterHistoricalData";
-import CameraSettings from "./Camera/CameraSettings";
-import { Model } from "./tank-models/HorizontalTank2Blades";
+import CameraSettings from "./camera/CameraSettings";
+import { HorizontalTank2Blades } from "./tankModels/horizontal/HorizontalTank2Blades";
+import { HorizontalTank1Blade } from "./tankModels/horizontal/HorizontalTank1Blade";
 import { Button } from "./ui/button";
 import { CalendarIcon, Activity, Sliders } from "lucide-react";
 import { getHistoricalData } from "@/services/farm";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import useTankStore from "@/Stores/useTankStore";
+import useTankStore from "@/stores/useTankStore";
 import { getBoardIdsFromTank } from "@/services/tank";
-import useFarmStore from "@/Stores/useFarmStore";
-
+import useFarmStore from "@/stores/useFarmStore";
+import { VerticalTank1Blade } from "./tankModels/vertical/VerticalTank1Blade";
+import AirQualityLegend from "./sensorData/AirQualityLegend";
 
 const DigitalTwin = ({
   encoderData,
@@ -138,13 +140,52 @@ const DigitalTwin = ({
       );
     }
 
+    const selectTankDisplayType = (tankType, numberBlades) => {
+      if (tankType === "horizontal" && numberBlades == 2) {
+        return (
+          <HorizontalTank2Blades
+            encoderData={data?.encoderData}
+            milkQuantityData={data?.milkQuantityData}
+            switchStatus={data?.switchStatus}
+            weightData={data?.weightData}
+            tankTemperaturesData={data?.tankTemperaturesData}
+            airQualityData={data?.airQualityData}
+            selectedData={data?.selectedData}
+          />
+        );
+      } else if (tankType === "vertical") {
+        return (
+          <VerticalTank1Blade
+            encoderData={data?.encoderData}
+            milkQuantityData={data?.milkQuantityData}
+            switchStatus={data?.switchStatus}
+            weightData={data?.weightData}
+            tankTemperaturesData={data?.tankTemperaturesData}
+            airQualityData={data?.airQualityData}
+            selectedData={data?.selectedData}
+          />
+        );
+      } else {
+        return (
+          <HorizontalTank1Blade
+            encoderData={data?.encoderData}
+            milkQuantityData={data?.milkQuantityData}
+            switchStatus={data?.switchStatus}
+            weightData={data?.weightData}
+            tankTemperaturesData={data?.tankTemperaturesData}
+            airQualityData={data?.airQualityData}
+            selectedData={data?.selectedData}
+          />
+        );
+      }
+    };
     return (
       <Canvas className="w-full h-full">
         <ambientLight intensity={0.6} />
         <directionalLight position={[-10, -10, -10]} intensity={0.5} />
         <Suspense fallback={null}>
           <group>
-            <Model
+            {/* <HorizontalTank2Blades
               encoderData={data?.encoderData}
               milkQuantityData={data?.milkQuantityData}
               switchStatus={data?.switchStatus}
@@ -152,14 +193,16 @@ const DigitalTwin = ({
               tankTemperaturesData={data?.tankTemperaturesData}
               airQualityData={data?.airQualityData}
               selectedData={data?.selectedData}
-            />
+            /> */}
+            {/* <HorizontalTank1Blade /> */}
+            {/* <VerticalTank1Blade /> */}
+            {selectTankDisplayType(selectedTank?.display, selectedTank?.blades)}
           </group>
           <CameraSettings view={data?.selectedData} />
         </Suspense>
       </Canvas>
     );
   };
-
 
   return selectedTank ? (
     <div className="flex h-screen overflow-hidden ">
@@ -183,7 +226,6 @@ const DigitalTwin = ({
           </Button>
         </div>
       )}
-
 
       <div className="flex-1 flex flex-col overflow-hidden ">
         <div className="flex items-center justify-between gap-1 p-4 bg-background shadow-sm border overflow-hidden">
@@ -213,9 +255,18 @@ const DigitalTwin = ({
             <div className="relative w-full h-full">
               {(mode === "realtime" ||
                 (historicalData && historicalData != "loading")) && (
-                <div className="absolute top-4 left-4 z-10">
-                  <SelectedSensorData />
-                </div>
+                <>
+                  <div className="absolute top-4 left-4 z-10">
+                    <SelectedSensorData />
+                  </div>
+                  {/* <div className="absolute top-4 right-4 z-10">
+                    <AirQualityLegend
+                      particleCount={1000}
+                      humidity={10}
+                      temperature={20}
+                    />
+                  </div> */}
+                </>
               )}
               {renderTankModel()}
             </div>
@@ -232,6 +283,17 @@ const DigitalTwin = ({
                   />
                 </div>
               )}
+            {/* 
+            {mode === "historical" &&
+              filters.dateRange &&(
+                <div className="px-4 py-3 border-t">
+                  <TimeSeriesSlider
+                    startDate={filters.dateRange.from}
+                    endDate={filters.dateRange.to}
+                    states={states}
+                  />
+                </div>
+              )} */}
           </div>
 
           {mode === "historical" && isFiltersVisible ? (
@@ -254,7 +316,6 @@ const DigitalTwin = ({
               </Button>
             </div>
           ) : null}
-
         </div>
       </div>
     </div>

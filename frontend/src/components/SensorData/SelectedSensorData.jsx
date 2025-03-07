@@ -1,11 +1,11 @@
-import useDataStore from "@/Stores/useDataStore";
-import AirQuality from "../sensorData/AirQuality";
-import MagneticSwitch from "../sensorData/MagneticSwitch";
-import TankTemperatures from "../sensorData/TankTemperatures";
-import MilkQuantity from "../sensorData/MilkQuantity";
-import Encoder from "../sensorData/Encoder";
-import Gyroscope from "../sensorData/Gyroscope";
-import Weight from "../sensorData/Weight";
+import useDataStore from "@/stores/useDataStore";
+import AirQuality from "./AirQuality";
+import MagneticSwitch from "./MagneticSwitch";
+import TankTemperatures from "./TankTemperatures";
+import MilkQuantity from "./MilkQuantity";
+import Encoder from "./Encoder";
+import Gyroscope from "./Gyroscope";
+import Weight from "./Weight";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Thermometer, Droplet, ToggleLeft, Compass, Gauge, WeightIcon, Wind } from 'lucide-react';
 

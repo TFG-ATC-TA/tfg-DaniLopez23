@@ -3,7 +3,7 @@ import { History } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 
-import useFarmStore from "@/Stores/useFarmStore";
+import useFarmStore from "@/stores/useFarmStore";
 
 const DataModeToggle = ({onToggle}) => {
 

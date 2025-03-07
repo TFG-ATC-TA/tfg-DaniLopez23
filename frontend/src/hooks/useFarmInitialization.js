@@ -1,23 +1,18 @@
-// src/hooks/useFarmInitialization.js
 import { useEffect } from "react";
-import useFarmStore from "@/Stores/useFarmStore";
-import useTankStore from "@/Stores/useTankStore";
-import useSocketStore from "@/Stores/useSocketStore";
+import useFarmStore from "@/stores/useFarmStore";
+import useTankStore from "@/stores/useTankStore";
+import useSocketStore from "@/stores/useSocketStore";
 import { getFarms } from "@/services/farm";
-import { set } from "date-fns";
-
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 2000; // 2 seconds
 
 export const useFarmInitialization = () => {
 
-  const { setFarms, setSelectedFarm, setServerStatus } = useFarmStore((state) => state);
+  const { setFarms, setSelectedFarm, setServerStatus, selectedFarm } = useFarmStore((state) => state);
 
   const { setSelectedTank } = useTankStore((state) => state);
   const { joinRooms } = useSocketStore((state) => state);
 
 
-  const initialize = async (retryCount = 0) => {
+  const initialize = async () => {
     try {
 
       const farms = await getFarms();
@@ -28,12 +23,11 @@ export const useFarmInitialization = () => {
         (tank) => tank.type === "Tanque de leche"
       );
       setSelectedTank(firstMilkTank);
-
       if (firstMilkTank?.devices) {
         const boardIds = firstMilkTank.devices
           .map((device) => device.boardId)
           .filter(Boolean);
-        joinRooms(boardIds);
+        joinRooms(boardIds, farmData._id);
       }
       setServerStatus({ status: "connected", error: null });
     } catch (error) {

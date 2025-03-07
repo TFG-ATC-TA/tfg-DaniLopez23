@@ -19,7 +19,7 @@ const AirQuality = ({ airQualityData }) => {
   ];
 
   return (
-    <Card className="ring-2 ring-blue-200 bg-blue-50/20">
+    <Card className="ring-2 ring-blue-200 bg-white">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium flex items-center space-x-2">
           <Wind size={16} className="text-blue-500" />

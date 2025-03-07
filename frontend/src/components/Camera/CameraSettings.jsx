@@ -1,8 +1,8 @@
 import { useRef, useEffect } from "react";
-import * as THREE from "three";
 import { CameraControls } from "@react-three/drei";
 import { cameraViews } from "./CameraViews";
 import { GizmoHelper, GizmoViewport } from "@react-three/drei";
+import { ca } from "date-fns/locale";
 
 const CameraSettings = ({ view }) => {
   const cameraControlsRef = useRef();
@@ -26,7 +26,9 @@ const CameraSettings = ({ view }) => {
       cameraControlsRef.current.touches.one = 0;
       cameraControlsRef.current.touches.two = 0;
       cameraControlsRef.current.touches.three = 0;
-
+      cameraControlsRef.current.touches.twoFingerDolly = 0;
+      cameraControlsRef.current.touches.enabled = false;
+      
       // Restricciones de zoom
       cameraControlsRef.current.dollyEnabled = false;
       cameraControlsRef.current.infinityDolly = false;
