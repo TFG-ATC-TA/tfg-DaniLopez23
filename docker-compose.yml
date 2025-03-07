@@ -29,6 +29,19 @@ services:
     ports:
       - "5173:5173"
     command: npm run dev -- --host
+
+  ml-api:
+    build: 
+      context: ./ml-api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    volumes:
+      - ./ml-api:/app
+    networks:
+      - tfg-digital-twin
+    ports:
+      - "8000:8000"
+      
 networks:
   tfg-digital-twin:
     driver: bridge
