@@ -6,7 +6,7 @@ import { getFarms } from "@/services/farm";
 
 export const useFarmInitialization = () => {
 
-  const { setFarms, setSelectedFarm, setServerStatus } = useFarmStore((state) => state);
+  const { setFarms, setSelectedFarm, setServerStatus, selectedFarm } = useFarmStore((state) => state);
 
   const { setSelectedTank } = useTankStore((state) => state);
   const { joinRooms } = useSocketStore((state) => state);
@@ -23,12 +23,11 @@ export const useFarmInitialization = () => {
         (tank) => tank.type === "Tanque de leche"
       );
       setSelectedTank(firstMilkTank);
-
       if (firstMilkTank?.devices) {
         const boardIds = firstMilkTank.devices
           .map((device) => device.boardId)
           .filter(Boolean);
-        joinRooms(boardIds);
+        joinRooms(boardIds, farmData._id);
       }
       setServerStatus({ status: "connected", error: null });
     } catch (error) {

@@ -1,5 +1,5 @@
 const NodeCache = require("node-cache");
-
+const debug = require("debug")("app:cache");
 // Inicializa la caché sin TTL (tiempo de vida ilimitado por defecto)
 const sensorCache = new NodeCache({ stdTTL: 0 });
 
@@ -21,7 +21,6 @@ function getBoardData(farmId, boardId) {
  */
 function getDataByBoards(farmId, boards) {
   const result = {};
-
   boards.forEach((boardId) => {
     const boardData = sensorCache.get(`${farmId}-${boardId}`);
     if (boardData) {

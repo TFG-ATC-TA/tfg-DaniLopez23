@@ -17,9 +17,15 @@ const initializeWebSocket = (server) => {
     // Escucha el evento de cambio de tanque
     let currentRooms = new Set(); // Almacena las rooms a las que está conectado el socket
 
-    socket.on("selectTank", ({farmId, boards}) => {
-      if (!farmId || !Array.isArray(boards)) {
-        debug("Invalid input for selectFarmAndTank. Expected farmId and an array of boards.");
+    socket.on("selectTank", (farmId, boards) => {
+      debug(`Client ${socket.id} selected Farm-Tank: ${farmId} - ${boards}`);
+      if (!farmId) {
+        debug("Invalid input for selectFarmAndTank. Expected farmId.");
+        return;
+      }
+
+      if (!boards) {
+        debug("Invalid boardIds format. Expected an array.");
         return;
       }
 
@@ -45,14 +51,14 @@ const initializeWebSocket = (server) => {
       currentRooms = newRooms;
     });
 
-    socket.on("requestLastData", (boards) => {
+    socket.on("requestLastData", (farmId, boards) => {
 
-      if (!Array.isArray(boards)) {
+      if (!boards) {
         debug('Invalid boardIds format. Expected an array.');
         return;
       }
 
-      const data = cacheData.getDataByBoards(boards);
+      const data = cacheData.getDataByBoards(farmId, boards);
       socket.emit("last data", data);
 
     })
