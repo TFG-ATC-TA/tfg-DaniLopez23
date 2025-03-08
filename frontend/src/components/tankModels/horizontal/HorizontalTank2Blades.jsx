@@ -85,13 +85,13 @@ export function HorizontalTank2Blades({
         scale={[0.104, 0.076, 0.104]}
       />
       <CallOutText
-        position={[0, 2.9, 0.92]}
+        position={[0, 2.75, 1.1]}
         value={`${encoderData?.value ?? "No data"}`}
         title={"Encoder"}
         radius={0.05}
       />
       <CallOutText
-        position={[0, 2.9, -0.92]}
+        position={[0, 2.75, -1.1]}
         title={"Encoder"}
         text={`${encoderData?.value ?? "No data"}`}
         radius={0.05}
@@ -108,7 +108,7 @@ export function HorizontalTank2Blades({
         rotation={rotationHatch}
       />
       <CallOutText
-        position={[0, 2.9, 0]}
+        position={[0, 2.75, 0]}
         text={`${
           switchStatus == null
             ? "No Data"
@@ -159,12 +159,12 @@ export function HorizontalTank2Blades({
           position={[2, 0.27, 3.19]}
         />
         <CallOutText
-          position={[1.356, 1.05, 2.848]}
+          position={[1.3, 0.95, 2.8]}
           title={"Alcaline"}
           value={weightData?.weight}
         />
         <CallOutText
-          position={[2.02, 1.05, 2.848]}
+          position={[2, 0.9, 2.9]}
           title={"Acid"}
           value={weightData?.weight}
         />

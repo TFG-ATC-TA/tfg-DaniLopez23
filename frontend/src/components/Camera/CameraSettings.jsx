@@ -1,11 +1,13 @@
+'use client';
+
 import { useRef, useEffect } from "react";
-import { CameraControls } from "@react-three/drei";
+import { CameraControls, GizmoHelper, GizmoViewport } from "@react-three/drei";
 import { cameraViews } from "./CameraViews";
-import { GizmoHelper, GizmoViewport } from "@react-three/drei";
-import { ca } from "date-fns/locale";
+import { useThree } from "@react-three/fiber";
 
 const CameraSettings = ({ view }) => {
   const cameraControlsRef = useRef();
+  const { gl } = useThree();
 
   // Efecto para restricciones iniciales y cambios de vista
   useEffect(() => {
@@ -19,20 +21,29 @@ const CameraSettings = ({ view }) => {
         true
       );
 
-      // Deshabilitar controles de interacción
+      // Bloquear completamente el zoom
+      cameraControlsRef.current.dollyEnabled = false;
+      cameraControlsRef.current.zoomEnabled = false;
+      
+      // Bloquear rotación
+      cameraControlsRef.current.rotateEnabled = false;
+      
+      // Bloquear paneo
+      cameraControlsRef.current.truckEnabled = false;
+      
+      // Bloquear todos los botones del mouse
       cameraControlsRef.current.mouseButtons.left = 0;
       cameraControlsRef.current.mouseButtons.right = 0;
       cameraControlsRef.current.mouseButtons.middle = 0;
+      cameraControlsRef.current.mouseButtons.wheel = 0;
+      
+      // Bloquear todos los gestos táctiles
       cameraControlsRef.current.touches.one = 0;
       cameraControlsRef.current.touches.two = 0;
       cameraControlsRef.current.touches.three = 0;
-      cameraControlsRef.current.touches.twoFingerDolly = 0;
-      cameraControlsRef.current.touches.enabled = false;
-      
-      // Restricciones de zoom
-      cameraControlsRef.current.dollyEnabled = false;
-      cameraControlsRef.current.infinityDolly = false;
     }
+    
+
   }, [view]);
   
   return (
@@ -40,14 +51,13 @@ const CameraSettings = ({ view }) => {
       <CameraControls
         ref={cameraControlsRef}
         makeDefault
-        minDistance={5}
-        maxDistance={5}
+        minDistance={6}
+        maxDistance={6}
       />
       
       <GizmoHelper
         alignment="bottom-right"
         margin={[60, 60]}
-        onUpdate={() => cameraControlsRef.current}
       >
         <GizmoViewport
           axisColors={["#9d4b4b", "#2f7f4f", "#3b5b9d"]}

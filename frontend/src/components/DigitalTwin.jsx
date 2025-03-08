@@ -185,17 +185,6 @@ const DigitalTwin = ({
         <directionalLight position={[-10, -10, -10]} intensity={0.5} />
         <Suspense fallback={null}>
           <group>
-            {/* <HorizontalTank2Blades
-              encoderData={data?.encoderData}
-              milkQuantityData={data?.milkQuantityData}
-              switchStatus={data?.switchStatus}
-              weightData={data?.weightData}
-              tankTemperaturesData={data?.tankTemperaturesData}
-              airQualityData={data?.airQualityData}
-              selectedData={data?.selectedData}
-            /> */}
-            {/* <HorizontalTank1Blade /> */}
-            {/* <VerticalTank1Blade /> */}
             {selectTankDisplayType(selectedTank?.display, selectedTank?.blades)}
           </group>
           <CameraSettings view={data?.selectedData} />
