@@ -19,7 +19,6 @@ export default function App() {
     selectedData,
   } = useDataStore((state) => state);
 
-
   useSocketInitialization();
   
   const { webSocketServerStatus, mqttStatus } = useSocketStore((state) => state);
