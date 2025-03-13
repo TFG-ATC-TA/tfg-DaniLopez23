@@ -22,6 +22,7 @@ const DigitalTwin = ({
   airQualityData,
   selectedData,
 }) => {
+
   const realTimeData = {
     encoderData,
     milkQuantityData,
@@ -132,7 +133,7 @@ const DigitalTwin = ({
             filters={filters}
             setFilters={setFilters}
             mode={mode}
-          />{" "}
+          />
         </div>
       </div>
     </div>

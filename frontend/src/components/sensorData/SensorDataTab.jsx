@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Activity } from "lucide-react";
+import { Activity, Radio } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import SensorInfoItem from "./SensorInfoItem";
@@ -26,35 +26,34 @@ const SensorDataTab = ({ historicalData, mode }) => {
 
   // Otherwise, show the full sensors panel
   return (
-    <div className="w-64 overflow-hidden flex flex-col">
-      <Card className="w-full h-full shadow-sm border overflow-hidden">
-        <CardHeader className="sticky z-10 border-b p-">
-          <div className="flex justify-between items-center">
-            <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <Activity className="h-5 w-5 text-primary" />
-              Datos de Sensores
-            </CardTitle>
-            <div className="flex justify-end items-center p-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsSensorsTabVisible(false)}
-                className="h-8 w-8 p-0 text-primary hover:bg-primary/10"
-              >
-                <CircleX className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-
-        <CardContent className="p-0 overflow-y-auto">
-          <SensorInfoItem
-            historicalData={historicalData}
-            isRealTime={mode === "realtime"}
-          />
-        </CardContent>
-      </Card>
+    <div className="w-full md:w-96 max-w-full h-full flex flex-col bg-white rounded-lg border shadow-sm overflow-hidden">
+  <div className="sticky top-0 z-10 bg-white border-b p-4">
+    <div className="flex justify-between items-center gap-2">
+      <div className="flex items-center gap-2">
+        <Radio className="h-5 w-5 text-primary" />
+        <h3 className="text-base md:text-lg font-semibold truncate">
+          Datos de Sensores
+        </h3>
+      </div>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setIsSensorsTabVisible(false)}
+        className="h-9 w-9 p-0 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+      >
+        <CircleX className="h-4 w-4" />
+        <span className="sr-only">Cerrar panel</span>
+      </Button>
     </div>
+  </div>
+
+  <div className="flex-1 overflow-y-auto p-4">
+    <SensorInfoItem
+      historicalData={historicalData}
+      isRealTime={mode === "realtime"}
+    />
+  </div>
+</div>
   );
 };
 

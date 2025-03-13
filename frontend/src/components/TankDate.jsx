@@ -31,17 +31,25 @@ const TankDate = ({ mode, filters }) => {
   return (
     <div 
       ref={ref} 
-      className="relative flex items-center gap-3 p-3 cursor-pointer h-full hover:bg-blue-50 transition-colors rounded-lg"
+      className="relative p-4 rounded-lg space-y-3 cursor-pointer"
       onClick={() => setIsExpanded(!isExpanded)}
     >
-      <div className="flex-shrink-0 flex items-center justify-center bg-blue-100 p-2 rounded-full">
-        <CalendarIcon className="text-blue-600 w-6 h-6" />
+      {/* Header */}
+      <div className="flex items-center justify-between border-b pb-2">
+        <div className="flex items-center gap-2">
+          <CalendarIcon className="h-4 w-4 text-primary" />
+          <p className="text-xs font-medium text-gray-500 uppercase">
+            {mode === "historical" ? "Rango histórico" : "Actualización"}
+          </p>
+        </div>
       </div>
-      <div className="flex-grow">
-        <p className="text-xs font-medium text-gray-500 uppercase">
-          {mode === "historical" ? "Rango histórico" : "Actualización"}
-        </p>
-        <p className="text-sm font-semibold text-gray-800 truncate">
+
+      {/* Date Display */}
+      <div className="flex items-center gap-3">
+        <div className="flex-shrink-0 flex items-center justify-center bg-blue-100 p-1.5 rounded-full">
+          <CalendarIcon className="text-blue-600 w-4 h-4" />
+        </div>
+        <p className="text-sm font-semibold text-gray-800">
           {getDisplayDate()}
         </p>
       </div>

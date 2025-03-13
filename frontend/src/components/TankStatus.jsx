@@ -1,64 +1,114 @@
+import { Activity, HelpCircle, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Info } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 import useTankStore from "@/stores/useTankStore";
 
 const statusConfig = {
-  operational: { 
-    color: "bg-green-500", 
-    text: "Operational", 
-    textColor: "text-green-600", 
-    bgColor: "bg-green-50" 
+  operational: {
+    color: "bg-green-500",
+    text: "Operativo",
+    textColor: "text-green-600",
+    bgColor: "bg-green-50",
+    borderColor: "border-green-200",
   },
-  warning: { 
-    color: "bg-amber-500", 
-    text: "Warning", 
-    textColor: "text-amber-600", 
-    bgColor: "bg-amber-50" 
+  warning: {
+    color: "bg-amber-500",
+    text: "Advertencia",
+    textColor: "text-amber-600",
+    bgColor: "bg-amber-50",
+    borderColor: "border-amber-200",
   },
-  error: { 
-    color: "bg-red-500", 
-    text: "Error", 
-    textColor: "text-red-600", 
-    bgColor: "bg-red-50" 
+  error: {
+    color: "bg-red-500",
+    text: "Error",
+    textColor: "text-red-600",
+    bgColor: "bg-red-50",
+    borderColor: "border-red-200",
   },
 };
 
-const TankStatus = ({ isRealTime }) => {
+const TankStatus = () => {
   const { selectedTank } = useTankStore();
+
   if (!selectedTank) return null;
 
   const status = selectedTank.status || "operational";
-  const { color, text, textColor, bgColor } = statusConfig[status];
+  const { color, text, textColor, bgColor, borderColor } = statusConfig[status];
 
   return (
-    <div className="flex items-center gap-3 p-3 h-full rounded-lg">
-      <div className="flex items-center gap-2">
-        <div className="relative">
-          <div className={`w-2.5 h-2.5 rounded-full ${color} ${isRealTime ? 'animate-pulse' : ''}`} />
-          {isRealTime && (
-            <div className={`absolute inset-0 rounded-full ${color} animate-ping opacity-30`} />
-          )}
+    <div className="relative p-4 w-80 rounded-lg space-y-3">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b pb-2">
+        <div className="flex items-center gap-2">
+          <Activity className="h-4 w-4 text-primary" />
+          <p className="text-xs font-medium text-gray-500 uppercase">
+            Estado del Tanque
+          </p>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-5 w-5 p-0">
+                  <HelpCircle className="h-3.5 w-3.5 text-gray-400" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Muestra el estado actual del tanque seleccionado</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
-        <span className="font-medium text-gray-900 text-sm whitespace-nowrap">
-          {selectedTank.name}
-        </span>
       </div>
 
-      <Badge 
-        variant="outline" 
-        className={`py-1 px-2.5 rounded-md ${textColor} ${bgColor} border-transparent whitespace-nowrap`}
-      >
-        {text}
-      </Badge>
+      {/* Tank Name & Status */}
+      <div className="flex items-center gap-4">
+        <div className={`w-3 h-3 rounded-full ${color}`} />
+        <p className="text-sm font-semibold text-gray-800 truncate">
+          {selectedTank.name}
+        </p>
+        <div className="flex items-center gap-2">
+          <Badge
+            variant="outline"
+            className={cn(
+              "py-1 px-3 rounded-md border",
+              textColor,
+              bgColor,
+              borderColor
+            )}
+          >
+            {text}
+          </Badge>
+        </div>
+        {/* Status Info */}
+      <div className="flex justify-end">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-5 w-5 p-0">
+                <Info className="h-4 w-4 text-gray-400" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>
+                {status === "operational"
+                  ? "El tanque está funcionando correctamente"
+                  : status === "warning"
+                  ? "El tanque requiere atención"
+                  : "El tanque presenta problemas"}
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+      </div>
 
-      <Button 
-        variant="ghost" 
-        size="sm" 
-        className="h-7 w-7 p-0 text-gray-400 hover:text-gray-700 hover:bg-gray-100 ml-1"
-      >
-        <Info className="h-3.5 w-3.5" />
-      </Button>
+      
     </div>
   );
 };
