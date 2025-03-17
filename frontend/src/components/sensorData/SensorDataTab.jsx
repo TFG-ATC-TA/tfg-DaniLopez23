@@ -26,7 +26,7 @@ const SensorDataTab = ({ historicalData, mode }) => {
 
   // Otherwise, show the full sensors panel
   return (
-    <div className="w-full md:w-96 max-w-full h-full flex flex-col bg-white rounded-lg border shadow-sm overflow-hidden">
+    <div className="w-full md:w-80 max-w-full h-full flex flex-col bg-white rounded-lg border shadow-sm overflow-hidden">
   <div className="sticky top-0 z-10 bg-white border-b p-4">
     <div className="flex justify-between items-center gap-2">
       <div className="flex items-center gap-2">
