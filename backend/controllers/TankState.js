@@ -17,7 +17,7 @@ TankStateRouter.post("/predict", async (req, res) => {
     // 1. Construir query con los datos de entrada
     const { dateRangeFrom, dateRangeTo, boardIds } = req.body;
 
-    // 2. Construir query Flux con los IDs válidos. La query debe devolver mínimo 1200 datos para poder hacer la petición a la api de prediccion de estado
+    // 2. Construir query Flux con los IDs válidos. La query debe devolver mínimo 1200 datos de cada segundo para poder hacer la petición a la api de prediccion de estado
     const fluxQuery = `
       from(bucket: "synthetic-farm-1")
         |> range(start: ${dateRangeFrom}, stop: ${dateRangeTo})
