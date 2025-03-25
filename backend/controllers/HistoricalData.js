@@ -4,10 +4,14 @@ const config = require("../config/index");
 const HistoricalDataRouter = express.Router();
 
 // Configuración de InfluxDB
-const token = config.influxDB.INFLUX_TOKEN;
-const org = config.influxDB.INFLUX_ORG;
-const bucket = "synthetic-farm-1";
-const url = config.influxDB.INFLUX_URL;
+// const token = config.influxDB.INFLUX_TOKEN;
+// const org = config.influxDB.INFLUX_ORG;
+// const url = config.influxDB.INFLUX_URL;   
+
+const token = config.influxDB.LOCAL_INFLUX_TOKEN
+const org = config.influxDB.LOCAL_INFLUX_ORG
+const url = config.influxDB.LOCAL_INFLUX_URL
+
 
 const client = new InfluxDB({ url, token });
 const queryApi = client.getQueryApi(org);
@@ -15,7 +19,7 @@ const queryApi = client.getQueryApi(org);
 
 // Ruta para obtener datos históricos
 HistoricalDataRouter.post("/", async (req, res) => {
-  const { dateRangeFrom, dateRangeTo, boardIds } = req.body;
+  const { farm, dateRangeFrom, dateRangeTo, boardIds } = req.body;
   console.log(req.body);
   try {
     // Validate parameters
@@ -33,6 +37,7 @@ HistoricalDataRouter.post("/", async (req, res) => {
     const validBoardIds = boardIds.filter(
       (id) => typeof id === "string" && id.trim() !== ""
     );
+
     if (validBoardIds.length === 0) {
       return res
         .status(400)
@@ -43,7 +48,7 @@ HistoricalDataRouter.post("/", async (req, res) => {
 
     // Construct Flux query with valid IDs
     const fluxQuery = `
-      from(bucket: "synthetic-farm-1")
+      from(bucket: ${farm})
         |> range(start: ${dateRangeFrom}, stop: ${dateRangeTo})
         |> filter(fn: (r) => ${validBoardIds
           .map((id) => `r.board_id == "${id}"`)

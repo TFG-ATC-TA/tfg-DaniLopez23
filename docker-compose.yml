@@ -41,7 +41,20 @@ services:
       - tfg-digital-twin
     ports:
       - "8000:8000"
-      
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    env_file:
+      - .env
+    volumes:
+      - influxdb:/var/lib/influxdb
 networks:
   tfg-digital-twin:
     driver: bridge
+
+volumes:
+  influxdb:
