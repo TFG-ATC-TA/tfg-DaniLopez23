@@ -21,7 +21,6 @@ const HistoricalDataFilter = ({ filters, setFilters, mode }) => {
       dateRange: null,
       selectedStatus: "all",
       selectedSensor: "all",
-      showAnomalous: false,
     })
   }
 

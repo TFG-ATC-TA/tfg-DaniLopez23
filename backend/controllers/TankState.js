@@ -6,20 +6,31 @@ const TankStateRouter = express.Router();
 // Configuración de InfluxDB
 const token = config.influxDB.INFLUX_TOKEN;
 const org = config.influxDB.INFLUX_ORG;
-const bucket = "synthetic-farm-1";
 const url = config.influxDB.INFLUX_URL;
+
 
 const client = new InfluxDB({ url, token });
 const queryApi = client.getQueryApi(org);
 
+
 TankStateRouter.post("/predict", async (req, res) => {
 
     // 1. Construir query con los datos de entrada
-    const { dateRangeFrom, dateRangeTo, boardIds } = req.body;
+    const { dateRangeFrom, dateRangeTo, boardIds, farm } = req.body;
+
+    const validBoardIds = boardIds.filter(
+      (id) => typeof id === "string" && id.trim() !== ""
+    );
+
+    if (validBoardIds.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "All provided board IDs are invalid." });
+    }
 
     // 2. Construir query Flux con los IDs válidos. La query debe devolver mínimo 1200 datos de cada segundo para poder hacer la petición a la api de prediccion de estado
     const fluxQuery = `
-      from(bucket: "synthetic-farm-1")
+      from(bucket: "${farm}")
         |> range(start: ${dateRangeFrom}, stop: ${dateRangeTo})
         |> filter(fn: (r) => ${validBoardIds
           .map((id) => `r.board_id == "${id}"`)

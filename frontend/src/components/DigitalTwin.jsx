@@ -35,17 +35,16 @@ const DigitalTwin = ({
 
   const [historicalData, setHistoricalData] = useState(null);
   const [error, setError] = useState(null);
-  const { mode, setMode } = useFarmStore((state) => state);
+  const { mode, setMode, selectedFarm } = useFarmStore((state) => state);
   const { selectedTank } = useTankStore();
 
   const [filters, setFilters] = useState({
     dateRange: null,
     selectedStatus: "all",
     selectedSensor: "all",
-    showAnomalous: false,
-    timeSlider: 0,
+    farm: selectedFarm.broker,
   });
-
+  
   const states = [];
   const boardIds = getBoardIdsFromTank(selectedTank);
 
@@ -68,11 +67,7 @@ const DigitalTwin = ({
         dateRangeFrom: filters.dateRange.from.toISOString(),
         dateRangeTo: filters.dateRange.to.toISOString(),
         boardIds: boardIds,
-        status: filters.selectedStatus,
-        sensor: filters.selectedSensor,
-        showAnomalous: filters.showAnomalous,
-        hour: filters.timeSlider,
-        tankId: selectedTank?._id,
+        farm: selectedFarm.broker,
       });
       setHistoricalData(data);
     } catch (error) {
