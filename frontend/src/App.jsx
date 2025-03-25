@@ -20,16 +20,14 @@ export default function App() {
   } = useDataStore((state) => state);
 
   useSocketInitialization();
-  
-  const { webSocketServerStatus, mqttStatus } = useSocketStore((state) => state);
-  
+    
   useFarmInitialization();
 
-  const { selectedFarm, serverStatus } = useFarmStore((state) => state);
+  const { selectedFarm } = useFarmStore((state) => state);
   
   return (
     <div className="flex flex-col h-screen bg-gray-100">
-      <Header serverStatus={serverStatus} webSocketServerStatus={webSocketServerStatus} mqttStatus={mqttStatus} farmData={selectedFarm} />
+      <Header farmData={selectedFarm} />
       <DigitalTwin
         encoderData={encoderData}
         milkQuantityData={milkQuantityData}

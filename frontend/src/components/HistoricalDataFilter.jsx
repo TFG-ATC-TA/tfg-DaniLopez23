@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { CircleX, Trash2, Sliders } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,14 +6,16 @@ import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import CustomDateRangePicker from "@/components/CustomDateRangePicker"
+import useAppDataStore from "@/stores/useAppDataStore"
 
-const HistoricalDataFilter = ({ filters, setFilters, mode }) => {
+const HistoricalDataFilter = () => {
   const [isFiltersVisible, setIsFiltersVisible] = useState(true)
-
+  const { filters, setFilters, mode } = useAppDataStore((state) => state)
   const handleFilterChange = (key, value) => {
-    setFilters((prev) => ({ ...prev, [key]: value }))
+    const newFilters = { ...filters, [key]: value }
+    setFilters(newFilters)
   }
-
+  console.log(filters)
   const clearFilters = () => {
     setFilters({
       dateRange: null,

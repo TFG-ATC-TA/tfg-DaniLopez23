@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import useFarmStore from "@/stores/useFarmStore";
 import useTankStore from "@/stores/useTankStore";
+import useAppDataStore from "@/stores/useAppDataStore";
 import { useTank } from "@/hooks/useTank";
 
 const FarmSelector = () => {
@@ -26,13 +27,21 @@ const FarmSelector = () => {
   const {farms, setSelectedFarm, selectedFarm} = useFarmStore((state) => state);
   const {setSelectedTank} = useTankStore((state) => state);
   const {changeSelectedTank} = useTank();
-  
+  const {filters, setFilters, setMode} = useAppDataStore((state) => state);
 
   const handleFarmChange = (value) => {
     const selectedFarmId = value;
     const farm = farms.find((farm) => farm._id === selectedFarmId);
     if(farm){
       setSelectedFarm(farm);
+      setFilters({
+        ...filters,
+        dateRange: null,
+        selectedStatus: "all",
+        selectedSensor: "all",
+      });
+      setMode("realtime");
+
       if(farm.equipments.length > 0){
         changeSelectedTank(farm.equipments[0], farm._id);
       }else{

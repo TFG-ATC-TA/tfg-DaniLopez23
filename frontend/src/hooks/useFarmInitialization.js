@@ -1,13 +1,14 @@
 import { useEffect } from "react";
 import useFarmStore from "@/stores/useFarmStore";
+import useAppDataStore from "@/stores/useAppDataStore";
 import useTankStore from "@/stores/useTankStore";
 import useSocketStore from "@/stores/useSocketStore";
 import { getFarms } from "@/services/farm";
 
 export const useFarmInitialization = () => {
 
-  const { setFarms, setSelectedFarm, setServerStatus, selectedFarm } = useFarmStore((state) => state);
-
+  const { setFarms, setSelectedFarm } = useFarmStore((state) => state);
+  const { setServerStatus } = useAppDataStore((state) => state);
   const { setSelectedTank } = useTankStore((state) => state);
   const { joinRooms } = useSocketStore((state) => state);
 

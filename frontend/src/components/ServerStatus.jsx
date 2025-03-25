@@ -1,6 +1,3 @@
-'use client';
-
-import { useState } from "react";
 import { Server, Wifi, WifiOff, Info, RefreshCw } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -37,7 +34,6 @@ const StatusIndicator = ({ status, icon: Icon }) => {
 
 const ServerStatus = ({ serverStatus, webSocketServerStatus, mqttStatus }) => {
   const { retryInitialization } = useFarmInitialization();
-
   const handleRefresh = () => {
     retryInitialization();
   };

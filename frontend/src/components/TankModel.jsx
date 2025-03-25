@@ -1,5 +1,3 @@
-'use client';
-
 import { Canvas } from "@react-three/fiber";
 import useTankStore from "@/stores/useTankStore";
 import SelectedSensorData from "./sensorData/SelectedSensorData";

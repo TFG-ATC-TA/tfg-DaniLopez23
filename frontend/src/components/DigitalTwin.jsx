@@ -9,7 +9,7 @@ import TankModel from "./TankModel";
 import HistoricalDataFilter from "./HistoricalDataFilter";
 import { getHistoricalData } from "@/services/farm";
 import { getBoardIdsFromTank } from "@/services/tank";
-
+import useAppDataStore from "@/stores/useAppDataStore";
 import useFarmStore from "@/stores/useFarmStore";
 import useTankStore from "@/stores/useTankStore";
 
@@ -35,15 +35,9 @@ const DigitalTwin = ({
 
   const [historicalData, setHistoricalData] = useState(null);
   const [error, setError] = useState(null);
-  const { mode, setMode, selectedFarm } = useFarmStore((state) => state);
+  const { selectedFarm } = useFarmStore((state) => state);
+  const {filters, mode, setMode} = useAppDataStore((state) => state);
   const { selectedTank } = useTankStore();
-
-  const [filters, setFilters] = useState({
-    dateRange: null,
-    selectedStatus: "all",
-    selectedSensor: "all",
-    farm: selectedFarm.broker,
-  });
   
   const states = [];
   const boardIds = getBoardIdsFromTank(selectedTank);
@@ -124,11 +118,7 @@ const DigitalTwin = ({
               </div>
             )}
           </div>
-          <HistoricalDataFilter
-            filters={filters}
-            setFilters={setFilters}
-            mode={mode}
-          />
+          <HistoricalDataFilter />
         </div>
       </div>
     </div>
