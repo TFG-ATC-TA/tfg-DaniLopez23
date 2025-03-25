@@ -50,9 +50,9 @@ const DigitalTwin = ({
 
   const isHistoricalDataFethed =
     mode === "historical" &&
-    filters.dateRange &&
-    historicalData != "loading" &&
-    !error;
+    filters.dateRange 
+    // historicalData != "loading" && ADD THIS FOR CORRECT BEHAVIOR
+    //!error;
 
   useEffect(() => {
     if (mode === "historical" && filters.dateRange) {
