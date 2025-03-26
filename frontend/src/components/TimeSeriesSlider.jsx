@@ -12,20 +12,21 @@ import {
   parse,
   isWithinInterval,
 } from "date-fns"
-import { Play, Pause } from "lucide-react"
+import { Play, Pause, ChevronLeft, ChevronRight, Info } from "lucide-react"
 import * as SliderPrimitive from "@radix-ui/react-slider"
 import { cn } from "@/lib/utils"
 
 import { Button } from "@/components/ui/button"
-import DateSelector from "@/components/ui/DateSelector"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 
 // Define state colors - using actual CSS color values for direct styling
 const STATE_COLORS = {
-  MAINTENANCE: "#f59e0b", 
-  MILKING: "#97ff3a", 
+  MAINTENANCE: "#f59e0b",
+  MILKING: "#97ff3a",
   COOLING: "#4da1ff",
-  CLEANING: "#ff763a", 
-  "EMPTY TANK": "#bb82ff", 
+  CLEANING: "#ff763a",
+  "EMPTY TANK": "#bb82ff",
 }
 
 // Hardcoded intervals data
@@ -90,6 +91,133 @@ const stateData = {
   states: ["CLEANING", "COOLING", "EMPTY TANK", "MAINTENANCE", "MILKING"],
 }
 
+// State summary modal component
+const StateSummaryModal = ({ isOpen, onClose, intervals, currentDate }) => {
+  // Filter intervals for the current day
+  const dayIntervals = intervals.filter(
+    (interval) => isSameDay(interval.start, currentDate) || isSameDay(interval.end, currentDate),
+  )
+
+  // Calculate total duration for each state
+  const stateDurations = useMemo(() => {
+    const durations = {}
+
+    dayIntervals.forEach((interval) => {
+      let startTime = interval.start
+      let endTime = interval.end
+
+      if (!isSameDay(startTime, currentDate)) {
+        startTime = new Date(currentDate)
+        startTime.setHours(0, 0, 0, 0)
+      }
+
+      if (!isSameDay(endTime, currentDate)) {
+        endTime = new Date(currentDate)
+        endTime.setHours(23, 59, 59, 999)
+      }
+
+      const durationMinutes = (endTime - startTime) / (1000 * 60)
+
+      if (!durations[interval.state]) {
+        durations[interval.state] = 0
+      }
+
+      durations[interval.state] += durationMinutes
+    })
+
+    return durations
+  }, [dayIntervals, currentDate])
+
+  // Format minutes as hours and minutes
+  const formatDuration = (minutes) => {
+    const hours = Math.floor(minutes / 60)
+    const mins = Math.round(minutes % 60)
+    return `${hours}h ${mins}m`
+  }
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Tank State Summary</DialogTitle>
+          <DialogDescription>{format(currentDate, "EEEE, MMMM d, yyyy")}</DialogDescription>
+        </DialogHeader>
+
+        <div className="mt-4 space-y-4">
+          <div className="grid grid-cols-1 gap-3">
+            {Object.entries(stateDurations).map(([state, duration]) => (
+              <div key={state} className="flex items-center justify-between p-3 rounded-lg border">
+                <div className="flex items-center">
+                  <div className="w-4 h-4 rounded-full mr-3" style={{ backgroundColor: STATE_COLORS[state] }} />
+                  <span className="font-medium">{state}</span>
+                </div>
+                <div className="text-sm text-gray-600">{formatDuration(duration)}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="border-t pt-4">
+            <h4 className="text-sm font-medium mb-2">Timeline</h4>
+            <div className="space-y-2">
+              {dayIntervals.map((interval, index) => (
+                <div key={index} className="flex items-center text-sm">
+                  <span className="text-gray-500 w-20">{format(interval.start, "HH:mm")}</span>
+                  <span className="mx-2">-</span>
+                  <span className="text-gray-500 w-20">{format(interval.end, "HH:mm")}</span>
+                  <div
+                    className="ml-2 px-2 py-0.5 rounded-full text-xs text-white"
+                    style={{ backgroundColor: STATE_COLORS[interval.state] }}
+                  >
+                    {interval.state}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// Compact date selector component
+const CompactDateSelector = ({ startDate, endDate, currentDay, onChange }) => {
+  const totalDays = differenceInCalendarDays(endDate, startDate) + 1
+
+  const handlePrevDay = () => {
+    if (currentDay > 0) {
+      onChange(currentDay - 1)
+    }
+  }
+
+  const handleNextDay = () => {
+    if (currentDay < totalDays - 1) {
+      onChange(currentDay + 1)
+    }
+  }
+
+  const currentDate = addDays(startDate, currentDay)
+  const formattedDate = format(currentDate, "dd MMM yyyy")
+
+  return (
+    <div className="flex items-center space-x-1">
+      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handlePrevDay} disabled={currentDay === 0}>
+        <ChevronLeft className="h-4 w-4" />
+      </Button>
+      <span className="text-sm font-medium">{formattedDate}</span>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-7 w-7"
+        onClick={handleNextDay}
+        disabled={currentDay === totalDays - 1}
+      >
+        <ChevronRight className="h-4 w-4" />
+      </Button>
+    </div>
+  )
+}
+
 // Internal TimeSlider component
 const TimeSlider = ({
   value,
@@ -126,22 +254,25 @@ const TimeSlider = ({
   }
 
   return (
-    <div className={cn("relative pt-10 pb-10", className)} {...props}>
+    <div className={cn("relative pt-6 pb-6", className)} {...props}>
       {/* Current time display - positioned above the slider */}
       <div
-        className="absolute font-medium"
+        className="absolute font-medium bg-white px-1.5 py-0.5 rounded-md shadow-sm border text-xs"
         style={{
           left: `${((value - min) / (max - min)) * 100}%`,
-          transform: "translateX(-20%)",
-          top: "0px",
-          fontSize: "14px",
+          transform: "translateX(-50%)",
+          top: "-2px",
+          zIndex: 10,
         }}
       >
         {formatMinutesToTime(value)}
       </div>
 
       {/* Render interval segments */}
-      <div ref={sliderRef} className="absolute h-2 top-10 left-0 right-0 bg-gray-100 rounded-full overflow-hidden">
+      <div
+        ref={sliderRef}
+        className="absolute h-3 top-6 left-0 right-0 bg-gray-100 rounded-full overflow-hidden shadow-inner"
+      >
         {intervals.map((interval, index) => {
           // Calculate position and width as percentages
           const startPercent = ((interval.startValue - min) / (max - min)) * 100
@@ -150,22 +281,29 @@ const TimeSlider = ({
 
           // Get the color for this state
           const color = STATE_COLORS[interval.state]
-          const opacity = interval.isActive ? 1 : 0.4
+          const opacity = interval.isActive ? 1 : 0.6
 
           return (
-            <div
-              key={index}
-              style={{
-                position: "absolute",
-                height: "100%",
-                left: `${startPercent}%`,
-                width: `${widthPercent}%`,
-                backgroundColor: color,
-                opacity: opacity,
-                transition: "opacity 0.3s ease",
-              }}
-              title={interval.label}
-            />
+            <TooltipProvider key={index}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div
+                    style={{
+                      position: "absolute",
+                      height: "100%",
+                      left: `${startPercent}%`,
+                      width: `${widthPercent}%`,
+                      backgroundColor: color,
+                      opacity: opacity,
+                      transition: "opacity 0.3s ease",
+                    }}
+                  />
+                </TooltipTrigger>
+                <TooltipContent side="top" className="text-xs">
+                  {interval.label}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )
         })}
       </div>
@@ -176,38 +314,34 @@ const TimeSlider = ({
         value={[value]}
         min={min}
         max={max}
-        step={1}
+        step={15} // Set step to 15 minutes
         onValueChange={(vals) => onChange(vals[0])}
       >
-        <SliderPrimitive.Track className="relative h-2 w-full grow rounded-full bg-transparent">
+        <SliderPrimitive.Track className="relative h-3 w-full grow rounded-full bg-transparent">
           <SliderPrimitive.Range className="absolute h-full bg-transparent" />
         </SliderPrimitive.Track>
-        <SliderPrimitive.Thumb className="block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+        <SliderPrimitive.Thumb className="block h-5 w-5 rounded-full border-2 border-primary bg-white shadow-md ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
       </SliderPrimitive.Root>
 
       {/* Time labels */}
-      <div className="absolute left-0 right-0 mt-2 flex justify-between text-xs text-gray-500">
+      <div className="absolute left-0 right-0 mt-1 flex justify-between text-xs text-gray-500">
         <span>{formatMinutesToTime(min)}</span>
         <span>{formatMinutesToTime(max)}</span>
       </div>
+    </div>
+  )
+}
 
-      {/* Original marks (if any) */}
-      {marks.length > 0 &&
-        marks.map((mark, index) => {
-          const markPosition = ((mark.value - min) / (max - min)) * 100
-          return (
-            <div
-              key={`mark-${index}`}
-              className="absolute w-1 h-4 bg-gray-400"
-              style={{
-                left: `${markPosition}%`,
-                top: "10px",
-                transform: "translateX(-50%)",
-              }}
-              title={mark.label}
-            />
-          )
-        })}
+// Legend component to show state colors
+const StateLegend = ({ states }) => {
+  return (
+    <div className="flex flex-wrap gap-2 items-center">
+      {states.map((state) => (
+        <div key={state} className="flex items-center">
+          <div className="w-3 h-3 rounded-full mr-1" style={{ backgroundColor: STATE_COLORS[state] }} />
+          <span className="text-xs text-gray-600">{state}</span>
+        </div>
+      ))}
     </div>
   )
 }
@@ -216,6 +350,7 @@ export default function TimeSeriesSlider({ startDate, endDate, states = [] }) {
   const [currentDate, setCurrentDate] = useState(startDate)
   const [isPlaying, setIsPlaying] = useState(false)
   const [activeState, setActiveState] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const componentRef = useRef(null)
 
   // Parse intervals from the provided data
@@ -327,6 +462,10 @@ export default function TimeSeriesSlider({ startDate, endDate, states = [] }) {
     setIsPlaying(!isPlaying)
   }
 
+  const openModal = () => {
+    setIsModalOpen(true)
+  }
+
   // Add click outside handler to stop playback
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -359,40 +498,61 @@ export default function TimeSeriesSlider({ startDate, endDate, states = [] }) {
   }, [isPlaying, endDate])
 
   return (
-    <div className="w-full max-w-4xl bg-white shadow-sm rounded-lg p-6" ref={componentRef}>
-      <div className="flex items-start space-x-6">
-        <div className="w-1/3">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
-          <DateSelector startDate={startDate} endDate={endDate} currentDay={currentDay} onChange={handleDateChange} />
-        </div>
-        <div className="w-2/3">
-          <div className="flex items-center justify-between mb-2">
-            <label className="block text-sm font-medium text-gray-700">Time</label>
-            <div className="flex items-center">
-              {activeState && (
+    <div className="w-full bg-transparent" ref={componentRef}>
+      <div className="flex flex-col space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <CompactDateSelector
+              startDate={startDate}
+              endDate={endDate}
+              currentDay={currentDay}
+              onChange={handleDateChange}
+            />
+
+            {activeState && (
+              <div className="flex items-center">
                 <div
-                  className="mr-3 px-2 py-1 rounded text-xs text-white"
+                  className="px-2 py-0.5 rounded-full text-xs text-white font-medium ml-2"
                   style={{ backgroundColor: STATE_COLORS[activeState] }}
                 >
                   {activeState}
                 </div>
-              )}
-              <Button size="sm" variant="outline" onClick={togglePlay}>
-                {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-              </Button>
-            </div>
+                <Button variant="ghost" size="icon" className="h-6 w-6 ml-1" onClick={openModal}>
+                  <Info className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            )}
           </div>
-          <TimeSlider
-            value={currentDate.getHours() * 60 + currentDate.getMinutes()}
-            onChange={handleTimeChange}
-            marks={stateMarkers}
-            intervals={intervalMarkers}
-            min={handleTimeSliderLimits().minTime}
-            max={handleTimeSliderLimits().maxTime}
-            activeState={activeState}
-          />
+
+          <div className="flex items-center space-x-2">
+            <Button size="sm" variant="outline" onClick={togglePlay} className="h-7 w-7 p-0 rounded-full">
+              {isPlaying ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
+            </Button>
+          </div>
+        </div>
+
+        <TimeSlider
+          value={currentDate.getHours() * 60 + currentDate.getMinutes()}
+          onChange={handleTimeChange}
+          marks={stateMarkers}
+          intervals={intervalMarkers}
+          min={handleTimeSliderLimits().minTime}
+          max={handleTimeSliderLimits().maxTime}
+          activeState={activeState}
+          className="mx-1"
+        />
+
+        <div className="flex justify-center mt-1">
+          <StateLegend states={stateData.states} />
         </div>
       </div>
+
+      <StateSummaryModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        intervals={intervals}
+        currentDate={currentDate}
+      />
     </div>
   )
 }

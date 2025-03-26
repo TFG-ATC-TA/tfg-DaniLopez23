@@ -11,10 +11,7 @@ const Header = () => {
   const { webSocketServerStatus, mqttStatus } = useSocketStore((state) => state);
 
   const { serverStatus} = useAppDataStore((state) => state);
-
   
-  
-
   return (
     <div className="bg-white p-6 shadow-sm border-b flex justify-between items-center">
       <FarmSelector />
