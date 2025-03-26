@@ -5,9 +5,9 @@
   "main": "bin/www",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "cross-env NODE_ENV=production node bin/www",
-    "dev": "cross-env NODE_ENV=development DEBUG=app:*  nodemon -L bin/www",
-    "build": "cross-env NODE_ENV=production webpack --config webpack.config.js"
+    "start": "node bin/www",
+    "dev": "nodemon --legacy-watch -L bin/www",
+    "build": "webpack --config webpack.config.js"
   },
   "author": "Daniel Lopez Paredes",
   "license": "ISC",

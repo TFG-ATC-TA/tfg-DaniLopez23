@@ -1,4 +1,6 @@
-// TankSelector.jsx
+import useAppDataStore from "@/stores/useAppDataStore";
+import { useTank } from "@/hooks/useTank";
+
 import { useState } from "react";
 import { Info } from "lucide-react";
 import {
@@ -16,12 +18,31 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import useTankStore from "@/stores/useTankStore";
+import useFarmStore from "@/stores/useFarmStore";
 
-const TankSelector = ({ selectedTank, handleTankChange, farmData }) => {
+const TankSelector = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const getMilkTanks = (equipments) => {
     return equipments?.filter((tank) => tank.type === "Tanque de leche") || [];
   };
+
+  const { changeSelectedTank } = useTank();
+  const { filters, setFilters, setMode } = useAppDataStore((state) => state);
+  const { selectedTank } = useTankStore((state) => state);
+  const { selectedFarm } = useFarmStore((state) => state);
+  const handleTankChange = (tankId) => {
+    const tank = selectedFarm.equipments.find((tank) => tank._id === tankId);
+    setFilters({
+      ...filters,
+      dateRange: null,
+      selectedStatus: "all",
+      selectedSensor: "all",
+    });
+    setMode("realtime");
+    if (tank) changeSelectedTank(tank, selectedFarm._id);
+  };
+
   return (
     <div className="flex flex-col space-y-4">
       {/* Fila superior: Título y botón de información */}
@@ -75,12 +96,12 @@ const TankSelector = ({ selectedTank, handleTankChange, farmData }) => {
       </div>
 
       {/* Selector de tanque */}
-      {farmData.equipments?.length > 0 ? (<Select value={selectedTank?._id} onValueChange={handleTankChange}>
+      {selectedFarm.equipments?.length > 0 ? (<Select value={selectedTank?._id} onValueChange={handleTankChange}>
         <SelectTrigger className="w-[200px]">
           <SelectValue placeholder="Select a tank" />
         </SelectTrigger>
         <SelectContent>
-          {getMilkTanks(farmData?.equipments).map((tank) => (
+          {getMilkTanks(selectedFarm?.equipments).map((tank) => (
             <SelectItem key={tank._id} value={tank._id}>
               {tank.name}
             </SelectItem>

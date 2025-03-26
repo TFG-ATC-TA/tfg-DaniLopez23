@@ -15,7 +15,6 @@ const HistoricalDataFilter = () => {
     const newFilters = { ...filters, [key]: value }
     setFilters(newFilters)
   }
-  console.log(filters)
   const clearFilters = () => {
     setFilters({
       dateRange: null,
@@ -71,9 +70,8 @@ const HistoricalDataFilter = () => {
             <div className="space-y-2">
               <Label className="text-sm font-medium">Rango de Fechas</Label>
               <CustomDateRangePicker
-                value={filters.dateRange}
+                value={filters.dateRange || { from: undefined, to: undefined }}
                 onChange={(range) => handleFilterChange("dateRange", range)}
-                className="[&>button]:border [&>button]:rounded-lg [&>button]:hover:border-primary"
               />
             </div>
 

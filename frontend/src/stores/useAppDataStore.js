@@ -8,8 +8,8 @@ const useAppDataStore = create((set) => ({
   },
   mode: "realtime",
   serverStatus: { status: 'connecting', error: null },
-  setFilters: (filters) => set({ filters }),
-  setMode: (mode) => set({ mode }),
+  setFilters: (filters) => set({ filters: filters }),
+  setMode: (mode) => set({ mode: mode }),
   setServerStatus: (status) => set({ serverStatus: status }),
 }));
 export default useAppDataStore;

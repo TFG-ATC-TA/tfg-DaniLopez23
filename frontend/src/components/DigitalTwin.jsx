@@ -12,16 +12,19 @@ import { getBoardIdsFromTank } from "@/services/tank";
 import useAppDataStore from "@/stores/useAppDataStore";
 import useFarmStore from "@/stores/useFarmStore";
 import useTankStore from "@/stores/useTankStore";
+import useDataStore from "@/stores/useDataStore";
 
-const DigitalTwin = ({
-  encoderData,
-  milkQuantityData,
-  switchStatus,
-  weightData,
-  tankTemperaturesData,
-  airQualityData,
-  selectedData,
-}) => {
+const DigitalTwin = () => {
+
+  const {
+    encoderData,
+    milkQuantityData,
+    switchStatus,
+    weightData,
+    tankTemperaturesData,
+    airQualityData,
+    selectedData,
+  } = useDataStore((state) => state);
 
   const realTimeData = {
     encoderData,
