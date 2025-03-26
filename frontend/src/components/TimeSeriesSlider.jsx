@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useMemo, useEffect, useCallback, useRef } from "react"
 import {
   format,
@@ -92,6 +90,7 @@ const stateData = {
 }
 
 // State summary modal component
+
 const StateSummaryModal = ({ isOpen, onClose, intervals, currentDate }) => {
   // Filter intervals for the current day
   const dayIntervals = intervals.filter(
