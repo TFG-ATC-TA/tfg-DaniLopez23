@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      target: production
+    environment:
+      - PORT=3001
+    ports:
+      - "3001:3001"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    networks:
+      - tfg-digital-twin
+
+  frontend:
+    build:
+      context: ./frontend
+      target: production
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=http://tu-api.com
+    networks:
+      - tfg-digital-twin
+
+  ml-api:
+    build: ./ml-api
+    environment:
+      - ENVIRONMENT=production
+    ports:
+      - "8000:8000"
+    networks:
+      - tfg-digital-twin
+
+  influxdb:
+    image: influxdb:2.7
+    volumes:
+      - influxdb:/var/lib/influxdb
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=user
+      - DOCKER_INFLUXDB_INIT_PASSWORD=pass
+      - DOCKER_INFLUXDB_INIT_ORG=myorg
+      - DOCKER_INFLUXDB_INIT_BUCKET=mybucket
+    networks:
+      - tfg-digital-twin
+
+networks:
+  tfg-digital-twin:
+    driver: bridge
+
+volumes:
+  influxdb:

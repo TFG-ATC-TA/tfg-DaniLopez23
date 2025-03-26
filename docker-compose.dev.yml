@@ -1,34 +1,30 @@
 name: tfg-digital-twin
 
 services:
-  backend: 
-    build: 
+  backend:
+    build:
       context: ./backend
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    env_file: ./backend/.env
+      target: development
     volumes:
-      - ./backend:/app
-      - /app/node_modules
-    networks:
-      - tfg-digital-twin
+      - ./backend:/app       # Monta el código fuente
+      - /app/node_modules    # Evita sobrescribir dependencias
+    environment:
+      - NODE_ENV=development
     ports:
       - "3001:3001"
 
   frontend:
-    build: 
+    build:
       context: ./frontend
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    env_file: ./frontend/.env
+      target: development
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    networks:
-      - tfg-digital-twin
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:3001  # Variables aquí
     ports:
       - "5173:5173"
-    command: npm run dev -- --host
 
   ml-api:
     build: 

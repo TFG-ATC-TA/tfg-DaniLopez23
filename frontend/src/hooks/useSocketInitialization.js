@@ -3,13 +3,10 @@ import { createSocket } from "@/webSockets/Socket";
 import useSocketStore from "@/stores/useSocketStore";
 import useFarmStore from "@/stores/useFarmStore";
 import useDataStore from "@/stores/useDataStore";
-import useTankStore from "@/stores/useTankStore";
 
 export const useSocketInitialization = () => {
-  const { socket, setSocket, setMqttStatus, setWebSocketServerStatus } =
-    useSocketStore((state) => state);
+  const { socket, setSocket, setMqttStatus, setWebSocketServerStatus } = useSocketStore((state) => state);
   const { selectedFarm } = useFarmStore((state) => state);
-  const { selectedTank } = useTankStore((state) => state);
   const {
     updateEncoderData,
     updateGyroscopeData,

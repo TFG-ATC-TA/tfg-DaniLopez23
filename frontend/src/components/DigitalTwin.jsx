@@ -1,27 +1,31 @@
-import { useState, useEffect } from "react";
-import SensorDataTab from "./sensorData/SensorDataTab";
-import TankDate from "./TankDate";
-import TankStatus from "./TankStatus";
-import DataModeToggle from "./DataModeToogle";
-import TimeSeriesSlider from "./TimeSeriesSlider";
+"use client"
 
-import TankModel from "./TankModel";
-import HistoricalDataFilter from "./HistoricalDataFilter";
-import { getHistoricalData } from "@/services/farm";
-import { getBoardIdsFromTank } from "@/services/tank";
+import { useState, useEffect } from "react"
+import SensorDataTab from "./sensorData/SensorDataTab"
+import TankDate from "./TankDate"
+import TankStatus from "./TankStatus"
+import DataModeToggle from "./DataModeToogle"
+import TimeSeriesSlider from "./TimeSeriesSlider"
 
-import useFarmStore from "@/stores/useFarmStore";
-import useTankStore from "@/stores/useTankStore";
+import TankModel from "./TankModel"
+import HistoricalDataFilter from "./HistoricalDataFilter"
+import { getHistoricalData } from "@/services/farm"
+import { getBoardIdsFromTank } from "@/services/tank"
+import useAppDataStore from "@/stores/useAppDataStore"
+import useFarmStore from "@/stores/useFarmStore"
+import useTankStore from "@/stores/useTankStore"
+import useDataStore from "@/stores/useDataStore"
 
-const DigitalTwin = ({
-  encoderData,
-  milkQuantityData,
-  switchStatus,
-  weightData,
-  tankTemperaturesData,
-  airQualityData,
-  selectedData,
-}) => {
+const DigitalTwin = () => {
+  const {
+    encoderData,
+    milkQuantityData,
+    switchStatus,
+    weightData,
+    tankTemperaturesData,
+    airQualityData,
+    selectedData,
+  } = useDataStore((state) => state)
 
   const realTimeData = {
     encoderData,
@@ -31,51 +35,43 @@ const DigitalTwin = ({
     tankTemperaturesData,
     airQualityData,
     selectedData,
-  };
+  }
 
-  const [historicalData, setHistoricalData] = useState(null);
-  const [error, setError] = useState(null);
-  const { mode, setMode, selectedFarm } = useFarmStore((state) => state);
-  const { selectedTank } = useTankStore();
+  const [historicalData, setHistoricalData] = useState(null)
+  const [error, setError] = useState(null)
+  const { selectedFarm } = useFarmStore((state) => state)
+  const { filters, mode, setMode } = useAppDataStore((state) => state)
+  const { selectedTank } = useTankStore()
 
-  const [filters, setFilters] = useState({
-    dateRange: null,
-    selectedStatus: "all",
-    selectedSensor: "all",
-    farm: selectedFarm.broker,
-  });
-  
-  const states = [];
-  const boardIds = getBoardIdsFromTank(selectedTank);
+  const states = []
+  const boardIds = getBoardIdsFromTank(selectedTank)
 
-  const isHistoricalDataFethed =
-    mode === "historical" &&
-    filters.dateRange &&
-    historicalData != "loading" &&
-    !error;
+  const isHistoricalDataFethed = mode === "historical" && filters.dateRange
+  // historicalData != "loading" && ADD THIS FOR CORRECT BEHAVIOR
+  //!error;
 
   useEffect(() => {
     if (mode === "historical" && filters.dateRange) {
-      fetchHistoricalData();
+      fetchHistoricalData()
     }
-  }, [filters]);
+  }, [filters])
 
   const fetchHistoricalData = async () => {
     try {
-      setHistoricalData("loading");
+      setHistoricalData("loading")
       const data = await getHistoricalData({
         dateRangeFrom: filters.dateRange.from.toISOString(),
         dateRangeTo: filters.dateRange.to.toISOString(),
         boardIds: boardIds,
         farm: selectedFarm.broker,
-      });
-      setHistoricalData(data);
+      })
+      setHistoricalData(data)
     } catch (error) {
-      console.error("Error fetching historical data:", error);
-      setHistoricalData(null);
-      setError(error);
+      console.error("Error fetching historical data:", error)
+      setHistoricalData(null)
+      setError(error)
     }
-  };
+  }
 
   return selectedTank ? (
     <div className="flex h-screen overflow-hidden">
@@ -90,9 +86,7 @@ const DigitalTwin = ({
           <div className="flex-shrink-0 bg-white rounded-lg shadow-sm">
             <DataModeToggle
               isRealTime={mode === "realtime"}
-              onToggle={() =>
-                setMode(mode === "realtime" ? "historical" : "realtime")
-              }
+              onToggle={() => setMode(mode === "realtime" ? "historical" : "realtime")}
             />
           </div>
 
@@ -116,19 +110,11 @@ const DigitalTwin = ({
 
             {isHistoricalDataFethed && (
               <div className="px-4 py-3 border-t bg-gray-50">
-                <TimeSeriesSlider
-                  startDate={filters.dateRange.from}
-                  endDate={filters.dateRange.to}
-                  states={states}
-                />
+                <TimeSeriesSlider startDate={filters.dateRange.from} endDate={filters.dateRange.to} states={states} />
               </div>
             )}
           </div>
-          <HistoricalDataFilter
-            filters={filters}
-            setFilters={setFilters}
-            mode={mode}
-          />
+          <HistoricalDataFilter />
         </div>
       </div>
     </div>
@@ -136,7 +122,8 @@ const DigitalTwin = ({
     <div className="flex items-center justify-center h-full text-lg text-muted-foreground">
       <p>No tank selected</p>
     </div>
-  );
-};
+  )
+}
 
-export default DigitalTwin;
+export default DigitalTwin
+
