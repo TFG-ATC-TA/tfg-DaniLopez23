@@ -4,13 +4,13 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 const TankTemperatures = ({ tankTemperaturesData }) => {
   const { 
+    measurement,
     over_surface_temperature, 
     surface_temperature, 
     submerged_temperature,
-    sensorId,
+    tags,
     readableDate
   } = tankTemperaturesData || {};
-
   return (
     <Card className="ring-2 ring-red-200 bg-red-50/20">
       <CardHeader className="pb-2">
@@ -25,7 +25,7 @@ const TankTemperatures = ({ tankTemperaturesData }) => {
           <div className="space-y-1">
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Sensor ID:</span>
-              <span className="font-medium">{sensorId || 'N/A'}</span>
+              <span className="font-medium">{tags.board_id || 'N/A'}</span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Last Reading:</span>

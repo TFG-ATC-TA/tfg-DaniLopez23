@@ -3,7 +3,7 @@ import { RotateCw } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 const Encoder = ({ encoderData }) => {
-  const { value, sensorId, readableDate } = encoderData || {};
+  const { value, tags, readableDate } = encoderData || {};
   return (
     <Card className="ring-2 ring-green-200 bg-green-50/20">
       <CardHeader className="pb-2">
@@ -18,7 +18,7 @@ const Encoder = ({ encoderData }) => {
           <div className="space-y-1">
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Sensor ID:</span>
-              <span className="font-medium">{sensorId || 'N/A'}</span>
+              <span className="font-medium">{tags.board_id || 'N/A'}</span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Last Reading:</span>
