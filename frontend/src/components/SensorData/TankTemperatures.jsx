@@ -25,7 +25,7 @@ const TankTemperatures = ({ tankTemperaturesData }) => {
           <div className="space-y-1">
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Sensor ID:</span>
-              <span className="font-medium">{tags.board_id || 'N/A'}</span>
+              <span className="font-medium">{tags?.board_id || 'N/A'}</span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Last Reading:</span>
