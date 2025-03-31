@@ -58,20 +58,27 @@ const DigitalTwin = () => {
 
   const fetchHistoricalData = async () => {
     try {
-      setHistoricalData("loading")
+      console.log("Sending filters:", {
+        dateRangeFrom: filters.dateRange.from.toISOString(),
+        dateRangeTo: filters.dateRange.to.toISOString(),
+        boardIds: boardIds,
+        farm: selectedFarm.broker,
+      });
+  
+      setHistoricalData("loading");
       const data = await getHistoricalData({
         dateRangeFrom: filters.dateRange.from.toISOString(),
         dateRangeTo: filters.dateRange.to.toISOString(),
         boardIds: boardIds,
         farm: selectedFarm.broker,
-      })
-      setHistoricalData(data)
+      });
+      setHistoricalData(data);
     } catch (error) {
-      console.error("Error fetching historical data:", error)
-      setHistoricalData(null)
-      setError(error)
+      console.error("Error fetching historical data:", error);
+      setHistoricalData(null);
+      setError(error);
     }
-  }
+  };
 
   return selectedTank ? (
     <div className="flex h-screen overflow-hidden">

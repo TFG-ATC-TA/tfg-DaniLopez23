@@ -101,32 +101,6 @@ const HistoricalDataFilter = () => {
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Tipo de Sensor</Label>
-              <Select
-                value={filters.selectedSensor}
-                onValueChange={(value) => handleFilterChange("selectedSensor", value)}
-              >
-                <SelectTrigger className="w-full rounded-lg">
-                  <SelectValue placeholder="Seleccionar sensor" />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl">
-                  <SelectItem value="all" className="rounded-lg">
-                    Todos
-                  </SelectItem>
-                  <SelectItem value="temperature" className="rounded-lg">
-                    Temperatura
-                  </SelectItem>
-                  <SelectItem value="pressure" className="rounded-lg">
-                    Presión
-                  </SelectItem>
-                  <SelectItem value="volume" className="rounded-lg">
-                    Volumen
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
             <div className="flex items-center justify-between p-2 rounded-lg bg-muted/20">
               <Label className="text-sm font-medium">Mostrar anomalías</Label>
               <Switch

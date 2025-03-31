@@ -35,7 +35,7 @@ const connect = () => {
     isManuallyReconnecting = false;
     mqttClient.subscribe("#", (err) => {
       if (err) {
-        debug("MQTT Subscription Error: %O", err);
+        debug("MQTT Subscription Error: %O", err.message);
         webSocketsService.emitToAll("mqttStatus", {
           status: "subscriptionError",
           error: err.message,
@@ -62,7 +62,7 @@ const connect = () => {
         messageHandler(boardId, topic, processedData);
       }
     } catch (err) {
-      debug("MQTT Message Processing Error: %O", err);
+      debug("MQTT Message Processing Error: %O", err.message);
       webSocketsService.emitToAll("mqttStatus", {
         status: "messageError",
         error: err.message,
@@ -71,7 +71,7 @@ const connect = () => {
   });
 
   mqttClient.on("error", (err) => {
-    debug("MQTT Connection Error: %O", err);
+    debug("MQTT Connection Error: %O", err.message);
     webSocketsService.emitToAll("mqttStatus", {
       status: "error",
       error: err.message,
