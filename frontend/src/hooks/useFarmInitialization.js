@@ -28,7 +28,7 @@ export const useFarmInitialization = () => {
         const boardIds = firstMilkTank.devices
           .map((device) => device.boardId)
           .filter(Boolean);
-        joinRooms(boardIds, farmData._id);
+        joinRooms(boardIds, farmData.broker);
       }
       setServerStatus({ status: "connected", error: null });
     } catch (error) {

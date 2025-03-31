@@ -2,6 +2,7 @@ import { useEffect, useCallback } from "react";
 import { createSocket } from "@/webSockets/Socket";
 import useSocketStore from "@/stores/useSocketStore";
 import useDataStore from "@/stores/useDataStore";
+import { createSocketEventHandlers } from "@/webSockets/socketEventHandlers";
 
 export const useSocketInitialization = () => {
   const { setSocket, setMqttStatus, setWebSocketServerStatus } = useSocketStore((state) => state);
@@ -57,20 +58,10 @@ export const useSocketInitialization = () => {
       handleSocketError(error);
     }
     
-    const eventHandlers = {
-      "encoder": updateEncoderData,
-      "6_dof_imu": updateGyroscopeData,
-      "tank_distance": updateMilkQuantityData,
-      "tank_temperature_probes": updateTankTemperaturesData,
-      "magnetic_switch": updateSwitchStatus,
-      "weight": updateWeightData,
-      "air_quality": updateAirQualityData,
-    };
-
-    console.log("Static EventHandlers:", eventHandlers);
+    const eventHandlers = createSocketEventHandlers();
     Object.entries(eventHandlers).forEach(([event, handler]) => {
       socketInstance.on(event, handler);
-      console.log(`Listening to event: ${event}`);
+      console.log(`Socket event handler registered for ${event}`); // Verifica si el manejador de eventos se registra
     });
 
     return () => {

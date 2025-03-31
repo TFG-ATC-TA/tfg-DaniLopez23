@@ -25,7 +25,7 @@ function getDataByBoards(farmId, boards) {
     const boardData = sensorCache.get(`${farmId}-${boardId}`);
     if (boardData) {
       Object.entries(boardData).forEach(([sensorType, sensorData]) => {
-        result[`${boardId}-${sensorType}`] = sensorData;
+        result[sensorType] = sensorData;
       });
     }
   });
@@ -69,8 +69,8 @@ function updateSensorData(farmId, boardId, sensorType, message) {
  * Muestra el estado actual de la caché en la consola.
  */
 function printCache() {
-  console.log("Estado actual de la caché:");
-  console.log(
+  debug("Estado actual de la caché:");
+  debug(
     sensorCache.keys().map((key) => ({
       key,
       data: sensorCache.get(key),
