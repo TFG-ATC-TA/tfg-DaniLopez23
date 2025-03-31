@@ -3,8 +3,7 @@ import { create } from "zustand";
 const useAppDataStore = create((set) => ({
   filters: {
     dateRange: null,
-    selectedStatus: "all",
-    selectedSensor: "all",
+    selectedState: "all",
   },
   mode: "realtime",
   serverStatus: { status: 'connecting', error: null },

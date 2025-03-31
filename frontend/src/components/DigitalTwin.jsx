@@ -72,6 +72,7 @@ const DigitalTwin = () => {
         boardIds: boardIds,
         farm: selectedFarm.broker,
       });
+      setError(null);
       setHistoricalData(data);
     } catch (error) {
       console.error("Error fetching historical data:", error);
