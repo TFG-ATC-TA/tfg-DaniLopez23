@@ -19,10 +19,9 @@ const TankModel = ({
   fetchHistoricalData,
 }) => {
   const { selectedTank } = useTankStore((state) => state);
-
   const renderTankModel = () => {
     const data = mode === "realtime" ? realTimeData : historicalData;
-
+    const selectedData = realTimeData.selectedData
     if (mode === "historical" && !filters.dateRange) {
       return (
         <div className="flex items-center justify-center h-full">
@@ -49,7 +48,7 @@ const TankModel = ({
         </div>
       );
     }
-
+    
     if (mode === "historical" && error) {
       return (
         <div className="flex items-center justify-center h-full">
@@ -79,7 +78,7 @@ const TankModel = ({
             weightData={data?.weightData}
             tankTemperaturesData={data?.tankTemperaturesData}
             airQualityData={data?.airQualityData}
-            selectedData={data?.selectedData}
+            selectedData={selectedData}
           />
         );
       } else if (tankType === "vertical") {
@@ -91,7 +90,7 @@ const TankModel = ({
             weightData={data?.weightData}
             tankTemperaturesData={data?.tankTemperaturesData}
             airQualityData={data?.airQualityData}
-            selectedData={data?.selectedData}
+            selectedData={selectedData}
           />
         );
       } else {
@@ -103,7 +102,7 @@ const TankModel = ({
             weightData={data?.weightData}
             tankTemperaturesData={data?.tankTemperaturesData}
             airQualityData={data?.airQualityData}
-            selectedData={data?.selectedData}
+            selectedData={selectedData}
           />
         );
       }
@@ -117,7 +116,7 @@ const TankModel = ({
           <group>
             {selectTankDisplayType(selectedTank?.display, selectedTank?.blades)}
           </group>
-          <CameraSettings view={data?.selectedData} />
+          <CameraSettings view={selectedData} />
         </Suspense>
       </Canvas>
     );

@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 import { Sliders } from "lucide-react";
-import FilterComponent from "./HistoricalDataFilter";
+import HistoricalDataFilter from "./HistoricalDataFilter";
 import { useState } from "react";
 
 const FilterTab = ({ filters, setFilters, mode }) => {
@@ -10,7 +10,7 @@ const FilterTab = ({ filters, setFilters, mode }) => {
     <>
       {mode === "historical" && isFiltersVisible ? (
         <div className="w-80 overflow-hidden flex flex-col">
-          <FilterComponent
+          <HistoricalDataFilter
             filters={filters}
             setFilters={setFilters}
             onToggle={() => setIsFiltersVisible(false)}

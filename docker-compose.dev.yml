@@ -48,6 +48,7 @@ services:
       - .env
     volumes:
       - influxdb:/var/lib/influxdb
+
 networks:
   tfg-digital-twin:
     driver: bridge
