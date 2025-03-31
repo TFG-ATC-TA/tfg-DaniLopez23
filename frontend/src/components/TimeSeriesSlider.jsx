@@ -18,6 +18,8 @@ import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 
+import useAppDataStore from "@/stores/useAppDataStore"
+import { use } from "react"
 // Define state colors - using actual CSS color values for direct styling
 const STATE_COLORS = {
   MAINTENANCE: "#f59e0b",
@@ -88,6 +90,7 @@ const stateData = {
   ],
   states: ["CLEANING", "COOLING", "EMPTY TANK", "MAINTENANCE", "MILKING"],
 }
+
 
 // State summary modal component
 
@@ -352,6 +355,13 @@ export default function TimeSeriesSlider({ startDate, endDate, states = [] }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const componentRef = useRef(null)
 
+  const { setFilters } = useAppDataStore((state) => state)
+
+  useEffect(() => {
+    setFilters({ selectedDate: currentDate })
+  
+  }, [currentDate, setFilters])
+  
   // Parse intervals from the provided data
   const intervals = useMemo(() => {
     return stateData.intervals.map((interval) => ({

@@ -24,12 +24,12 @@ const queryApi = client.getQueryApi(org);
 
 // Ruta para obtener datos históricos
 HistoricalDataRouter.post("/", async (req, res) => {
-  const { farm, dateRangeFrom, dateRangeTo, boardIds } = req.body;
-  debug("Received filters:", { farm, dateRangeFrom, dateRangeTo, boardIds });
+  const { farm, date, boardIds } = req.body;
+  debug("Received filters:", { farm, date, boardIds });
 
   try {
     // Validate parameters
-    if (!dateRangeFrom || !dateRangeTo) {
+    if (!date) {
       return res.status(400).json({ message: "No date selected." });
     }
 
@@ -39,8 +39,13 @@ HistoricalDataRouter.post("/", async (req, res) => {
         .json({ message: "Must provide a valid array of board IDs." });
     }
 
-    const startDate = new Date(dateRangeFrom);
-    const stopDate = new Date(dateRangeTo);
+    //Coje las horas del dia seleccionado (desde las 00:00 hasta la hora de la fecha seleccionada)
+    const startDate = new Date(date);
+    startDate.setHours(0, 0, 0, 0); // Set to start of the day
+    const stopDate = new Date(date);
+    stopDate.setHours(23, 59, 59, 999); // Set to end of the day
+    debug("Start date:", startDate);
+    debug("Stop date:", stopDate);
 
     if (isNaN(startDate.getTime()) || isNaN(stopDate.getTime())) {
       return res.status(400).json({ message: "Fechas inválidas" });

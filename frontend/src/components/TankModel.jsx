@@ -19,7 +19,6 @@ const TankModel = ({
   fetchHistoricalData,
 }) => {
   const { selectedTank } = useTankStore((state) => state);
-  console.log(mode, error)
   const renderTankModel = () => {
     const data = mode === "realtime" ? realTimeData : historicalData;
     const selectedData = realTimeData.selectedData

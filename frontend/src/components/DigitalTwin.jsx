@@ -54,21 +54,19 @@ const DigitalTwin = () => {
     if (mode === "historical" && filters.dateRange) {
       fetchHistoricalData()
     }
-  }, [filters])
+  }, [filters.selectedDate])
 
   const fetchHistoricalData = async () => {
     try {
       console.log("Sending filters:", {
-        dateRangeFrom: filters.dateRange.from.toISOString(),
-        dateRangeTo: filters.dateRange.to.toISOString(),
+        selectedDate: filters.selectedDate,
         boardIds: boardIds,
         farm: selectedFarm.broker,
       });
   
       setHistoricalData("loading");
       const data = await getHistoricalData({
-        dateRangeFrom: filters.dateRange.from.toISOString(),
-        dateRangeTo: filters.dateRange.to.toISOString(),
+        date: filters.selectedDate,
         boardIds: boardIds,
         farm: selectedFarm.broker,
       });
