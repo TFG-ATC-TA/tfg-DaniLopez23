@@ -18,7 +18,7 @@ const initializeWebSocket = (server) => {
     let currentRooms = new Set(); // Almacena las rooms a las que está conectado el socket
 
     socket.on("selectTank", (farmId, boards) => {
-      debug(`Client ${socket.id} selected Farm-Tank: ${farmId} - ${boards}`);
+      debug(`Client ${socket.id} selected Farm-Tank: ${farmId}/[${boards}]`);
       if (!farmId) {
         debug("Invalid input for selectFarmAndTank. Expected farmId.");
         return;
@@ -29,7 +29,7 @@ const initializeWebSocket = (server) => {
         return;
       }
 
-      const newRooms = new Set(boards.map((boardId) => `${farmId}-${boardId}`));
+      const newRooms = new Set(boards.map((boardId) => `${farmId}/${boardId}`));
 
       // Salir de las rooms que ya no están en los nuevos boardIds
       for (const room of currentRooms) {
@@ -75,15 +75,21 @@ const initializeWebSocket = (server) => {
 };
 
 // Función para emitir mensajes solo a la room del tanque seleccionado
-const emitToTank = (boardId, event, data) => {
-  if (boardId === undefined) {
+const emitToTank = (farmId, boardId, event, data) => {
+  
+  if (!farmId) {
+    debug("Invalid input for emitToTank. Expected farmId.");
+    return;
+  }
+  
+  if (!boardId) {
     debug("No tank selected");
     return;
   }
 
   if (io) {
-    io.to(boardId).emit(event, data);
-    debug(`Emitting to room ${boardId}: ${event}`);
+    io.to(`${farmId}/${boardId}`).emit(event, data);
+    debug(`Emitting to room ${farmId}/${boardId}: ${event}`);
   }
 };
 

@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 const Encoder = ({ encoderData }) => {
   const { value, sensorId, readableDate } = encoderData || {};
-
+  console.log("Encoder Data:", encoderData);
   return (
     <Card className="ring-2 ring-green-200 bg-green-50/20">
       <CardHeader className="pb-2">

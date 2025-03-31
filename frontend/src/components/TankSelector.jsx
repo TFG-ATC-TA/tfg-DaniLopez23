@@ -40,7 +40,7 @@ const TankSelector = () => {
       selectedSensor: "all",
     });
     setMode("realtime");
-    if (tank) changeSelectedTank(tank, selectedFarm._id);
+    if (tank) changeSelectedTank(tank, selectedFarm.broker);
   };
 
   return (

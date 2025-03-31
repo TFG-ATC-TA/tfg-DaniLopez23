@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Activity, Radio } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import SensorInfoItem from "./SensorInfoItem";
 import { CircleX } from "lucide-react";

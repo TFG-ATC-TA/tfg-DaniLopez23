@@ -43,8 +43,11 @@ app.use("/historical-data", historicalDataRouter);
 app.use("/equipments", equipmentRouter)
 
 // Establece el manejador para los mensajes entrantes desde MQTT
-mqttService.setMessageHandler((boardId, topic, data) => {  
-  webSocketsService.emitToTank(boardId ,topic, data);
+mqttService.setMessageHandler((farmId, boardId, topic, data) => {
+  
+  const event = topic.split("/").pop(); // Obtiene el último segmento del topic como evento
+  
+  webSocketsService.emitToTank(farmId, boardId ,event, data);
 });
 
 module.exports = { app, server };

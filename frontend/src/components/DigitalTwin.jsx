@@ -46,9 +46,7 @@ const DigitalTwin = () => {
   const states = []
   const boardIds = getBoardIdsFromTank(selectedTank)
 
-  const isHistoricalDataFethed = mode === "historical" && filters.dateRange
-  // historicalData != "loading" && ADD THIS FOR CORRECT BEHAVIOR
-  //!error;
+  const isHistoricalDataFethed = mode === "historical" && filters.dateRange && historicalData != "loading" && !error;
 
   useEffect(() => {
     if (mode === "historical" && filters.dateRange) {

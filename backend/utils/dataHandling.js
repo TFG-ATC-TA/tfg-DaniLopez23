@@ -1,5 +1,5 @@
 const topics = require("./topics");
-
+const debug = require("debug")("app:dataHandling");
 const TANK_HEIGHT = 4000; // 2000 mm ; 2m
 
 const getTankTemperaturesData = (rawData) => {
@@ -47,7 +47,7 @@ const getGyroscopeData = (rawData) => {
 
     return result;
   } catch (error) {
-    console.log(
+    debug(
       "ERROR WHILE PARSING MESSAGE (STRING) TO JSON (OBJECT) : ",
       error
     );
@@ -76,7 +76,7 @@ const getMilkQuantityData = (rawData) => {
 
     return result;
   } catch (error) {
-    console.log(
+    debug(
       "ERROR WHILE PARSING MESSAGE (STRING) TO JSON (OBJECT) : ",
       error
     );
@@ -97,8 +97,6 @@ const getAirQualityData = (rawData) => {
     readableDate: readableDate,
     airQuality: lastObject.fields,
   };
-
-  console.log("Air quality data: ", result);
 
   return result;
 };
@@ -194,28 +192,32 @@ const getBoardStatusData = (rawData) => {
 };
 
 const topicHandlers = {
-  "synthetic-farm-1/6_dof_imu": getGyroscopeData,
-  "synthetic-farm-1/tank_temperature_probes": getTankTemperaturesData,
-  "synthetic-farm-1/tank_distance": getMilkQuantityData,
-  "synthetic-farm-1/air_quality": getAirQualityData,
-  "synthetic-farm-1/weight": getWeightData,
-  "synthetic-farm-1/magnetic_switch": getMagneticSwitchData,
-  "synthetic-farm-1/encoder": getEncoderData,
-  "synthetic-farm-1/board_temperature": getBoardTemperatureData,
-  "synthetic-farm-1/board_status": getBoardStatusData,
+  "6_dof_imu": getGyroscopeData,
+  "tank_temperature_probes": getTankTemperaturesData,
+  "tank_distance": getMilkQuantityData,
+  "air_quality": getAirQualityData,
+  "weight": getWeightData,
+  "magnetic_switch": getMagneticSwitchData,
+  "encoder": getEncoderData,
+  "board_temperature": getBoardTemperatureData,
+  "board_status": getBoardStatusData,
 };
 
 const processData = (topic, rawData) => {
+
   if (!topics) {
-    console.log("Topics not initialized yet");
+    debug("Topics not initialized yet");
     return null;
   }
 
-  const handler = topicHandlers[topic];
+  const topicParts = topic.split("/");
+  const topicName = topicParts[topicParts.length - 1];
+  const handler = topicHandlers[topicName];
+
   if (handler) {
     return handler(rawData);
   } else {
-    console.log("Topic not found");
+    debug("Topic not found");
     return null;
   }
 };

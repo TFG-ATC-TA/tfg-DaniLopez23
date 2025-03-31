@@ -43,7 +43,7 @@ const FarmSelector = () => {
       setMode("realtime");
 
       if(farm.equipments.length > 0){
-        changeSelectedTank(farm.equipments[0], farm._id);
+        changeSelectedTank(farm.equipments[0], farm.broker);
       }else{
         setSelectedTank(null);
       }
