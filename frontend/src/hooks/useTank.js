@@ -8,6 +8,7 @@ export const useTank = () => {
   const changeSelectedTank = useCallback(
     (newTank, farmId) => {
       // Select the new tank
+
       setSelectedTank(newTank);
       // Join the rooms for the new tank
       if (newTank.devices && Array.isArray(newTank.devices)) {

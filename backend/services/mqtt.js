@@ -48,7 +48,7 @@ const connect = () => {
   });
 
   mqttClient.on("message", (topic, message) => {
-    try {
+
       const processedData = dataHandling.processData(topic, message);
       const farmId = topic.split("/")[0];
       const boardId = processedData.tags.board_id;
@@ -59,15 +59,9 @@ const connect = () => {
       }
 
       if (messageHandler) {
-        messageHandler(boardId, topic, processedData);
+        messageHandler(farmId, boardId, topic, processedData);
       }
-    } catch (err) {
-      debug("MQTT Message Processing Error: %O", err.message);
-      webSocketsService.emitToAll("mqttStatus", {
-        status: "messageError",
-        error: err.message,
-      });
-    }
+
   });
 
   mqttClient.on("error", (err) => {

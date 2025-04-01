@@ -1,6 +1,4 @@
 import useDataStore from "@/stores/useDataStore";
-import useFarmStore from "@/stores/useFarmStore";
-
 
 export const createSocketEventHandlers = () => {
   const {
@@ -13,17 +11,16 @@ export const createSocketEventHandlers = () => {
     updateAirQualityData,
   } = useDataStore.getState(); // Accede a las funciones del store directamente
 
-  const {farm} = useFarmStore.getState(); 
-  const farmId = farm?.id;
   return {
-    [`${farmId}/encoder`]: updateEncoderData,
-    [`${farmId}/6_dof_imu`]: updateGyroscopeData,
-    [`${farmId}/tank_distance`]: updateMilkQuantityData,
-    [`${farmId}/tank_temperature_probes`]: updateTankTemperaturesData,
-    [`${farmId}/magnetic_switch`]: updateSwitchStatus,
-    [`${farmId}/weight`]: updateWeightData,
-    [`${farmId}/air_quality`]: updateAirQualityData,
-    "lastData": (data) => {
+    [`encoder`]: updateEncoderData,
+    [`6_dof_imu`]: updateGyroscopeData,
+    [`tank_distance`]: updateMilkQuantityData,
+    [`tank_temperature_probes`]: updateTankTemperaturesData,
+    [`magnetic_switch`]: updateSwitchStatus,
+    [`weight`]: updateWeightData,
+    [`air_quality`]: updateAirQualityData,
+    "last data": (data) => {
+      console.log("Received last data:", data); // Verifica si se recibe el evento correctamente
       if (data.encoder) updateEncoderData(data.encoder);
       if (data["6_dof_imu"]) updateGyroscopeData(data["6_dof_imu"]);
       if (data.tank_distance) updateMilkQuantityData(data.tank_distance);

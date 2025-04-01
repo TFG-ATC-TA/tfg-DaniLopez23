@@ -86,19 +86,16 @@ export function HorizontalTank2Blades({
       />
       <CallOutText
         position={[0, 2.75, 1.1]}
-        value={`${encoderData?.value ?? "No data"}`}
         title={"Encoder"}
-        radius={0.05}
+        value={`${encoderData?.value ?? "No data"}`}
       />
       <CallOutText
         position={[0, 2.75, -1.1]}
         title={"Encoder"}
-        text={`${encoderData?.value ?? "No data"}`}
-        radius={0.05}
+        value={`${encoderData?.value ?? "No data"}`}
       />
     </>
   );
-
   const renderMagneticSwitch = () => (
     <>
       <animated.mesh
@@ -109,14 +106,14 @@ export function HorizontalTank2Blades({
       />
       <CallOutText
         position={[0, 2.75, 0]}
-        text={`${
-          switchStatus == null
+        title={"Magnetic Switch"}
+        value={`${
+          switchStatus === null
             ? "No Data"
             : switchStatus.status
             ? "Open"
             : "Closed"
         }`}
-        title={"Magnetic Switch"}
       />
     </>
   );

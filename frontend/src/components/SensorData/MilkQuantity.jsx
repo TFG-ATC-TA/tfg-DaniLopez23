@@ -1,11 +1,9 @@
-import React from "react";
 import { Droplet } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 const MilkQuantity = ({ milkQuantityData }) => {
   const percentage = milkQuantityData?.milkQuantity || null;
   const fillHeight = percentage ? `${percentage}%` : '0%';
-
   return (
     <Card className="ring-2 ring-blue-200 bg-blue-50/20">
       <CardHeader className="pb-2">
@@ -20,8 +18,8 @@ const MilkQuantity = ({ milkQuantityData }) => {
           {/* Sección de información del sensor */}
           <div className="space-y-1">
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground">Sensor ID:</span>
-              <span className="font-medium">{milkQuantityData?.sensorId || 'N/A'}</span>
+              <span className="text-muted-foreground">Board ID:</span>
+              <span className="font-medium">{milkQuantityData?.tags.board_id || 'N/A'}</span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Last Reading:</span>
