@@ -110,7 +110,7 @@ export function HorizontalTank2Blades({
         value={`${
           switchStatus === null
             ? "No Data"
-            : switchStatus.status
+            : switchStatus?.status
             ? "Open"
             : "Closed"
         }`}

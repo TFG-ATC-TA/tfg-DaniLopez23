@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import SensorDataTab from "./sensorData/SensorDataTab"
 import TankDate from "./TankDate"
 import TankStatus from "./TankStatus"
@@ -40,31 +40,36 @@ const DigitalTwin = () => {
   const [historicalData, setHistoricalData] = useState(null)
   const [error, setError] = useState(null)
   const { selectedFarm } = useFarmStore((state) => state)
-  const { filters, mode, setMode } = useAppDataStore((state) => state)
+  const { filters, mode, setMode, setFilters } = useAppDataStore((state) => state)
   const { selectedTank } = useTankStore()
+  const [prevDateRange, setPrevDateRange] = useState(null)
+  const [prevSelectedDate, setPrevSelectedDate] = useState(null)
+  const isInitialMount = useRef(true)
 
   const states = []
   const boardIds = getBoardIdsFromTank(selectedTank)
 
   const isHistoricalDataFethed = mode === "historical" && filters.dateRange && historicalData != "loading" && !error;
 
-  useEffect(() => {
-    if (mode === "historical" && filters.dateRange) {
-      fetchHistoricalData()
-    }
-  }, [filters.selectedDate])
-
-  const fetchHistoricalData = async () => {
+  const fetchHistoricalData = useCallback(async () => {
     try {
+      // Determinar la fecha a usar (selectedDate o el primer día del rango)
+      const dateToUse = filters.selectedDate || (filters.dateRange ? filters.dateRange.from : null);
+      
+      if (!dateToUse) {
+        console.warn("No date available for fetching historical data");
+        return;
+      }
+      
       console.log("Sending filters:", {
-        selectedDate: filters.selectedDate,
+        selectedDate: dateToUse,
         boardIds: boardIds,
         farm: selectedFarm.broker,
       });
   
       setHistoricalData("loading");
       const data = await getHistoricalData({
-        date: filters.selectedDate,
+        date: dateToUse,
         boardIds: boardIds,
         farm: selectedFarm.broker,
       });
@@ -75,7 +80,58 @@ const DigitalTwin = () => {
       setHistoricalData(null);
       setError(error);
     }
-  };
+  }, [filters.selectedDate, filters.dateRange, boardIds, selectedFarm?.broker]);
+  
+  // Efecto para detectar cambios en el rango de fechas
+  useEffect(() => {
+    // Evitar la ejecución en el montaje inicial
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    
+    if (mode === "historical" && filters.dateRange) {
+      const currentRangeFrom = filters.dateRange.from?.getTime();
+      const prevRangeFrom = prevDateRange?.from?.getTime();
+      
+      // Solo si el rango ha cambiado realmente
+      if (currentRangeFrom !== prevRangeFrom) {
+        // Si no hay selectedDate o si selectedDate no está dentro del nuevo rango,
+        // establecer selectedDate al primer día del rango
+        if (!filters.selectedDate || 
+            filters.selectedDate.getTime() < filters.dateRange.from.getTime() ||
+            filters.selectedDate.getTime() > filters.dateRange.to.getTime()) {
+          
+          console.log("Setting selectedDate to first day of range");
+          setFilters({
+            ...filters,
+            selectedDate: filters.dateRange.from
+          });
+        }
+        
+        setPrevDateRange(filters.dateRange);
+      }
+    }
+  }, [mode, filters.dateRange, prevDateRange, setFilters, filters]);
+  
+  // Efecto para hacer fetch cuando cambia selectedDate
+  useEffect(() => {
+    if (mode === "historical" && filters.selectedDate) {
+      const currentSelectedDate = filters.selectedDate?.getTime();
+      const prevDate = prevSelectedDate?.getTime();
+      
+      // Solo si la fecha seleccionada ha cambiado realmente o es la primera carga
+      if (currentSelectedDate !== prevDate || isInitialMount.current) {
+        console.log("Selected date changed, fetching data");
+        fetchHistoricalData();
+        setPrevSelectedDate(filters.selectedDate);
+        
+        if (isInitialMount.current) {
+          isInitialMount.current = false;
+        }
+      }
+    }
+  }, [filters.selectedDate, fetchHistoricalData, mode, prevSelectedDate]);
 
   return selectedTank ? (
     <div className="flex h-screen overflow-hidden">
@@ -130,4 +186,3 @@ const DigitalTwin = () => {
 }
 
 export default DigitalTwin
-

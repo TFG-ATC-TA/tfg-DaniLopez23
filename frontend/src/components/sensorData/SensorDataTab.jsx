@@ -7,6 +7,7 @@ import { CircleX } from "lucide-react";
 const SensorDataTab = ({ historicalData, mode }) => {
   const [isSensorsTabVisible, setIsSensorsTabVisible] = useState(true);
 
+  
   // If sensors tab is collapsed, show only the toggle button
   if (!isSensorsTabVisible) {
     return (

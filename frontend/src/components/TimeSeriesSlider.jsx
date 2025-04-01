@@ -10,7 +10,7 @@ import {
   parse,
   isWithinInterval,
 } from "date-fns"
-import { Play, Pause, ChevronLeft, ChevronRight, Info } from "lucide-react"
+import { Play, Pause, ChevronLeft, ChevronRight, Info, RefreshCw } from 'lucide-react'
 import * as SliderPrimitive from "@radix-ui/react-slider"
 import { cn } from "@/lib/utils"
 
@@ -19,7 +19,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 
 import useAppDataStore from "@/stores/useAppDataStore"
-import { use } from "react"
+
 // Define state colors - using actual CSS color values for direct styling
 const STATE_COLORS = {
   MAINTENANCE: "#f59e0b",
@@ -91,9 +91,7 @@ const stateData = {
   states: ["CLEANING", "COOLING", "EMPTY TANK", "MAINTENANCE", "MILKING"],
 }
 
-
 // State summary modal component
-
 const StateSummaryModal = ({ isOpen, onClose, intervals, currentDate }) => {
   // Filter intervals for the current day
   const dayIntervals = intervals.filter(
@@ -355,12 +353,7 @@ export default function TimeSeriesSlider({ startDate, endDate, states = [] }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const componentRef = useRef(null)
 
-  const { setFilters } = useAppDataStore((state) => state)
-
-  useEffect(() => {
-    setFilters({ selectedDate: currentDate })
-  
-  }, [currentDate, setFilters])
+  const { filters, setFilters } = useAppDataStore((state) => state)
   
   // Parse intervals from the provided data
   const intervals = useMemo(() => {
@@ -371,6 +364,7 @@ export default function TimeSeriesSlider({ startDate, endDate, states = [] }) {
     }))
   }, [])
 
+  // Modificado: Ahora actualiza selectedDate en el store global cuando se cambia de día
   const handleDateChange = (newDay) => {
     const newDate = addDays(startDate, newDay)
 
@@ -383,7 +377,11 @@ export default function TimeSeriesSlider({ startDate, endDate, states = [] }) {
       adjustedDate = setMinutes(setHours(newDate, 0), 0)
     }
 
+    // Actualizar la fecha actual en el componente
     setCurrentDate(adjustedDate)
+    
+    // Actualizar selectedDate en el store global para desencadenar la petición al backend
+    setFilters({...filters, selectedDate: adjustedDate})
   }
 
   const handleTimeChange = useCallback(
@@ -398,6 +396,11 @@ export default function TimeSeriesSlider({ startDate, endDate, states = [] }) {
     },
     [endDate],
   )
+
+  // Función para cargar datos explícitamente para el tiempo actual
+  const loadDataForCurrentTime = () => {
+    setFilters({...filters, selectedDate: currentDate });
+  }
 
   const formatTime = useCallback((date) => format(date, "HH:mm"), [])
 
@@ -489,6 +492,7 @@ export default function TimeSeriesSlider({ startDate, endDate, states = [] }) {
     }
   }, [])
 
+  // Efecto para la reproducción automática
   useEffect(() => {
     let intervalId
     if (isPlaying) {
@@ -505,6 +509,13 @@ export default function TimeSeriesSlider({ startDate, endDate, states = [] }) {
     }
     return () => clearInterval(intervalId)
   }, [isPlaying, endDate])
+
+  // Sincronizar currentDate con selectedDate al montar el componente
+  useEffect(() => {
+    if (filters.selectedDate) {
+      setCurrentDate(filters.selectedDate)
+    }
+  }, [filters.selectedDate])
 
   return (
     <div className="w-full bg-transparent" ref={componentRef}>
@@ -534,6 +545,16 @@ export default function TimeSeriesSlider({ startDate, endDate, states = [] }) {
           </div>
 
           <div className="flex items-center space-x-2">
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={loadDataForCurrentTime} 
+              className="h-7 px-2 text-xs flex items-center gap-1"
+              title="Cargar datos para este momento"
+            >
+              <RefreshCw className="h-3 w-3" />
+              Cargar datos
+            </Button>
             <Button size="sm" variant="outline" onClick={togglePlay} className="h-7 w-7 p-0 rounded-full">
               {isPlaying ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
             </Button>
@@ -565,4 +586,3 @@ export default function TimeSeriesSlider({ startDate, endDate, states = [] }) {
     </div>
   )
 }
-
