@@ -2,7 +2,7 @@ import { Droplet } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 const MilkQuantity = ({ milkQuantityData }) => {
-  const percentage = milkQuantityData?.milkQuantity || null;
+  const percentage = milkQuantityData?.value || null;
   const fillHeight = percentage ? `${percentage}%` : '0%';
   return (
     <Card className="ring-2 ring-blue-200 bg-blue-50/20">

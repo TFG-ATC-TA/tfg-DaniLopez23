@@ -5,10 +5,6 @@ const HistoricalDataRouter = express.Router();
 debug = require("debug")("app:controllers:HistoricalData");
 
 // Configuración de InfluxDB
-// const token = config.influxDB.INFLUX_TOKEN;
-// const org = config.influxDB.INFLUX_ORG;
-// const url = config.influxDB.INFLUX_URL;
-
 const token = config.influxDB.LOCAL_INFLUX_TOKEN;
 const org = config.influxDB.LOCAL_INFLUX_ORG;
 const url = config.influxDB.LOCAL_INFLUX_URL;
@@ -28,7 +24,6 @@ HistoricalDataRouter.post("/", async (req, res) => {
   debug("Received filters:", { farm, date, boardIds });
 
   try {
-    // Validación de parámetros
     if (!date) {
       return res.status(400).json({ message: "No date selected." });
     }
@@ -39,7 +34,6 @@ HistoricalDataRouter.post("/", async (req, res) => {
         .json({ message: "Must provide a valid array of board IDs." });
     }
 
-    // Rango de fechas
     const startDate = new Date(date);
     startDate.setHours(0, 0, 0, 0);
     const stopDate = new Date(date);
@@ -52,7 +46,6 @@ HistoricalDataRouter.post("/", async (req, res) => {
     const start = startDate.toISOString();
     const stop = stopDate.toISOString();
 
-    // Validación de boardIds
     const validBoardIds = boardIds.filter(
       (id) => typeof id === "string" && id.trim() !== ""
     );
@@ -63,7 +56,6 @@ HistoricalDataRouter.post("/", async (req, res) => {
         .json({ message: "All provided board IDs are invalid." });
     }
 
-    // Query de InfluxDB
     const fluxQuery = `
       from(bucket: "${farm}")
         |> range(start: ${start}, stop: ${stop})
@@ -77,10 +69,8 @@ HistoricalDataRouter.post("/", async (req, res) => {
 
     debug("Executing query:", fluxQuery);
 
-    // Ejecutar consulta
     const result = await queryApi.collectRows(fluxQuery);
 
-    // Formatear respuesta
     const formattedResult = {};
 
     result.forEach((row) => {
@@ -91,39 +81,61 @@ HistoricalDataRouter.post("/", async (req, res) => {
         timeZone: "UTC",
       });
 
-      const measurement = row._measurement;
-      const field = row._field;
-      const value = row._value;
-      const boardId = row.tags_board_id;
-      const sensorId = row.tags_sensor_id;
+      const {
+        _measurement: measurement,
+        _field: field,
+        _value: value,
+        tags_board_id: boardId,
+        tags_sensor_id: sensorId,
+        ...tags
+      } = row;
 
-      // Inicializar hora si no existe
+      // Determine the key for the formatted result based on the measurement
+      const measurementMap = {
+        '6_dof_imu': 'gyroscopeData',
+        'air_quality': 'airQualityData',
+        'encoder': 'encoderData',
+        'magnetic_switch': 'switchStatus',
+        'tank_distance': 'milkQuantityData',
+        'weight': 'weightData',
+        'temperature_probe': 'tankTemperaturesData'
+      };
+      
+      const key = measurementMap[measurement] || measurement;
+
       if (!formattedResult[time]) {
         formattedResult[time] = {};
       }
 
-      // Inicializar lista de sensores para la medición si no existe
-      if (!formattedResult[time][measurement]) {
-        formattedResult[time][measurement] = [];
-      }
-
-      // Buscar si ya existe un objeto con el mismo boardId y sensorId
-      let sensorData = formattedResult[time][measurement].find(
-        (entry) => entry.board_id === boardId && entry.sensor_id === sensorId
-      );
-
-      // Si no existe, creamos uno nuevo
-      if (!sensorData) {
-        sensorData = {
-          values: {},
-          board_id: boardId,
-          sensor_id: sensorId,
+      if (!formattedResult[time][key]) {
+        formattedResult[time][key] = {
+          measurement,
+          tags: {
+            board_id: boardId,
+            sensor_id: sensorId,
+            ...tags,
+          },
+          readableDate: new Date(row._time).toLocaleString("en-US", {
+            timeZone: "UTC",
+          }),
+          value: measurement === "6_dof_imu" ? {} : value, // Initialize value as an object for gyroscope data
+          sensorData: {},
         };
-        formattedResult[time][measurement].push(sensorData);
       }
 
-      // Añadir el valor al campo values
-      sensorData.values[field] = value;
+      // Add sensor-specific data
+      if (!formattedResult[time][key].sensorData[sensorId]) {
+        formattedResult[time][key].sensorData[sensorId] = {};
+      }
+
+      if (measurement === "6_dof_imu") {
+        // For gyroscope data, store multiple fields in the value
+        formattedResult[time][key].value[field] = value;
+        formattedResult[time][key].sensorData[sensorId][field] = value;
+      } else {
+        // For other measurements, store a single value
+        formattedResult[time][key].sensorData[sensorId] = { value };
+      }
     });
 
     return res.status(200).json(formattedResult);
@@ -134,7 +146,5 @@ HistoricalDataRouter.post("/", async (req, res) => {
       .json({ message: "Error executing query", error: error.message });
   }
 });
-
-
 
 module.exports = HistoricalDataRouter;

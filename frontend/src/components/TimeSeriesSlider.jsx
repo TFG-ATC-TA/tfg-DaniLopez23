@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useMemo, useEffect, useCallback, useRef } from "react"
 import {
   format,
@@ -10,7 +12,7 @@ import {
   parse,
   isWithinInterval,
 } from "date-fns"
-import { Play, Pause, ChevronLeft, ChevronRight, Info, RefreshCw } from 'lucide-react'
+import { Play, Pause, ChevronLeft, ChevronRight, Info, RefreshCw } from "lucide-react"
 import * as SliderPrimitive from "@radix-ui/react-slider"
 import { cn } from "@/lib/utils"
 
@@ -346,7 +348,7 @@ const StateLegend = ({ states }) => {
   )
 }
 
-export default function TimeSeriesSlider({ startDate, endDate, states = [] }) {
+export default function TimeSeriesSlider({ startDate, endDate, states = [], onTimeSelected }) {
   const [currentDate, setCurrentDate] = useState(startDate)
   const [isPlaying, setIsPlaying] = useState(false)
   const [activeState, setActiveState] = useState(null)
@@ -354,7 +356,7 @@ export default function TimeSeriesSlider({ startDate, endDate, states = [] }) {
   const componentRef = useRef(null)
 
   const { filters, setFilters } = useAppDataStore((state) => state)
-  
+
   // Parse intervals from the provided data
   const intervals = useMemo(() => {
     return stateData.intervals.map((interval) => ({
@@ -379,9 +381,9 @@ export default function TimeSeriesSlider({ startDate, endDate, states = [] }) {
 
     // Actualizar la fecha actual en el componente
     setCurrentDate(adjustedDate)
-    
+
     // Actualizar selectedDate en el store global para desencadenar la petición al backend
-    setFilters({...filters, selectedDate: adjustedDate})
+    setFilters({ ...filters, selectedDate: adjustedDate })
   }
 
   const handleTimeChange = useCallback(
@@ -391,15 +393,40 @@ export default function TimeSeriesSlider({ startDate, endDate, states = [] }) {
         if (newDate > endDate) {
           return endDate
         }
+
+        // Format the time as HH:MM
+        const hours = Math.floor(newMinutes / 60)
+          .toString()
+          .padStart(2, "0")
+        const minutes = (newMinutes % 60).toString().padStart(2, "0")
+        const timeString = `${hours}:${minutes}`
+
+        // Call the onTimeSelected callback with the formatted time string
+        if (onTimeSelected) {
+          onTimeSelected(timeString)
+        }
+
         return newDate
       })
     },
-    [endDate],
+    [endDate, onTimeSelected],
   )
 
   // Función para cargar datos explícitamente para el tiempo actual
   const loadDataForCurrentTime = () => {
-    setFilters({...filters, selectedDate: currentDate });
+    const currentMinutes = currentDate.getHours() * 60 + currentDate.getMinutes()
+    const hours = Math.floor(currentMinutes / 60)
+      .toString()
+      .padStart(2, "0")
+    const minutes = (currentMinutes % 60).toString().padStart(2, "0")
+    const timeString = `${hours}:${minutes}`
+
+    // Call the onTimeSelected callback with the formatted time string
+    if (onTimeSelected) {
+      onTimeSelected(timeString)
+    }
+
+    setFilters({ ...filters, selectedDate: currentDate })
   }
 
   const formatTime = useCallback((date) => format(date, "HH:mm"), [])
@@ -503,12 +530,26 @@ export default function TimeSeriesSlider({ startDate, endDate, states = [] }) {
             setIsPlaying(false)
             return endDate
           }
+
+          // Format the time as HH:MM for the new date
+          const newMinutes = newDate.getHours() * 60 + newDate.getMinutes()
+          const hours = Math.floor(newMinutes / 60)
+            .toString()
+            .padStart(2, "0")
+          const minutes = (newMinutes % 60).toString().padStart(2, "0")
+          const timeString = `${hours}:${minutes}`
+
+          // Call the onTimeSelected callback with the formatted time string
+          if (onTimeSelected) {
+            onTimeSelected(timeString)
+          }
+
           return newDate
         })
       }, 500)
     }
     return () => clearInterval(intervalId)
-  }, [isPlaying, endDate])
+  }, [isPlaying, endDate, onTimeSelected])
 
   // Sincronizar currentDate con selectedDate al montar el componente
   useEffect(() => {
@@ -516,6 +557,22 @@ export default function TimeSeriesSlider({ startDate, endDate, states = [] }) {
       setCurrentDate(filters.selectedDate)
     }
   }, [filters.selectedDate])
+
+  // Notify parent component of initial time selection on mount
+  useEffect(() => {
+    // Format the initial time as HH:MM
+    const initialMinutes = currentDate.getHours() * 60 + currentDate.getMinutes()
+    const hours = Math.floor(initialMinutes / 60)
+      .toString()
+      .padStart(2, "0")
+    const minutes = (initialMinutes % 60).toString().padStart(2, "0")
+    const timeString = `${hours}:${minutes}`
+
+    // Call the onTimeSelected callback with the formatted time string
+    if (onTimeSelected) {
+      onTimeSelected(timeString)
+    }
+  }, [currentDate, onTimeSelected])
 
   return (
     <div className="w-full bg-transparent" ref={componentRef}>
@@ -545,10 +602,10 @@ export default function TimeSeriesSlider({ startDate, endDate, states = [] }) {
           </div>
 
           <div className="flex items-center space-x-2">
-            <Button 
-              size="sm" 
-              variant="outline" 
-              onClick={loadDataForCurrentTime} 
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={loadDataForCurrentTime}
               className="h-7 px-2 text-xs flex items-center gap-1"
               title="Cargar datos para este momento"
             >
@@ -586,3 +643,4 @@ export default function TimeSeriesSlider({ startDate, endDate, states = [] }) {
     </div>
   )
 }
+

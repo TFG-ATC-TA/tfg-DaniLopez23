@@ -33,7 +33,7 @@ export function HorizontalTank2Blades({
   const { rotation: rotationHatch } = useSpring({
     to: {
       rotation:
-        switchStatus?.status || false ? [-Math.PI / 2, 0, 0] : [0, 0, 0],
+        switchStatus?.value || false ? [-Math.PI / 2, 0, 0] : [0, 0, 0],
     },
     config: { duration: 1000 },
   });
@@ -110,7 +110,7 @@ export function HorizontalTank2Blades({
         value={`${
           switchStatus === null
             ? "No Data"
-            : switchStatus?.status
+            : switchStatus?.value
             ? "Open"
             : "Closed"
         }`}
@@ -121,7 +121,7 @@ export function HorizontalTank2Blades({
   const renderWeight = () => {
 
     const { alcalineMorph, acidMorph } = getAlcalineAcidCylinders({
-      quantity: weightData?.weight,
+      quantity: weightData?.value,
       maxValue: 100,
     });
 
@@ -158,19 +158,19 @@ export function HorizontalTank2Blades({
         <CallOutText
           position={[1.3, 0.95, 2.8]}
           title={"Alcaline"}
-          value={weightData?.weight}
+          value={weightData?.value}
         />
         <CallOutText
           position={[2, 0.9, 2.9]}
           title={"Acid"}
-          value={weightData?.weight}
+          value={weightData?.value}
         />
       </>
     );
   };
 
   const renderTankTemperatures = () => {
-    const range = getVisibleMilkCilinder(milkQuantityData?.milkQuantity ?? 0);
+    const range = getVisibleMilkCilinder(milkQuantityData?.value ?? 0);
 
     if (!range) return null;
 
