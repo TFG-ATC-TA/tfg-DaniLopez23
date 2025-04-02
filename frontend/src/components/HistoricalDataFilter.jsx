@@ -15,8 +15,6 @@ const HistoricalDataFilter = () => {
   console.log("Filters in HistoricalDataFilter:", filters)
   
   const handleFilterChange = (key, value) => {
-    // Para el rango de fechas, solo actualizamos el rango sin tocar selectedDate
-    // DigitalTwin.jsx se encargará de actualizar selectedDate si es necesario
     const newFilters = { ...filters, [key]: value }
     setFilters(newFilters)
   }

@@ -28,7 +28,7 @@ HistoricalDataRouter.post("/", async (req, res) => {
   debug("Received filters:", { farm, date, boardIds });
 
   try {
-    // Validate parameters
+    // Validación de parámetros
     if (!date) {
       return res.status(400).json({ message: "No date selected." });
     }
@@ -39,13 +39,11 @@ HistoricalDataRouter.post("/", async (req, res) => {
         .json({ message: "Must provide a valid array of board IDs." });
     }
 
-    //Coje las horas del dia seleccionado (desde las 00:00 hasta la hora de la fecha seleccionada)
+    // Rango de fechas
     const startDate = new Date(date);
-    startDate.setHours(0, 0, 0, 0); // Set to start of the day
+    startDate.setHours(0, 0, 0, 0);
     const stopDate = new Date(date);
-    stopDate.setHours(23, 59, 59, 999); // Set to end of the day
-    debug("Start date:", startDate);
-    debug("Stop date:", stopDate);
+    stopDate.setHours(23, 59, 59, 999);
 
     if (isNaN(startDate.getTime()) || isNaN(stopDate.getTime())) {
       return res.status(400).json({ message: "Fechas inválidas" });
@@ -54,7 +52,7 @@ HistoricalDataRouter.post("/", async (req, res) => {
     const start = startDate.toISOString();
     const stop = stopDate.toISOString();
 
-    // Filter invalid values in boardIds
+    // Validación de boardIds
     const validBoardIds = boardIds.filter(
       (id) => typeof id === "string" && id.trim() !== ""
     );
@@ -65,7 +63,7 @@ HistoricalDataRouter.post("/", async (req, res) => {
         .json({ message: "All provided board IDs are invalid." });
     }
 
-    // Construct Flux query with valid IDs
+    // Query de InfluxDB
     const fluxQuery = `
       from(bucket: "${farm}")
         |> range(start: ${start}, stop: ${stop})
@@ -79,18 +77,54 @@ HistoricalDataRouter.post("/", async (req, res) => {
 
     debug("Executing query:", fluxQuery);
 
-    // Execute query
+    // Ejecutar consulta
     const result = await queryApi.collectRows(fluxQuery);
 
-    debug("Query result:", result);
+    // Formatear respuesta
+    const formattedResult = {};
 
-    // Process and format the results
-    const formattedResult = result.map((row) => ({
-      time: row._time,
-      value: row._value,
-      boardId: row.board_id,
-      // Add any other fields you need from the row
-    }));
+    result.forEach((row) => {
+      const time = new Date(row._time).toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: "UTC",
+      });
+
+      const measurement = row._measurement;
+      const field = row._field;
+      const value = row._value;
+      const boardId = row.tags_board_id;
+      const sensorId = row.tags_sensor_id;
+
+      // Inicializar hora si no existe
+      if (!formattedResult[time]) {
+        formattedResult[time] = {};
+      }
+
+      // Inicializar lista de sensores para la medición si no existe
+      if (!formattedResult[time][measurement]) {
+        formattedResult[time][measurement] = [];
+      }
+
+      // Buscar si ya existe un objeto con el mismo boardId y sensorId
+      let sensorData = formattedResult[time][measurement].find(
+        (entry) => entry.board_id === boardId && entry.sensor_id === sensorId
+      );
+
+      // Si no existe, creamos uno nuevo
+      if (!sensorData) {
+        sensorData = {
+          values: {},
+          board_id: boardId,
+          sensor_id: sensorId,
+        };
+        formattedResult[time][measurement].push(sensorData);
+      }
+
+      // Añadir el valor al campo values
+      sensorData.values[field] = value;
+    });
 
     return res.status(200).json(formattedResult);
   } catch (error) {
@@ -100,5 +134,7 @@ HistoricalDataRouter.post("/", async (req, res) => {
       .json({ message: "Error executing query", error: error.message });
   }
 });
+
+
 
 module.exports = HistoricalDataRouter;

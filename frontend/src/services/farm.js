@@ -32,7 +32,6 @@ export const getFarms = async () => {
 export const getHistoricalData = async (filters) => {
   try {
     const response = await api.post('/historical-data', filters);
-    console.log("Response from server:", response.data);
     return response.data;
   } catch (error) {
     if (error.response) {
@@ -67,3 +66,6 @@ export const getBoardsByTank = (farmData) => {
   console.log("Boards by tank:", boardsByTank);
   return boardsByTank;
 };
+
+
+

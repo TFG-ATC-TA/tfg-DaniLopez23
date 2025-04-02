@@ -1,6 +1,4 @@
-"use client"
-
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback } from "react"
 import SensorDataTab from "./sensorData/SensorDataTab"
 import TankDate from "./TankDate"
 import TankStatus from "./TankStatus"
@@ -44,7 +42,6 @@ const DigitalTwin = () => {
   const { selectedTank } = useTankStore()
   const [prevDateRange, setPrevDateRange] = useState(null)
   const [prevSelectedDate, setPrevSelectedDate] = useState(null)
-  const isInitialMount = useRef(true)
 
   const states = []
   const boardIds = getBoardIdsFromTank(selectedTank)
@@ -73,6 +70,14 @@ const DigitalTwin = () => {
         boardIds: boardIds,
         farm: selectedFarm.broker,
       });
+
+      console.log("Processed historical data:", data);
+      if (data === null) {
+        console.warn("No historical data available for the selected date and boards.");
+        setHistoricalData(null);
+        return;
+      }
+      
       setError(null);
       setHistoricalData(data);
     } catch (error) {
@@ -84,11 +89,6 @@ const DigitalTwin = () => {
   
   // Efecto para detectar cambios en el rango de fechas
   useEffect(() => {
-    // Evitar la ejecución en el montaje inicial
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
     
     if (mode === "historical" && filters.dateRange) {
       const currentRangeFrom = filters.dateRange.from?.getTime();
@@ -121,14 +121,11 @@ const DigitalTwin = () => {
       const prevDate = prevSelectedDate?.getTime();
       
       // Solo si la fecha seleccionada ha cambiado realmente o es la primera carga
-      if (currentSelectedDate !== prevDate || isInitialMount.current) {
+      if (currentSelectedDate !== prevDate) {
         console.log("Selected date changed, fetching data");
         fetchHistoricalData();
         setPrevSelectedDate(filters.selectedDate);
-        
-        if (isInitialMount.current) {
-          isInitialMount.current = false;
-        }
+
       }
     }
   }, [filters.selectedDate, fetchHistoricalData, mode, prevSelectedDate]);
