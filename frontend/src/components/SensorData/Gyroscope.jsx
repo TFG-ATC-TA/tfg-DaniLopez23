@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import { Compass } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -41,7 +40,7 @@ const Gyroscope = ({ gyroscopeData, isSelected, onSelect }) => {
               <div key={axis} className="flex flex-col items-center">
                 <span className="text-xs font-medium uppercase">{axis.slice(-1)}</span>
                 <span className="text-lg font-bold text-black">
-                  {gyroscopeData.fields[axis]?.toFixed(2) || "0.00"}
+                  {gyroscopeData.value[axis]?.toFixed(2) || "0.00"}
                 </span>
                 <span className="text-xs text-muted-foreground">rad/s</span>
               </div>

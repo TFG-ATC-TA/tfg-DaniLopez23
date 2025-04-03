@@ -19,9 +19,13 @@ const TankModel = ({
   fetchHistoricalData,
 }) => {
   const { selectedTank } = useTankStore((state) => state);
+
+
   const renderTankModel = () => {
     const data = mode === "realtime" ? realTimeData : historicalData;
     const selectedData = realTimeData.selectedData
+    console.log("Selected data:", data)
+
     if (mode === "historical" && !filters.dateRange) {
       return (
         <div className="flex items-center justify-center h-full">

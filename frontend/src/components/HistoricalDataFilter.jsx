@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { CircleX, Trash2, Sliders } from "lucide-react"
+import { CircleX, Trash2, Sliders } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
@@ -11,13 +11,18 @@ import useAppDataStore from "@/stores/useAppDataStore"
 const HistoricalDataFilter = () => {
   const [isFiltersVisible, setIsFiltersVisible] = useState(true)
   const { filters, setFilters, mode } = useAppDataStore((state) => state)
+
+  console.log("Filters in HistoricalDataFilter:", filters)
+  
   const handleFilterChange = (key, value) => {
     const newFilters = { ...filters, [key]: value }
     setFilters(newFilters)
   }
+  
   const clearFilters = () => {
     setFilters({
       dateRange: null,
+      selectedDate: null,
       selectedStatus: "all",
       selectedSensor: "all",
     })
@@ -123,4 +128,3 @@ const HistoricalDataFilter = () => {
 }
 
 export default HistoricalDataFilter
-
