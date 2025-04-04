@@ -10,9 +10,12 @@ services:
       - /app/node_modules    # Evita sobrescribir dependencias
     environment:
       - NODE_ENV=development
+      - ML_API_URL="http://ml-api:8000"
     ports:
       - "3001:3001"
-
+    networks:
+      - tfg-digital-twin
+      
   frontend:
     build:
       context: ./frontend
@@ -49,9 +52,23 @@ services:
     volumes:
       - influxdb:/var/lib/influxdb
 
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    restart: unless-stopped
+    ports:
+      - "27018:27017"
+    env_file:
+      - .env
+    volumes:
+      - mongodb:/data/db
+    networks:
+      - tfg-digital-twin
+
 networks:
   tfg-digital-twin:
     driver: bridge
 
 volumes:
   influxdb:
+  mongodb:

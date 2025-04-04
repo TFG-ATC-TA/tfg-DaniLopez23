@@ -13,6 +13,7 @@ import useAppDataStore from "@/stores/useAppDataStore";
 import useFarmStore from "@/stores/useFarmStore";
 import useTankStore from "@/stores/useTankStore";
 import useDataStore from "@/stores/useDataStore";
+import { predictStatesByDate } from "@/services/predictStates";
 
 const DigitalTwin = () => {
   const {
@@ -39,6 +40,8 @@ const DigitalTwin = () => {
 
   const [historicalData, setHistoricalData] = useState(null);
   const [selectedHistoricalData, setSelectedHistoricalData] = useState(null);
+  const [tankStates, setTankStates] = useState(null);
+
   const [error, setError] = useState(null);
   const { selectedFarm } = useFarmStore((state) => state);
   const { filters, mode, setMode, setFilters } = useAppDataStore(
@@ -72,6 +75,20 @@ const DigitalTwin = () => {
         boardIds: boardIds,
         farm: selectedFarm.broker,
       });
+      
+      const tankStates = await predictStatesByDate({
+        farm: selectedFarm.broker,
+        date: dateToUse,
+        boardIds: boardIds,
+      });
+
+      console.log("Tank states fetched:", tankStates);
+
+      if (tankStates) {
+        setTankStates(tankStates);
+      }
+
+
 
       if (data === null) {
         console.warn(
