@@ -51,7 +51,8 @@ services:
       - .env
     volumes:
       - influxdb:/var/lib/influxdb
-
+    networks:
+      - tfg-digital-twin
   mongodb:
     image: mongo:6.0
     container_name: mongodb

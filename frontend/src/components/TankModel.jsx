@@ -1,58 +1,49 @@
-import { Canvas } from "@react-three/fiber";
-import useTankStore from "@/stores/useTankStore";
-import SelectedSensorData from "./sensorData/SelectedSensorData";
-import CameraSettings from "./camera/CameraSettings";
-import { HorizontalTank2Blades } from "./tankModels/horizontal/HorizontalTank2Blades";
-import { HorizontalTank1Blade } from "./tankModels/horizontal/HorizontalTank1Blade";
-import { VerticalTank1Blade } from "./tankModels/vertical/VerticalTank1Blade";
-import { Button } from "./ui/button";
-import { Suspense } from "react";
-import { Loader2 } from 'lucide-react';
-import AirQualityLegend from "./sensorData/AirQualityLegend";
+"use client"
 
-const TankModel = ({
-  mode,
-  realTimeData,
-  historicalData,
-  filters,
-  error,
-  fetchHistoricalData,
-}) => {
-  const { selectedTank } = useTankStore((state) => state);
+import { Canvas } from "@react-three/fiber"
+import useTankStore from "@/stores/useTankStore"
+import SelectedSensorData from "./sensorData/SelectedSensorData"
+import CameraSettings from "./camera/CameraSettings"
+import { HorizontalTank2Blades } from "./tankModels/horizontal/HorizontalTank2Blades"
+import { HorizontalTank1Blade } from "./tankModels/horizontal/HorizontalTank1Blade"
+import { VerticalTank1Blade } from "./tankModels/vertical/VerticalTank1Blade"
+import { Button } from "./ui/button"
+import { Suspense } from "react"
+import { Loader2 } from "lucide-react"
 
+const TankModel = ({ mode, realTimeData, historicalData, filters, error, fetchHistoricalData }) => {
+  const { selectedTank } = useTankStore((state) => state)
 
   const renderTankModel = () => {
-    const data = mode === "realtime" ? realTimeData : historicalData;
+    const data = mode === "realtime" ? realTimeData : historicalData
     const selectedData = realTimeData.selectedData
-    console.log("Selected data:", data)
 
+    // Case 1: Historical mode but no date range selected
     if (mode === "historical" && !filters.dateRange) {
       return (
         <div className="flex items-center justify-center h-full">
           <div className="text-center p-6 bg-gray-50 rounded-lg border border-gray-200 max-w-md">
             <h3 className="text-lg font-medium text-gray-700 mb-2">No Date Selected</h3>
-            <p className="text-gray-500">
-              Please select a date range to view historical data for this tank.
-            </p>
+            <p className="text-gray-500">Please select a date range to view historical data for this tank.</p>
           </div>
         </div>
-      );
+      )
     }
 
+    // Case 2: Historical mode and data is loading
     if (mode === "historical" && historicalData === "loading") {
       return (
         <div className="flex items-center justify-center h-full">
           <div className="text-center p-6 bg-gray-50 rounded-lg border border-gray-200 max-w-md">
             <Loader2 className="h-8 w-8 text-primary animate-spin mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-700 mb-2">Loading Data</h3>
-            <p className="text-gray-500">
-              Retrieving historical data for the selected time period...
-            </p>
+            <p className="text-gray-500">Retrieving historical data for the selected time period...</p>
           </div>
         </div>
-      );
+      )
     }
-    
+
+    // Case 3: Historical mode and there was an error
     if (mode === "historical" && error) {
       return (
         <div className="flex items-center justify-center h-full">
@@ -61,17 +52,30 @@ const TankModel = ({
             <p className="text-gray-500 mb-4">
               We couldn't retrieve the historical data. Please try again or select a different time period.
             </p>
-            <Button
-              onClick={fetchHistoricalData}
-              className="bg-primary hover:bg-primary/90"
-            >
+            <Button onClick={fetchHistoricalData} className="bg-primary hover:bg-primary/90">
               Try Again
             </Button>
           </div>
         </div>
-      );
+      )
     }
 
+    // Case 4: Historical mode but no data available (not loading, no error)
+    if (mode === "historical" && !historicalData) {
+      return (
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center p-6 bg-gray-50 rounded-lg border border-gray-200 max-w-md">
+            <h3 className="text-lg font-medium text-gray-700 mb-2">No Data Available</h3>
+            <p className="text-gray-500 mb-4">There is no historical data available for the selected time period.</p>
+            <Button onClick={fetchHistoricalData} className="bg-primary hover:bg-primary/90">
+              Refresh
+            </Button>
+          </div>
+        </div>
+      )
+    }
+
+    // Function to select the appropriate tank model based on tank type and number of blades
     const selectTankDisplayType = (tankType, numberBlades) => {
       if (tankType === "horizontal" && numberBlades == 2) {
         return (
@@ -84,7 +88,7 @@ const TankModel = ({
             airQualityData={data?.airQualityData}
             selectedData={selectedData}
           />
-        );
+        )
       } else if (tankType === "vertical") {
         return (
           <VerticalTank1Blade
@@ -96,7 +100,7 @@ const TankModel = ({
             airQualityData={data?.airQualityData}
             selectedData={selectedData}
           />
-        );
+        )
       } else {
         return (
           <HorizontalTank1Blade
@@ -108,28 +112,27 @@ const TankModel = ({
             airQualityData={data?.airQualityData}
             selectedData={selectedData}
           />
-        );
+        )
       }
-    };
-    
+    }
+
+    // Render the 3D tank model
     return (
       <Canvas className="w-full h-full">
         <ambientLight intensity={0.6} />
         <directionalLight position={[-10, -10, -10]} intensity={0.5} />
         <Suspense fallback={null}>
-          <group>
-            {selectTankDisplayType(selectedTank?.display, selectedTank?.blades)}
-          </group>
+          <group>{selectTankDisplayType(selectedTank?.display, selectedTank?.blades)}</group>
           <CameraSettings view={selectedData} />
         </Suspense>
       </Canvas>
-    );
-  };
+    )
+  }
 
   return (
     <div className="w-full h-full bg-white">
-      {(mode === "realtime" ||
-        (historicalData && historicalData !== "loading")) && (
+      {/* Only show sensor data overlay when in realtime mode or when historical data is loaded */}
+      {(mode === "realtime" || (historicalData && historicalData !== "loading" && !error)) && (
         <>
           <div className="absolute top-4 left-4 z-10">
             <SelectedSensorData />
@@ -145,7 +148,8 @@ const TankModel = ({
       )}
       {renderTankModel()}
     </div>
-  );
-};
+  )
+}
 
-export default TankModel;
+export default TankModel
+

@@ -4,7 +4,6 @@ import TankDate from "./TankDate";
 import TankStatus from "./TankStatus";
 import DataModeToggle from "./DataModeToogle";
 import TimeSeriesSlider from "./TimeSeriesSlider";
-
 import TankModel from "./TankModel";
 import HistoricalDataFilter from "./HistoricalDataFilter";
 import { getHistoricalData } from "@/services/farm";
@@ -14,6 +13,8 @@ import useFarmStore from "@/stores/useFarmStore";
 import useTankStore from "@/stores/useTankStore";
 import useDataStore from "@/stores/useDataStore";
 import { predictStatesByDate } from "@/services/predictStates";
+import { Loader2 } from "lucide-react";
+import { format } from "date-fns";
 
 const DigitalTwin = () => {
   const {
@@ -41,6 +42,8 @@ const DigitalTwin = () => {
   const [historicalData, setHistoricalData] = useState(null);
   const [selectedHistoricalData, setSelectedHistoricalData] = useState(null);
   const [tankStates, setTankStates] = useState(null);
+  const [tankStatesLoading, setTankStatesLoading] = useState(false);
+  const [tankStatesError, setTankStatesError] = useState(null);
 
   const [error, setError] = useState(null);
   const { selectedFarm } = useFarmStore((state) => state);
@@ -50,12 +53,20 @@ const DigitalTwin = () => {
   const { selectedTank } = useTankStore();
   const [prevDateRange, setPrevDateRange] = useState(null);
   const [prevSelectedDate, setPrevSelectedDate] = useState(null);
-  const [selectedTime, setSelectedTime] = useState(null); // New state for selected time
+  const [selectedTime, setSelectedTime] = useState(null);
 
-  const states = [];
   const boardIds = getBoardIdsFromTank(selectedTank);
 
-  const shouldShowTimeSeriesSlider = mode === "historical" && filters.dateRange;
+  // Show the time series slider if:
+  // 1. We're in historical mode
+  // 2. We have a date range selected
+  // 3. Historical data is available and not in a loading or error state
+  const shouldShowTimeSeriesSlider =
+    mode === "historical" &&
+    filters.dateRange &&
+    historicalData &&
+    historicalData !== "loading" &&
+    !error;
 
   const fetchHistoricalData = useCallback(async () => {
     try {
@@ -69,26 +80,22 @@ const DigitalTwin = () => {
         return;
       }
 
+      // Formatear la fecha como string en formato "yyyy-MM-dd"
+      const formattedDate = format(new Date(dateToUse), "yyyy-MM-dd");
+
       setHistoricalData("loading");
+      setError(null); // Clear any previous errors
+
+      console.log("Fetching historical with filters:", {
+        ...filters,
+        date: formattedDate,
+      });
+
       const data = await getHistoricalData({
-        date: dateToUse,
+        date: formattedDate,
         boardIds: boardIds,
         farm: selectedFarm.broker,
       });
-      
-      const tankStates = await predictStatesByDate({
-        farm: selectedFarm.broker,
-        date: dateToUse,
-        boardIds: boardIds,
-      });
-
-      console.log("Tank states fetched:", tankStates);
-
-      if (tankStates) {
-        setTankStates(tankStates);
-      }
-
-
 
       if (data === null) {
         console.warn(
@@ -98,18 +105,17 @@ const DigitalTwin = () => {
         return;
       }
 
-      setError(null);
       setHistoricalData(data);
       console.log("Historical data fetched:", data);
-      
+
       // If we have a selected time, update the selected historical data
       if (selectedTime) {
         updateSelectedHistoricalData(data, selectedTime);
       }
-    } catch (error) {
-      console.error("Error fetching historical data:", error);
+    } catch (err) {
+      console.error("Error fetching historical data:", err);
       setHistoricalData(null);
-      setError(error);
+      setError(err);
     }
   }, [
     filters.selectedDate,
@@ -117,6 +123,86 @@ const DigitalTwin = () => {
     boardIds,
     selectedFarm?.broker,
     selectedTime,
+  ]);
+
+  const fetchTankStates = useCallback(async () => {
+    try {
+      // Determinar la fecha a usar (selectedDate o el primer día del rango)
+      const dateToUse =
+        filters.selectedDate ||
+        (filters.dateRange ? filters.dateRange.from : null);
+
+      if (!dateToUse) {
+        console.warn("No date available for fetching tank states");
+        return;
+      }
+
+      // Formatear la fecha como string en formato "yyyy-MM-dd"
+      const formattedDate = format(new Date(dateToUse), "yyyy-MM-dd");
+
+      setTankStatesLoading(true);
+      setTankStatesError(null); // Clear any previous errors
+
+      console.log("Fetching tank states with filters:", {
+        ...filters,
+        date: formattedDate,
+      });
+
+      const tankStates = await predictStatesByDate({
+        farm: selectedFarm.broker,
+        tank: selectedTank.name,
+        date: formattedDate,
+        boardIds: boardIds,
+      });
+
+      console.log("Tank states fetched:", tankStates);
+
+      if (tankStates) {
+        setTankStates(tankStates);
+      } else {
+        setTankStates(null);
+      }
+
+      setTankStatesLoading(false);
+    } catch (err) {
+      console.error("Error fetching tank states:", err);
+      setTankStates(null);
+      setTankStatesLoading(false);
+      setTankStatesError(err);
+    }
+  }, [
+    filters.selectedDate,
+    filters.dateRange,
+    boardIds,
+    selectedFarm?.broker,
+    selectedTank?.name,
+  ]);
+
+  // Retry function for tank states
+  const retryFetchTankStates = () => {
+    setTankStatesError(null);
+    fetchTankStates();
+  };
+
+  // Efecto para hacer fetch cuando cambia selectedDate
+  useEffect(() => {
+    if (mode === "historical" && filters.selectedDate) {
+      const currentSelectedDate = filters.selectedDate?.getTime();
+      const prevDate = prevSelectedDate?.getTime();
+
+      // Solo si la fecha seleccionada ha cambiado realmente o es la primera carga
+      if (currentSelectedDate !== prevDate) {
+        fetchHistoricalData();
+        fetchTankStates();
+        setPrevSelectedDate(filters.selectedDate);
+      }
+    }
+  }, [
+    filters.selectedDate,
+    fetchHistoricalData,
+    fetchTankStates,
+    mode,
+    prevSelectedDate,
   ]);
 
   // Function to update selected historical data based on time
@@ -174,26 +260,21 @@ const DigitalTwin = () => {
     }
   }, [mode, filters.dateRange, prevDateRange, setFilters, filters]);
 
-  // Efecto para hacer fetch cuando cambia selectedDate
-  useEffect(() => {
-    if (mode === "historical" && filters.selectedDate) {
-      const currentSelectedDate = filters.selectedDate?.getTime();
-      const prevDate = prevSelectedDate?.getTime();
+  if (!selectedTank) {
+    return (
+      <div className="flex items-center justify-center h-full text-lg text-muted-foreground">
+        <p>No tank selected</p>
+      </div>
+    );
+  }
 
-      // Solo si la fecha seleccionada ha cambiado realmente o es la primera carga
-      if (currentSelectedDate !== prevDate) {
-        console.log("Selected date changed, fetching data");
-        fetchHistoricalData();
-        setPrevSelectedDate(filters.selectedDate);
-      }
-    }
-  }, [filters.selectedDate, fetchHistoricalData, mode, prevSelectedDate]);
-
-  return selectedTank ? (
+  return (
     <div className="flex h-screen overflow-hidden">
       <SensorDataTab
         mode={mode}
         historicalData={selectedHistoricalData || historicalData}
+        isLoading={mode === "historical" && historicalData === "loading"}
+        error={error}
       />
 
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -222,7 +303,7 @@ const DigitalTwin = () => {
               <TankModel
                 mode={mode}
                 realTimeData={realTimeData}
-                historicalData={selectedHistoricalData}
+                historicalData={selectedHistoricalData || historicalData}
                 filters={filters}
                 error={error}
                 fetchHistoricalData={fetchHistoricalData}
@@ -231,12 +312,34 @@ const DigitalTwin = () => {
 
             {shouldShowTimeSeriesSlider && (
               <div className="px-4 py-3 border-t bg-gray-50">
-                <TimeSeriesSlider
-                  startDate={filters.dateRange.from}
-                  endDate={filters.dateRange.to}
-                  states={states}
-                  onTimeSelected={handleTimeSelected}
-                />
+                {tankStatesLoading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="h-5 w-5 animate-spin text-primary mr-2" />
+                    <span className="text-sm text-muted-foreground">
+                      Loading tank states...
+                    </span>
+                  </div>
+                ) : tankStates ? (
+                  <TimeSeriesSlider
+                    startDate={filters.dateRange.from}
+                    endDate={filters.dateRange.to}
+                    tankStateData={tankStates}
+                    onTimeSelected={handleTimeSelected}
+                  />
+                ) : (
+                  <div className="flex items-center justify-center py-4">
+                    <div className="text-center">
+                      <p className="text-sm text-muted-foreground mb-2">
+                        No tank state data available for the selected date
+                      </p>
+                      <TimeSeriesSlider
+                        startDate={filters.dateRange.from}
+                        endDate={filters.dateRange.to}
+                        onTimeSelected={handleTimeSelected}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -244,10 +347,6 @@ const DigitalTwin = () => {
           <HistoricalDataFilter />
         </div>
       </div>
-    </div>
-  ) : (
-    <div className="flex items-center justify-center h-full text-lg text-muted-foreground">
-      <p>No tank selected</p>
     </div>
   );
 };

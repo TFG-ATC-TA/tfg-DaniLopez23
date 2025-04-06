@@ -14,7 +14,7 @@ const stateSchema = new Schema({
   },
   state: {
     type: String,
-    enum: ["MAINTENANCE", "OPERATIONAL", "IDLE", "CLEANING"], // Agrega más estados según necesites
+    enum: ["MAINTENANCE", "EMPTY TANK", "CLEANING", "COOLING", "MILKING"], // Agrega más estados según necesites
     required: true,
   }
 });

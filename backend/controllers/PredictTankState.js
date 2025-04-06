@@ -12,6 +12,13 @@ const token = config.influxDB.INFLUX_TOKEN;
 const org = config.influxDB.INFLUX_ORG;
 const url = config.influxDB.INFLUX_URL;
 
+// Configuración de InfluxDB Local
+// const token = config.influxDB.LOCAL_INFLUX_TOKEN;
+// const org = config.influxDB.LOCAL_INFLUX_ORG;
+// const url = config.influxDB.LOCAL_INFLUX_URL;
+
+debug("InfluxDB Config:", { token, org, url });
+
 const client = new InfluxDB({ url, token });
 const queryApi = client.getQueryApi(org);
 
@@ -28,61 +35,60 @@ const validateRequest = (req, res, next) => {
 };
 
 function processData(rawData) {
-  let lastTemps = { surface: null, overSurface: null };
+  // Valor estándar inicial para las temperaturas
+  let lastTemps = { surface: 20, overSurface: 20 };
   const processed = [];
-  
-  rawData.forEach(row => {
+
+  // Ordenar los datos por DateTime
+  rawData.sort((a, b) => new Date(a.DateTime) - new Date(b.DateTime));
+
+  rawData.forEach((row) => {
     const newRow = {
       DateTime: row.DateTime,
       AccelX: row.AccelX !== null ? row.AccelX : null,
-      SurfaceTemperature: row["Surface temperature (ºC)"] !== null ? 
-        row["Surface temperature (ºC)"] : lastTemps.surface,
-      OverSurfaceTemperature: row["Over surface temperature (ºC)"] !== null ? 
-        row["Over surface temperature (ºC)"] : lastTemps.overSurface
+      SurfaceTemperature: row["Surface temperature (ºC)"] !== null
+        ? row["Surface temperature (ºC)"]
+        : lastTemps.surface, // Usar el último valor conocido o el estándar
+      OverSurfaceTemperature: row["Over surface temperature (ºC)"] !== null
+        ? row["Over surface temperature (ºC)"]
+        : lastTemps.overSurface, // Usar el último valor conocido o el estándar
     };
 
-    
-    // Actualizar últimos valores conocidos
+    // Actualizar últimos valores conocidos si hay datos de temperatura
     if (row["Surface temperature (ºC)"] !== null) {
       lastTemps.surface = row["Surface temperature (ºC)"];
     }
     if (row["Over surface temperature (ºC)"] !== null) {
       lastTemps.overSurface = row["Over surface temperature (ºC)"];
     }
-    
 
     // Solo incluir filas con AccelX
     if (newRow.AccelX !== null) {
       processed.push(newRow);
     }
-
   });
 
-  const dataWithTemps = processed.map(row => {
-    return {
-      ...row,
-      SurfaceTemperature: row["SurfaceTemperature"] !== null ? 
-        row["SurfaceTemperature"] : lastTemps.surface,
-      OverSurfaceTemperature: row["OverSurfaceTemperature"] !== null ? 
-        row["OverSurfaceTemperature"] : lastTemps.overSurface
-    };
-  });
-
-  return dataWithTemps
+  return processed;
 }
 
 
 PredictTankStatesRouter.post("/", validateRequest, async (req, res) => {
-  const { farm, date, boardIds } = req.body;
-  debug("Received filters:", { farm, date, boardIds });
+  const { farm, tank, date, boardIds } = req.body;
+  debug("Received filters:", { farm, tank, date, boardIds });
 
   try {
     // Buscar en MongoDB
     const existingData = await TankState.findOne({
       farmId: farm,
+      tankId: tank,
       date: new Date(date),
     });
-    if (existingData) return res.status(200).json(existingData);
+    
+    if (existingData){
+      debug("Datos encontrados en MongoDB:", existingData);
+      return res.status(200).json(existingData);
+    }
+
 
     debug("Datos no encontrados en MongoDB. Consultando InfluxDB...");
 
@@ -149,10 +155,10 @@ PredictTankStatesRouter.post("/", validateRequest, async (req, res) => {
     };
 
     const influxData = await executeQuery(fluxQuery);
-    debug("Datos de InfluxDB:", influxData.slice(0, 5)); // Muestra solo los primeros 5 docs para depuración
+    debug("Datos de InfluxDB:", influxData.slice(0, 5)); 
 
     const processedData = processData(influxData);
-    debug("Datos procesados:", processedData.slice(0, 5)); // Muestra solo los primeros 5 docs para depuración
+    debug("Datos procesados:", processedData.slice(0, 5)); 
 
     // Enviar a ML-API en el formato requerido
     const payload = {
@@ -166,7 +172,7 @@ PredictTankStatesRouter.post("/", validateRequest, async (req, res) => {
       }))
     };
 
-    debug("Datos procesados para ML-API:", payload);
+    debug("Datos procesados para ML-API:", payload.data.slice(0, 5)); 
 
     // Enviar datos a la API de ML
     try {
@@ -175,15 +181,16 @@ PredictTankStatesRouter.post("/", validateRequest, async (req, res) => {
       debug("Respuesta de ML-API:", response.data);
 
       // Transformar los intervalos para MongoDB
-      const transformedStates = response.intervals.map((interval) => ({
-        startTime: new Date(interval.inicio).toISOString(),
-        endTime: new Date(interval.fin).toISOString(),
+      const transformedStates = response.data.intervals.map((interval) => ({
+        startTime: new Date(interval.inicio).toISOString().substring(11, 16), // Extraer HH:mm
+        endTime: new Date(interval.fin).toISOString().substring(11, 16),     // Extraer HH:mm
         state: interval.estado,
       }));
 
       // Guardar en MongoDB
       const newTankState = await TankState.create({
         farmId: farm,
+        tankId: tank,
         date: new Date(date),
         states: transformedStates,
       });

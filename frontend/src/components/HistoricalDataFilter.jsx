@@ -11,8 +11,6 @@ import useAppDataStore from "@/stores/useAppDataStore"
 const HistoricalDataFilter = () => {
   const [isFiltersVisible, setIsFiltersVisible] = useState(true)
   const { filters, setFilters, mode } = useAppDataStore((state) => state)
-
-  console.log("Filters in HistoricalDataFilter:", filters)
   
   const handleFilterChange = (key, value) => {
     const newFilters = { ...filters, [key]: value }
