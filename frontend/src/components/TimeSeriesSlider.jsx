@@ -9,10 +9,9 @@ import {
   isSameDay,
   differenceInCalendarDays,
   addMinutes,
-  parse,
   isWithinInterval,
 } from "date-fns"
-import { Play, Pause, ChevronLeft, ChevronRight, Info, RefreshCw } from "lucide-react"
+import { Play, Pause, ChevronLeft, ChevronRight, Info } from "lucide-react"
 import * as SliderPrimitive from "@radix-ui/react-slider"
 import { cn } from "@/lib/utils"
 
@@ -22,41 +21,55 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 
 import useAppDataStore from "@/stores/useAppDataStore"
 
-// State summary modal component
+// State summary modal component - Modificado para mostrar solo el tiempo total y la cantidad de intervalos
 const StateSummaryModal = ({ isOpen, onClose, intervals, currentDate }) => {
   // Filter intervals for the current day
   const dayIntervals = intervals.filter(
     (interval) => isSameDay(interval.start, currentDate) || isSameDay(interval.end, currentDate),
   )
 
-  // Calculate total duration for each state
-  const stateDurations = useMemo(() => {
-    const durations = {}
+  // Calculate total duration and count for each state
+  const stateStats = useMemo(() => {
+    const stats = {}
 
+    // Agrupar por estado
+    const stateGroups = {}
     dayIntervals.forEach((interval) => {
-      let startTime = interval.start
-      let endTime = interval.end
-
-      if (!isSameDay(startTime, currentDate)) {
-        startTime = new Date(currentDate)
-        startTime.setHours(0, 0, 0, 0)
+      if (!stateGroups[interval.state]) {
+        stateGroups[interval.state] = []
       }
-
-      if (!isSameDay(endTime, currentDate)) {
-        endTime = new Date(currentDate)
-        endTime.setHours(23, 59, 59, 999)
-      }
-
-      const durationMinutes = (endTime - startTime) / (1000 * 60)
-
-      if (!durations[interval.state]) {
-        durations[interval.state] = 0
-      }
-
-      durations[interval.state] += durationMinutes
+      stateGroups[interval.state].push(interval)
     })
 
-    return durations
+    // Calcular estadísticas para cada estado
+    Object.entries(stateGroups).forEach(([state, intervals]) => {
+      let totalDuration = 0
+
+      intervals.forEach((interval) => {
+        let startTime = interval.start
+        let endTime = interval.end
+
+        if (!isSameDay(startTime, currentDate)) {
+          startTime = new Date(currentDate)
+          startTime.setHours(0, 0, 0, 0)
+        }
+
+        if (!isSameDay(endTime, currentDate)) {
+          endTime = new Date(currentDate)
+          endTime.setHours(23, 59, 59, 999)
+        }
+
+        const durationMinutes = (endTime - startTime) / (1000 * 60)
+        totalDuration += durationMinutes
+      })
+
+      stats[state] = {
+        totalDuration,
+        count: intervals.length,
+      }
+    })
+
+    return stats
   }, [dayIntervals, currentDate])
 
   // Format minutes as hours and minutes
@@ -70,40 +83,26 @@ const StateSummaryModal = ({ isOpen, onClose, intervals, currentDate }) => {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Tank State Summary</DialogTitle>
-          <DialogDescription>{format(currentDate, "EEEE, MMMM d, yyyy")}</DialogDescription>
+          <DialogTitle>Resumen de Estados del Tanque</DialogTitle>
+          <DialogDescription>{format(currentDate, "EEEE, d MMMM yyyy")}</DialogDescription>
         </DialogHeader>
 
         <div className="mt-4 space-y-4">
           <div className="grid grid-cols-1 gap-3">
-            {Object.entries(stateDurations).map(([state, duration]) => (
+            {Object.entries(stateStats).map(([state, stats]) => (
               <div key={state} className="flex items-center justify-between p-3 rounded-lg border">
                 <div className="flex items-center">
                   <div className="w-4 h-4 rounded-full mr-3" style={{ backgroundColor: STATE_COLORS[state] }} />
                   <span className="font-medium">{state}</span>
                 </div>
-                <div className="text-sm text-gray-600">{formatDuration(duration)}</div>
+                <div className="text-sm text-gray-600 flex flex-col items-end">
+                  <span>{formatDuration(stats.totalDuration)}</span>
+                  <span className="text-xs text-gray-500">
+                    {stats.count} {stats.count === 1 ? "intervalo" : "intervalos"}
+                  </span>
+                </div>
               </div>
             ))}
-          </div>
-
-          <div className="border-t pt-4">
-            <h4 className="text-sm font-medium mb-2">Timeline</h4>
-            <div className="space-y-2">
-              {dayIntervals.map((interval, index) => (
-                <div key={index} className="flex items-center text-sm">
-                  <span className="text-gray-500 w-20">{format(interval.start, "HH:mm")}</span>
-                  <span className="mx-2">-</span>
-                  <span className="text-gray-500 w-20">{format(interval.end, "HH:mm")}</span>
-                  <div
-                    className="ml-2 px-2 py-0.5 rounded-full text-xs text-white"
-                    style={{ backgroundColor: STATE_COLORS[interval.state] }}
-                  >
-                    {interval.state}
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </DialogContent>
@@ -293,10 +292,6 @@ export default function TimeSeriesSlider({ startDate, endDate, onTimeSelected, t
   const componentRef = useRef(null)
   const { filters, setFilters } = useAppDataStore((state) => state)
 
-
-  console.log("States on Slider", tankStateData)
-
-
   // Parse intervals from the provided tankStateData
   const intervals = useMemo(() => {
     if (!tankStateData || !tankStateData.states) {
@@ -377,23 +372,6 @@ export default function TimeSeriesSlider({ startDate, endDate, onTimeSelected, t
     },
     [endDate, onTimeSelected],
   )
-
-  // Función para cargar datos explícitamente para el tiempo actual
-  const loadDataForCurrentTime = () => {
-    const currentMinutes = currentDate.getHours() * 60 + currentDate.getMinutes()
-    const hours = Math.floor(currentMinutes / 60)
-      .toString()
-      .padStart(2, "0")
-    const minutes = (currentMinutes % 60).toString().padStart(2, "0")
-    const timeString = `${hours}:${minutes}`
-
-    // Call the onTimeSelected callback with the formatted time string
-    if (onTimeSelected) {
-      onTimeSelected(timeString)
-    }
-
-    setFilters({ ...filters, selectedDate: currentDate })
-  }
 
   const formatTime = useCallback((date) => format(date, "HH:mm"), [])
 
@@ -586,9 +564,7 @@ export default function TimeSeriesSlider({ startDate, endDate, onTimeSelected, t
         />
 
         <div className="flex justify-center mt-1">
-          <StateLegend
-            states={tankStateData ? [...new Set(tankStateData.states.map((item) => item.state))] : []}
-          />
+          <StateLegend states={tankStateData ? [...new Set(tankStateData.states.map((item) => item.state))] : []} />
         </div>
       </div>
 

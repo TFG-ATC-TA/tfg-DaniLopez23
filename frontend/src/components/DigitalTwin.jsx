@@ -123,81 +123,91 @@ const DigitalTwin = () => {
     )
   }
 
+  // Verificar si los paneles laterales están visibles
+  const isSensorTabVisible = document.querySelector('[data-sensor-tab="visible"]') !== null
+  const isFilterTabVisible = mode === "historical" && document.querySelector('[data-filter-tab="visible"]') !== null
+
   return (
-    <div className="flex h-screen overflow-hidden relative">
-      {/* Panel de sensores */}
-      <SensorDataTab
-        mode={mode}
-        historicalData={selectedHistoricalData || historicalData}
-        isLoading={mode === "historical" && historicalData === "loading"}
-        error={error}
-      />
+    <div className="flex flex-col h-screen overflow-hidden">
+      {/* Barra superior con TankDate, DataModeToggle y TankStatus */}
+      <div className="flex flex-wrap md:flex-nowrap gap-2 p-2 z-10">
+        {/* DataModeToggle y TankStatus mantienen su tamaño hasta que no quepan */}
+        <div className="w-[200px] min-w-[200px] order-2 md:order-2">
+          <DataModeToggle
+            isRealTime={mode === "realtime"}
+            onToggle={() => setMode(mode === "realtime" ? "historical" : "realtime")}
+          />
+        </div>
 
-      {/* Contenido principal */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex flex-wrap md:flex-nowrap gap-2 p-2">
-          <div className="w-full md:w-1/2 lg:w-3/5">
-            <TankDate mode={mode} filters={filters} />
-          </div>
+        <div className="w-[200px] min-w-[200px] order-3 md:order-3">
+          <TankStatus isRealTime={mode === "realtime"} />
+        </div>
 
-          <div className="w-full md:w-1/4 lg:w-1/5">
-            <DataModeToggle
-              isRealTime={mode === "realtime"}
-              onToggle={() => setMode(mode === "realtime" ? "historical" : "realtime")}
+        {/* TankDate es el primero en encogerse */}
+        <div className="w-full md:flex-1 order-1 md:order-1">
+          <TankDate mode={mode} filters={filters} />
+        </div>
+      </div>
+
+      {/* Contenedor principal del modelo y paneles laterales */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Panel de sensores (a la izquierda) */}
+        <div data-sensor-tab={isSensorTabVisible ? "visible" : "hidden"}>
+          <SensorDataTab
+            mode={mode}
+            historicalData={selectedHistoricalData || historicalData}
+            isLoading={mode === "historical" && historicalData === "loading"}
+            error={error}
+          />
+        </div>
+
+        {/* Modelo 3D (centro) */}
+        <div className="flex-1 flex flex-col bg-white rounded-lg shadow-sm overflow-hidden m-1">
+          <div className="flex-1 relative">
+            <TankModel
+              mode={mode}
+              realTimeData={realTimeData}
+              historicalData={selectedHistoricalData || historicalData}
+              filters={filters}
+              error={error}
+              fetchHistoricalData={fetchHistoricalData}
             />
           </div>
 
-          <div className="w-full md:w-1/4 lg:w-1/5">
-            <TankStatus isRealTime={mode === "realtime"} />
-          </div>
+          {shouldShowTimeSeriesSlider && (
+            <div className="px-4 py-3 border-t bg-gray-50">
+              {tankStatesLoading ? (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary mr-2" />
+                  <span className="text-sm text-muted-foreground">Loading tank states...</span>
+                </div>
+              ) : tankStates ? (
+                <TimeSeriesSlider
+                  startDate={filters.dateRange.from}
+                  endDate={filters.dateRange.to}
+                  tankStateData={tankStates}
+                  onTimeSelected={handleTimeSelected}
+                />
+              ) : (
+                <div className="flex items-center justify-center py-4">
+                  <div className="text-center">
+                    <p className="text-sm text-muted-foreground mb-2">
+                      No tank state data available for the selected date
+                    </p>
+                    <TimeSeriesSlider
+                      startDate={filters.dateRange.from}
+                      endDate={filters.dateRange.to}
+                      onTimeSelected={handleTimeSelected}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
-        <div className="flex-1 flex overflow-hidden">
-          <div className="flex-1 flex flex-col bg-white rounded-lg shadow-sm overflow-hidden m-1">
-            <div className="flex-1 relative">
-              <TankModel
-                mode={mode}
-                realTimeData={realTimeData}
-                historicalData={selectedHistoricalData || historicalData}
-                filters={filters}
-                error={error}
-                fetchHistoricalData={fetchHistoricalData}
-              />
-            </div>
-
-            {shouldShowTimeSeriesSlider && (
-              <div className="px-4 py-3 border-t bg-gray-50">
-                {tankStatesLoading ? (
-                  <div className="flex items-center justify-center py-4">
-                    <Loader2 className="h-5 w-5 animate-spin text-primary mr-2" />
-                    <span className="text-sm text-muted-foreground">Loading tank states...</span>
-                  </div>
-                ) : tankStates ? (
-                  <TimeSeriesSlider
-                    startDate={filters.dateRange.from}
-                    endDate={filters.dateRange.to}
-                    tankStateData={tankStates}
-                    onTimeSelected={handleTimeSelected}
-                  />
-                ) : (
-                  <div className="flex items-center justify-center py-4">
-                    <div className="text-center">
-                      <p className="text-sm text-muted-foreground mb-2">
-                        No tank state data available for the selected date
-                      </p>
-                      <TimeSeriesSlider
-                        startDate={filters.dateRange.from}
-                        endDate={filters.dateRange.to}
-                        onTimeSelected={handleTimeSelected}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Panel de filtros históricos */}
+        {/* Panel de filtros históricos (a la derecha) */}
+        <div data-filter-tab={isFiltersVisible ? "visible" : "hidden"}>
           <HistoricalDataFilter />
         </div>
       </div>

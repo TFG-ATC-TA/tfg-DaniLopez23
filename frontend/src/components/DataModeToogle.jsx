@@ -21,22 +21,22 @@ const DataModeToggle = ({ onToggle, isRealTime }) => {
       <div className="flex items-center justify-center bg-gray-100 rounded-full p-1 shadow-inner mt-2">
         <button
           className={cn(
-            "flex-1 px-2 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center justify-center",
+            "flex-1 px-2 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center justify-center whitespace-nowrap",
             isRealTime ? "bg-white text-green-600 shadow-sm" : "text-gray-600 hover:bg-gray-200",
           )}
           onClick={() => onToggle(true)}
         >
-          <Wifi className="mr-1.5 h-3.5 w-3.5" /> Tiempo real
+          <Wifi className="mr-1 h-3.5 w-3.5" /> Tiempo real
         </button>
         <Switch checked={!isRealTime} onCheckedChange={(checked) => onToggle(!checked)} className="mx-2" />
         <button
           className={cn(
-            "flex-1 px-2 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center justify-center",
+            "flex-1 px-2 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center justify-center whitespace-nowrap",
             !isRealTime ? "bg-white text-purple-600 shadow-sm" : "text-gray-600 hover:bg-gray-200",
           )}
           onClick={() => onToggle(false)}
         >
-          <History className="mr-1.5 h-3.5 w-3.5" /> Histórico
+          <History className="mr-1 h-3.5 w-3.5" /> Histórico
         </button>
       </div>
     </div>

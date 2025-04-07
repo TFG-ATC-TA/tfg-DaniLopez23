@@ -51,7 +51,7 @@ const HistoricalDataFilter = () => {
 
   // Si el panel está visible, mostrarlo como parte del layout normal
   return (
-    <Card className="w-80 h-full shadow-sm border overflow-hidden">
+    <Card className="w-80 h-full shadow-md border rounded-lg overflow-hidden">
       <CardHeader className="sticky z-10 border-b p-4">
         <div className="flex justify-between items-center">
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
