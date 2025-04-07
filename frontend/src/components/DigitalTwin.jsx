@@ -15,6 +15,8 @@ import useDataStore from "@/stores/useDataStore";
 import { predictStatesByDate } from "@/services/predictStates";
 import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
+import useHistoricalData from "@/hooks/useHistoricalData";
+import useTankStates from "@/hooks/useTankStates";
 
 const DigitalTwin = () => {
   const {
@@ -39,13 +41,6 @@ const DigitalTwin = () => {
     gyroscopeData,
   };
 
-  const [historicalData, setHistoricalData] = useState(null);
-  const [selectedHistoricalData, setSelectedHistoricalData] = useState(null);
-  const [tankStates, setTankStates] = useState(null);
-  const [tankStatesLoading, setTankStatesLoading] = useState(false);
-  const [tankStatesError, setTankStatesError] = useState(null);
-
-  const [error, setError] = useState(null);
   const { selectedFarm } = useFarmStore((state) => state);
   const { filters, mode, setMode, setFilters } = useAppDataStore(
     (state) => state
@@ -57,6 +52,34 @@ const DigitalTwin = () => {
 
   const boardIds = getBoardIdsFromTank(selectedTank);
 
+  // LOGICA FETCH DATOS HISTORICOS 
+  const {
+    historicalData,
+    selectedHistoricalData,
+    error,
+    fetchHistoricalData,
+    handleTimeSelected,
+  } = useHistoricalData({
+    filters,
+    boardIds,
+    selectedFarm,
+    selectedTime,
+  });
+
+  // LOGICA FETCH ESTADOS TANQUES 
+  const {
+    tankStates,
+    tankStatesLoading,
+    tankStatesError,
+    fetchTankStates,
+    retryFetchTankStates,
+  } = useTankStates({
+    filters,
+    boardIds,
+    selectedFarm,
+    selectedTank,
+  });
+
   // Show the time series slider if:
   // 1. We're in historical mode
   // 2. We have a date range selected
@@ -67,122 +90,6 @@ const DigitalTwin = () => {
     historicalData &&
     historicalData !== "loading" &&
     !error;
-
-  const fetchHistoricalData = useCallback(async () => {
-    try {
-      // Determinar la fecha a usar (selectedDate o el primer día del rango)
-      const dateToUse =
-        filters.selectedDate ||
-        (filters.dateRange ? filters.dateRange.from : null);
-
-      if (!dateToUse) {
-        console.warn("No date available for fetching historical data");
-        return;
-      }
-
-      // Formatear la fecha como string en formato "yyyy-MM-dd"
-      const formattedDate = format(new Date(dateToUse), "yyyy-MM-dd");
-
-      setHistoricalData("loading");
-      setError(null); // Clear any previous errors
-
-      console.log("Fetching historical with filters:", {
-        ...filters,
-        date: formattedDate,
-      });
-
-      const data = await getHistoricalData({
-        date: formattedDate,
-        boardIds: boardIds,
-        farm: selectedFarm.broker,
-      });
-
-      if (data === null) {
-        console.warn(
-          "No historical data available for the selected date and boards."
-        );
-        setHistoricalData(null);
-        return;
-      }
-
-      setHistoricalData(data);
-      console.log("Historical data fetched:", data);
-
-      // If we have a selected time, update the selected historical data
-      if (selectedTime) {
-        updateSelectedHistoricalData(data, selectedTime);
-      }
-    } catch (err) {
-      console.error("Error fetching historical data:", err);
-      setHistoricalData(null);
-      setError(err);
-    }
-  }, [
-    filters.selectedDate,
-    filters.dateRange,
-    boardIds,
-    selectedFarm?.broker,
-    selectedTime,
-  ]);
-
-  const fetchTankStates = useCallback(async () => {
-    try {
-      // Determinar la fecha a usar (selectedDate o el primer día del rango)
-      const dateToUse =
-        filters.selectedDate ||
-        (filters.dateRange ? filters.dateRange.from : null);
-
-      if (!dateToUse) {
-        console.warn("No date available for fetching tank states");
-        return;
-      }
-
-      // Formatear la fecha como string en formato "yyyy-MM-dd"
-      const formattedDate = format(new Date(dateToUse), "yyyy-MM-dd");
-
-      setTankStatesLoading(true);
-      setTankStatesError(null); // Clear any previous errors
-
-      console.log("Fetching tank states with filters:", {
-        ...filters,
-        date: formattedDate,
-      });
-
-      const tankStates = await predictStatesByDate({
-        farm: selectedFarm.broker,
-        tank: selectedTank.name,
-        date: formattedDate,
-        boardIds: boardIds,
-      });
-
-      console.log("Tank states fetched:", tankStates);
-
-      if (tankStates) {
-        setTankStates(tankStates);
-      } else {
-        setTankStates(null);
-      }
-
-      setTankStatesLoading(false);
-    } catch (err) {
-      console.error("Error fetching tank states:", err);
-      setTankStates(null);
-      setTankStatesLoading(false);
-      setTankStatesError(err);
-    }
-  }, [
-    filters.selectedDate,
-    filters.dateRange,
-    boardIds,
-    selectedFarm?.broker,
-    selectedTank?.name,
-  ]);
-
-  // Retry function for tank states
-  const retryFetchTankStates = () => {
-    setTankStatesError(null);
-    fetchTankStates();
-  };
 
   // Efecto para hacer fetch cuando cambia selectedDate
   useEffect(() => {
@@ -204,35 +111,6 @@ const DigitalTwin = () => {
     mode,
     prevSelectedDate,
   ]);
-
-  // Function to update selected historical data based on time
-  const updateSelectedHistoricalData = useCallback((data, timeString) => {
-    if (!data || data === "loading") return;
-
-    // Find the closest time in the data
-    // Format the time string to match the format in the data (HH:MM)
-    const formattedTime = timeString;
-
-    if (data[formattedTime]) {
-      setSelectedHistoricalData(data[formattedTime]);
-    } else {
-      console.warn(`No data found for time ${formattedTime}`);
-      setSelectedHistoricalData(null);
-    }
-  }, []);
-
-  // Handler for time selection from the slider
-  const handleTimeSelected = useCallback(
-    (timeString) => {
-      console.log(`Time selected: ${timeString}`);
-      setSelectedTime(timeString);
-
-      if (historicalData && historicalData !== "loading") {
-        updateSelectedHistoricalData(historicalData, timeString);
-      }
-    },
-    [historicalData, updateSelectedHistoricalData]
-  );
 
   // Efecto para detectar cambios en el rango de fechas
   useEffect(() => {
