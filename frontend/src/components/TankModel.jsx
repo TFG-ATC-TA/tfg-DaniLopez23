@@ -1,5 +1,4 @@
-"use client"
-
+import { useEffect, useState } from "react"
 import { Canvas } from "@react-three/fiber"
 import useTankStore from "@/stores/useTankStore"
 import SelectedSensorData from "./sensorData/SelectedSensorData"
@@ -10,12 +9,66 @@ import { VerticalTank1Blade } from "./tankModels/vertical/VerticalTank1Blade"
 import { Button } from "./ui/button"
 import { Suspense } from "react"
 import { Loader2 } from "lucide-react"
+import useAppDataStore from "@/stores/useAppDataStore"
+import useDataStore from "@/stores/useDataStore"
+import useHistoricalData from "@/hooks/useHistoricalData"
+import useFarmStore from "@/stores/useFarmStore"
+import CameraControlButtons from "./camera/CameraControlButtons"
+import { set } from "date-fns"
 
-const TankModel = ({ mode, realTimeData, historicalData, filters, error, fetchHistoricalData }) => {
+const TankModel = ({boardIds, selectedTime}) => {
   const { selectedTank } = useTankStore((state) => state)
+  const { mode, filters} = useAppDataStore((state) => state)
+  const { selectedFarm } = useFarmStore((state) => state)
+  const {
+    encoderData,
+    milkQuantityData,
+    switchStatus,
+    weightData,
+    tankTemperaturesData,
+    airQualityData,
+    selectedData,
+    gyroscopeData,
+  } = useDataStore((state) => state)
 
+  const realTimeData = {
+    encoderData,
+    milkQuantityData,
+    switchStatus,
+    weightData,
+    tankTemperaturesData,
+    airQualityData,
+    selectedData,
+    gyroscopeData,
+  }
+
+  const { selectedHistoricalData, historicalData, error, fetchHistoricalData } = useHistoricalData({
+    filters,
+    boardIds,
+    selectedFarm,
+    selectedTime,
+  })
+
+  const [currentView, setCurrentView] = useState("default")
+
+  // Sincronizar la vista con selectedData
+  useEffect(() => {
+    if (selectedData) {
+      // Cambiar la vista basada en selectedData
+      setCurrentView(selectedData);
+    }else {
+      setCurrentView("default")
+    }
+  }, [selectedData]);
+
+  const handleViewChange = (view) => {
+    setCurrentView(view); // Actualizar la vista desde los botones
+  };
+
+  console.log("Current view", currentView)
+  console.log("Selected data", selectedData)
   const renderTankModel = () => {
-    const data = mode === "realtime" ? realTimeData : historicalData
+    const data = mode === "realtime" ? realTimeData : selectedHistoricalData
     const selectedData = realTimeData.selectedData
 
     // Case 1: Historical mode but no date range selected
@@ -50,7 +103,7 @@ const TankModel = ({ mode, realTimeData, historicalData, filters, error, fetchHi
           <div className="text-center p-6 bg-gray-50 rounded-lg border border-gray-200 max-w-md">
             <h3 className="text-lg font-medium text-red-600 mb-2">Error Loading Data</h3>
             <p className="text-gray-500 mb-4">
-              We couldn't retrieve the historical data. Please try again or select a different time period.
+              We could not retrieve the historical data. Please try again or select a different time period.
             </p>
             <Button onClick={fetchHistoricalData} className="bg-primary hover:bg-primary/90">
               Try Again
@@ -123,32 +176,27 @@ const TankModel = ({ mode, realTimeData, historicalData, filters, error, fetchHi
         <directionalLight position={[-10, -10, -10]} intensity={0.5} />
         <Suspense fallback={null}>
           <group>{selectTankDisplayType(selectedTank?.display, selectedTank?.blades)}</group>
-          <CameraSettings view={selectedData} />
+          <CameraSettings view={currentView} />
         </Suspense>
       </Canvas>
     )
   }
 
   return (
-    <div className="w-full h-full bg-white">
+    <div className="w-full h-full bg-white relative">
       {/* Only show sensor data overlay when in realtime mode or when historical data is loaded */}
-      {(mode === "realtime" || (historicalData && historicalData !== "loading" && !error)) && (
+      {(mode === "realtime" ||
+        (historicalData && historicalData !== "loading" && !error)) && (
         <>
           <div className="absolute top-4 left-4 z-10">
             <SelectedSensorData />
           </div>
-          {/* <div className="absolute top-4 right-4 z-10">
-            <AirQualityLegend
-              particleCount={1000}
-              humidity={10}
-              temperature={20}
-            />
-          </div> */}
         </>
       )}
       {renderTankModel()}
+      <CameraControlButtons handleViewChange={handleViewChange}/>
     </div>
-  )
+  );
 }
 
 export default TankModel

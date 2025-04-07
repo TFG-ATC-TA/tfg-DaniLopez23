@@ -12,34 +12,12 @@ import { getBoardIdsFromTank } from "@/services/tank"
 import useAppDataStore from "@/stores/useAppDataStore"
 import useFarmStore from "@/stores/useFarmStore"
 import useTankStore from "@/stores/useTankStore"
-import useDataStore from "@/stores/useDataStore"
 import { Loader2 } from "lucide-react"
 import useHistoricalData from "@/hooks/useHistoricalData"
 import useTankStates from "@/hooks/useTankStates"
 
 const DigitalTwin = () => {
-  const {
-    encoderData,
-    milkQuantityData,
-    switchStatus,
-    weightData,
-    tankTemperaturesData,
-    airQualityData,
-    selectedData,
-    gyroscopeData,
-  } = useDataStore((state) => state)
-
-  const realTimeData = {
-    encoderData,
-    milkQuantityData,
-    switchStatus,
-    weightData,
-    tankTemperaturesData,
-    airQualityData,
-    selectedData,
-    gyroscopeData,
-  }
-
+  
   const { selectedFarm } = useFarmStore((state) => state)
   const { filters, mode, setMode, setFilters } = useAppDataStore((state) => state)
   const { selectedTank } = useTankStore()
@@ -125,7 +103,6 @@ const DigitalTwin = () => {
 
   // Verificar si los paneles laterales están visibles
   const isSensorTabVisible = document.querySelector('[data-sensor-tab="visible"]') !== null
-  const isFilterTabVisible = mode === "historical" && document.querySelector('[data-filter-tab="visible"]') !== null
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
@@ -165,12 +142,8 @@ const DigitalTwin = () => {
         <div className="flex-1 flex flex-col bg-white rounded-lg shadow-sm overflow-hidden m-1">
           <div className="flex-1 relative">
             <TankModel
-              mode={mode}
-              realTimeData={realTimeData}
-              historicalData={selectedHistoricalData || historicalData}
-              filters={filters}
-              error={error}
-              fetchHistoricalData={fetchHistoricalData}
+              boardIds = {boardIds}
+              selectedTime={selectedTime}
             />
           </div>
 
