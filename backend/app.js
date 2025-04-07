@@ -4,12 +4,14 @@ const cors = require("cors");
 const config = require("./config/index");
 const mongoose = require('mongoose');
 const debug = require('debug')('app');
-const MONGO_URI = config.mongoDB.MONGO_URI_CLUSTER;
+
+const MONGO_URI = config.mongoDB.MONGO_URL_LOCAL;
+console.log("Mongo URI: ", MONGO_URI); // Verifica que la URI sea correcta
 
 const farmRouter = require("./controllers/Farm"); 
 const historicalDataRouter = require("./controllers/HistoricalData");
 const equipmentRouter = require("./controllers/Equipment");
-
+const predictTankStatesRouter = require("./controllers/PredictTankState");
 const mqttService = require("./services/mqtt");
 const webSocketsService = require("./services/webSockets");
 
@@ -41,7 +43,7 @@ app.get("/", (req, res) => {
 app.use("/farms", farmRouter);
 app.use("/historical-data", historicalDataRouter);
 app.use("/equipments", equipmentRouter)
-
+app.use("/predict", predictTankStatesRouter);
 // Establece el manejador para los mensajes entrantes desde MQTT
 mqttService.setMessageHandler((farmId, boardId, topic, data) => {
   

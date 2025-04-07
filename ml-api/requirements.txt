@@ -7,3 +7,4 @@ scikit-learn
 sktime
 lightgbm
 numba
+matplotlib

@@ -4,10 +4,15 @@ const config = require("../config/index");
 const HistoricalDataRouter = express.Router();
 debug = require("debug")("app:controllers:HistoricalData");
 
-// Configuración de InfluxDB
-const token = config.influxDB.LOCAL_INFLUX_TOKEN;
-const org = config.influxDB.LOCAL_INFLUX_ORG;
-const url = config.influxDB.LOCAL_INFLUX_URL;
+// Configuración local de InfluxDB
+// const token = config.influxDB.LOCAL_INFLUX_TOKEN;
+// const org = config.influxDB.LOCAL_INFLUX_ORG;
+// const url = config.influxDB.LOCAL_INFLUX_URL;
+
+// Configuración de InfluxDB lactokeeper
+const token = config.influxDB.INFLUX_TOKEN
+const org = config.influxDB.INFLUX_ORG;
+const url = config.influxDB.INFLUX_URL;
 
 debug("InfluxDB Configuration: ", {
   token,

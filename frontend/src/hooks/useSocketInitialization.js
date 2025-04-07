@@ -1,20 +1,10 @@
 import { useEffect, useCallback } from "react";
 import { createSocket } from "@/webSockets/Socket";
 import useSocketStore from "@/stores/useSocketStore";
-import useDataStore from "@/stores/useDataStore";
 import { createSocketEventHandlers } from "@/webSockets/socketEventHandlers";
 
 export const useSocketInitialization = () => {
   const { setSocket, setMqttStatus, setWebSocketServerStatus } = useSocketStore((state) => state);
-  const {
-    updateEncoderData,
-    updateGyroscopeData,
-    updateMilkQuantityData,
-    updateTankTemperaturesData,
-    updateSwitchStatus,
-    updateWeightData,
-    updateAirQualityData,
-  } = useDataStore((state) => state);
 
   const handleSocketError = useCallback(
     (error) => {

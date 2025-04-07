@@ -22,77 +22,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 
 import useAppDataStore from "@/stores/useAppDataStore"
 
-// Define state colors - using actual CSS color values for direct styling
-const STATE_COLORS = {
-  MAINTENANCE: "#f59e0b",
-  MILKING: "#97ff3a",
-  COOLING: "#4da1ff",
-  CLEANING: "#ff763a",
-  "EMPTY TANK": "#bb82ff",
-}
-
-// Hardcoded intervals data
-const stateData = {
-  intervals: [
-    {
-      inicio: "23/03/2025 00:00:00",
-      fin: "23/03/2025 04:00:00",
-      estado: "MAINTENANCE",
-    },
-    {
-      inicio: "23/03/2025 04:00:00",
-      fin: "23/03/2025 05:45:00",
-      estado: "MILKING",
-    },
-    {
-      inicio: "23/03/2025 05:45:00",
-      fin: "23/03/2025 08:00:00",
-      estado: "COOLING",
-    },
-    {
-      inicio: "23/03/2025 08:00:00",
-      fin: "23/03/2025 13:15:00",
-      estado: "MAINTENANCE",
-    },
-    {
-      inicio: "23/03/2025 13:15:00",
-      fin: "23/03/2025 14:00:00",
-      estado: "COOLING",
-    },
-    {
-      inicio: "23/03/2025 14:00:00",
-      fin: "23/03/2025 14:15:00",
-      estado: "MAINTENANCE",
-    },
-    {
-      inicio: "23/03/2025 14:15:00",
-      fin: "23/03/2025 14:45:00",
-      estado: "COOLING",
-    },
-    {
-      inicio: "23/03/2025 14:45:00",
-      fin: "23/03/2025 16:00:00",
-      estado: "MAINTENANCE",
-    },
-    {
-      inicio: "23/03/2025 16:00:00",
-      fin: "23/03/2025 17:30:00",
-      estado: "MILKING",
-    },
-    {
-      inicio: "23/03/2025 17:30:00",
-      fin: "23/03/2025 20:30:00",
-      estado: "COOLING",
-    },
-    {
-      inicio: "23/03/2025 20:30:00",
-      fin: "23/03/2025 23:59:59",
-      estado: "MAINTENANCE",
-    },
-  ],
-  states: ["CLEANING", "COOLING", "EMPTY TANK", "MAINTENANCE", "MILKING"],
-}
-
 // State summary modal component
 const StateSummaryModal = ({ isOpen, onClose, intervals, currentDate }) => {
   // Filter intervals for the current day
@@ -348,23 +277,60 @@ const StateLegend = ({ states }) => {
   )
 }
 
-export default function TimeSeriesSlider({ startDate, endDate, states = [], onTimeSelected }) {
+const STATE_COLORS = {
+  MAINTENANCE: "#f59e0b",
+  MILKING: "#97ff3a",
+  COOLING: "#4da1ff",
+  CLEANING: "#ff763a",
+  "EMPTY TANK": "#bb82ff",
+}
+
+export default function TimeSeriesSlider({ startDate, endDate, onTimeSelected, tankStateData }) {
   const [currentDate, setCurrentDate] = useState(startDate)
   const [isPlaying, setIsPlaying] = useState(false)
   const [activeState, setActiveState] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const componentRef = useRef(null)
-
   const { filters, setFilters } = useAppDataStore((state) => state)
 
-  // Parse intervals from the provided data
+
+  console.log("States on Slider", tankStateData)
+
+
+  // Parse intervals from the provided tankStateData
   const intervals = useMemo(() => {
-    return stateData.intervals.map((interval) => ({
-      start: parse(interval.inicio, "dd/MM/yyyy HH:mm:ss", new Date()),
-      end: parse(interval.fin, "dd/MM/yyyy HH:mm:ss", new Date()),
-      state: interval.estado,
-    }))
-  }, [])
+    if (!tankStateData || !tankStateData.states) {
+      return []
+    }
+
+    // Parse the date from tankStateData
+    const baseDate = new Date(tankStateData.date)
+
+    // Convert the states from tankStateData to intervals
+    return tankStateData.states.map((stateItem) => {
+      // Parse the start and end times
+      const [startHour, startMinute] = stateItem.startTime.split(":").map(Number)
+      const [endHour, endMinute] = stateItem.endTime.split(":").map(Number)
+
+      // Create Date objects for start and end times
+      const start = new Date(baseDate)
+      start.setHours(startHour, startMinute, 0, 0)
+
+      const end = new Date(baseDate)
+      end.setHours(endHour, endMinute, 0, 0)
+
+      // Handle the case where endTime is "00:00" (midnight of the next day)
+      if (endHour === 0 && endMinute === 0) {
+        end.setDate(end.getDate() + 1)
+      }
+
+      return {
+        start,
+        end,
+        state: stateItem.state,
+      }
+    })
+  }, [tankStateData])
 
   // Modificado: Ahora actualiza selectedDate en el store global cuando se cambia de día
   const handleDateChange = (newDay) => {
@@ -473,13 +439,13 @@ export default function TimeSeriesSlider({ startDate, endDate, states = [], onTi
 
   // Keep the original state markers for backward compatibility
   const stateMarkers = useMemo(() => {
-    return states
+    return tankStateData?.states
       .filter((state) => isSameDay(state.date, currentDate))
       .map((state) => ({
         value: state.date.getHours() * 60 + state.date.getMinutes(),
         label: `${state.label} at ${formatTime(state.date)}`,
       }))
-  }, [currentDate, states, formatTime])
+  }, [currentDate, tankStateData?.states, formatTime])
 
   const handleTimeSliderLimits = useCallback(() => {
     let minTime = 0
@@ -602,16 +568,6 @@ export default function TimeSeriesSlider({ startDate, endDate, states = [], onTi
           </div>
 
           <div className="flex items-center space-x-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={loadDataForCurrentTime}
-              className="h-7 px-2 text-xs flex items-center gap-1"
-              title="Cargar datos para este momento"
-            >
-              <RefreshCw className="h-3 w-3" />
-              Cargar datos
-            </Button>
             <Button size="sm" variant="outline" onClick={togglePlay} className="h-7 w-7 p-0 rounded-full">
               {isPlaying ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
             </Button>
@@ -630,7 +586,9 @@ export default function TimeSeriesSlider({ startDate, endDate, states = [], onTi
         />
 
         <div className="flex justify-center mt-1">
-          <StateLegend states={stateData.states} />
+          <StateLegend
+            states={tankStateData ? [...new Set(tankStateData.states.map((item) => item.state))] : []}
+          />
         </div>
       </div>
 

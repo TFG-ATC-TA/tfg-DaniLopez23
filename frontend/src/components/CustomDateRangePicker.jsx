@@ -13,9 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const CustomDateRangePicker = ({ value, onChange }) => {
   // Ensure value is properly initialized
-  const safeValue = value || { from: undefined, to: undefined }
   const [isOpen, setIsOpen] = useState(false)
-  const [tempRange, setTempRange] = useState(safeValue)
+  const [tempRange, setTempRange] = useState(value)
   const [error, setError] = useState(null)
   const [timeMode, setTimeMode] = useState("fullDay") // "fullDay" or "custom"
   const [startTime, setStartTime] = useState({ hours: "00", minutes: "00" })
@@ -356,11 +355,11 @@ const CustomDateRangePicker = ({ value, onChange }) => {
           variant="outline"
           className={cn(
             "w-full justify-start text-left font-normal border-input",
-            !safeValue.from && "text-muted-foreground",
+            !value.from && "text-muted-foreground",
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
-          <span className="truncate">{formatDateRange(safeValue)}</span>
+          <span className="truncate">{formatDateRange(value)}</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[650px] p-0 overflow-hidden">
