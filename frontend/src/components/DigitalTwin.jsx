@@ -1,22 +1,21 @@
-import { useState, useEffect, useCallback } from "react";
-import SensorDataTab from "./sensorData/SensorDataTab";
-import TankDate from "./TankDate";
-import TankStatus from "./TankStatus";
-import DataModeToggle from "./DataModeToogle";
-import TimeSeriesSlider from "./TimeSeriesSlider";
-import TankModel from "./TankModel";
-import HistoricalDataFilter from "./HistoricalDataFilter";
-import { getHistoricalData } from "@/services/farm";
-import { getBoardIdsFromTank } from "@/services/tank";
-import useAppDataStore from "@/stores/useAppDataStore";
-import useFarmStore from "@/stores/useFarmStore";
-import useTankStore from "@/stores/useTankStore";
-import useDataStore from "@/stores/useDataStore";
-import { predictStatesByDate } from "@/services/predictStates";
-import { Loader2 } from "lucide-react";
-import { format } from "date-fns";
-import useHistoricalData from "@/hooks/useHistoricalData";
-import useTankStates from "@/hooks/useTankStates";
+"use client"
+
+import { useState, useEffect } from "react"
+import SensorDataTab from "./sensorData/SensorDataTab"
+import TankDate from "./TankDate"
+import TankStatus from "./TankStatus"
+import DataModeToggle from "./DataModeToogle"
+import TimeSeriesSlider from "./TimeSeriesSlider"
+import TankModel from "./TankModel"
+import HistoricalDataFilter from "./HistoricalDataFilter"
+import { getBoardIdsFromTank } from "@/services/tank"
+import useAppDataStore from "@/stores/useAppDataStore"
+import useFarmStore from "@/stores/useFarmStore"
+import useTankStore from "@/stores/useTankStore"
+import useDataStore from "@/stores/useDataStore"
+import { Loader2 } from "lucide-react"
+import useHistoricalData from "@/hooks/useHistoricalData"
+import useTankStates from "@/hooks/useTankStates"
 
 const DigitalTwin = () => {
   const {
@@ -28,7 +27,7 @@ const DigitalTwin = () => {
     airQualityData,
     selectedData,
     gyroscopeData,
-  } = useDataStore((state) => state);
+  } = useDataStore((state) => state)
 
   const realTimeData = {
     encoderData,
@@ -39,84 +38,62 @@ const DigitalTwin = () => {
     airQualityData,
     selectedData,
     gyroscopeData,
-  };
+  }
 
-  const { selectedFarm } = useFarmStore((state) => state);
-  const { filters, mode, setMode, setFilters } = useAppDataStore(
-    (state) => state
-  );
-  const { selectedTank } = useTankStore();
-  const [prevDateRange, setPrevDateRange] = useState(null);
-  const [prevSelectedDate, setPrevSelectedDate] = useState(null);
-  const [selectedTime, setSelectedTime] = useState(null);
+  const { selectedFarm } = useFarmStore((state) => state)
+  const { filters, mode, setMode, setFilters } = useAppDataStore((state) => state)
+  const { selectedTank } = useTankStore()
+  const [prevDateRange, setPrevDateRange] = useState(null)
+  const [prevSelectedDate, setPrevSelectedDate] = useState(null)
+  const [selectedTime, setSelectedTime] = useState(null)
+  const [isSensorsVisible, setIsSensorsVisible] = useState(true)
+  const [isFiltersVisible, setIsFiltersVisible] = useState(true)
 
-  const boardIds = getBoardIdsFromTank(selectedTank);
+  const boardIds = getBoardIdsFromTank(selectedTank)
 
-  // LOGICA FETCH DATOS HISTORICOS 
-  const {
-    historicalData,
-    selectedHistoricalData,
-    error,
-    fetchHistoricalData,
-    handleTimeSelected,
-  } = useHistoricalData({
+  // LOGICA FETCH DATOS HISTORICOS
+  const { historicalData, selectedHistoricalData, error, fetchHistoricalData, handleTimeSelected } = useHistoricalData({
     filters,
     boardIds,
     selectedFarm,
     selectedTime,
-  });
+  })
 
-  // LOGICA FETCH ESTADOS TANQUES 
-  const {
-    tankStates,
-    tankStatesLoading,
-    tankStatesError,
-    fetchTankStates,
-    retryFetchTankStates,
-  } = useTankStates({
+  // LOGICA FETCH ESTADOS TANQUES
+  const { tankStates, tankStatesLoading, tankStatesError, fetchTankStates, retryFetchTankStates } = useTankStates({
     filters,
     boardIds,
     selectedFarm,
     selectedTank,
-  });
+  })
 
   // Show the time series slider if:
   // 1. We're in historical mode
   // 2. We have a date range selected
   // 3. Historical data is available and not in a loading or error state
   const shouldShowTimeSeriesSlider =
-    mode === "historical" &&
-    filters.dateRange &&
-    historicalData &&
-    historicalData !== "loading" &&
-    !error;
+    mode === "historical" && filters.dateRange && historicalData && historicalData !== "loading" && !error
 
   // Efecto para hacer fetch cuando cambia selectedDate
   useEffect(() => {
     if (mode === "historical" && filters.selectedDate) {
-      const currentSelectedDate = filters.selectedDate?.getTime();
-      const prevDate = prevSelectedDate?.getTime();
+      const currentSelectedDate = filters.selectedDate?.getTime()
+      const prevDate = prevSelectedDate?.getTime()
 
       // Solo si la fecha seleccionada ha cambiado realmente o es la primera carga
       if (currentSelectedDate !== prevDate) {
-        fetchHistoricalData();
-        fetchTankStates();
-        setPrevSelectedDate(filters.selectedDate);
+        fetchHistoricalData()
+        fetchTankStates()
+        setPrevSelectedDate(filters.selectedDate)
       }
     }
-  }, [
-    filters.selectedDate,
-    fetchHistoricalData,
-    fetchTankStates,
-    mode,
-    prevSelectedDate,
-  ]);
+  }, [filters.selectedDate, fetchHistoricalData, fetchTankStates, mode, prevSelectedDate])
 
   // Efecto para detectar cambios en el rango de fechas
   useEffect(() => {
     if (mode === "historical" && filters.dateRange) {
-      const currentRangeFrom = filters.dateRange.from?.getTime();
-      const prevRangeFrom = prevDateRange?.from?.getTime();
+      const currentRangeFrom = filters.dateRange.from?.getTime()
+      const prevRangeFrom = prevDateRange?.from?.getTime()
 
       // Solo si el rango ha cambiado realmente
       if (currentRangeFrom !== prevRangeFrom) {
@@ -130,24 +107,25 @@ const DigitalTwin = () => {
           setFilters({
             ...filters,
             selectedDate: filters.dateRange.from,
-          });
+          })
         }
 
-        setPrevDateRange(filters.dateRange);
+        setPrevDateRange(filters.dateRange)
       }
     }
-  }, [mode, filters.dateRange, prevDateRange, setFilters, filters]);
+  }, [mode, filters.dateRange, prevDateRange, setFilters, filters])
 
   if (!selectedTank) {
     return (
       <div className="flex items-center justify-center h-full text-lg text-muted-foreground">
         <p>No tank selected</p>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden relative">
+      {/* Panel de sensores */}
       <SensorDataTab
         mode={mode}
         historicalData={selectedHistoricalData || historicalData}
@@ -155,28 +133,27 @@ const DigitalTwin = () => {
         error={error}
       />
 
+      {/* Contenido principal */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex flex-wrap md:flex-nowrap gap-1 p-1">
-          <div className="flex-grow min-w-[240px] bg-white rounded-lg shadow-sm">
+        <div className="flex flex-wrap md:flex-nowrap gap-2 p-2">
+          <div className="w-full md:w-1/2 lg:w-3/5">
             <TankDate mode={mode} filters={filters} />
           </div>
 
-          <div className="flex-shrink-0 bg-white rounded-lg shadow-sm">
+          <div className="w-full md:w-1/4 lg:w-1/5">
             <DataModeToggle
               isRealTime={mode === "realtime"}
-              onToggle={() =>
-                setMode(mode === "realtime" ? "historical" : "realtime")
-              }
+              onToggle={() => setMode(mode === "realtime" ? "historical" : "realtime")}
             />
           </div>
 
-          <div className="flex-shrink-0 bg-white rounded-lg shadow-sm">
+          <div className="w-full md:w-1/4 lg:w-1/5">
             <TankStatus isRealTime={mode === "realtime"} />
           </div>
         </div>
 
         <div className="flex-1 flex overflow-hidden">
-          <div className="flex-1 flex flex-col bg-white rounded-lg shadow-sm overflow-hidden mr-1 ml-1">
+          <div className="flex-1 flex flex-col bg-white rounded-lg shadow-sm overflow-hidden m-1">
             <div className="flex-1 relative">
               <TankModel
                 mode={mode}
@@ -193,9 +170,7 @@ const DigitalTwin = () => {
                 {tankStatesLoading ? (
                   <div className="flex items-center justify-center py-4">
                     <Loader2 className="h-5 w-5 animate-spin text-primary mr-2" />
-                    <span className="text-sm text-muted-foreground">
-                      Loading tank states...
-                    </span>
+                    <span className="text-sm text-muted-foreground">Loading tank states...</span>
                   </div>
                 ) : tankStates ? (
                   <TimeSeriesSlider
@@ -222,11 +197,13 @@ const DigitalTwin = () => {
             )}
           </div>
 
+          {/* Panel de filtros históricos */}
           <HistoricalDataFilter />
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default DigitalTwin;
+export default DigitalTwin
+
