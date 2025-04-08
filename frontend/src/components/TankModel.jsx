@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react"
+"use client"
+
+import { useEffect, useState, useCallback } from "react"
 import { Canvas } from "@react-three/fiber"
 import useTankStore from "@/stores/useTankStore"
 import SelectedSensorData from "./sensorData/SelectedSensorData"
@@ -9,17 +11,15 @@ import { VerticalTank1Blade } from "./tankModels/vertical/VerticalTank1Blade"
 import { Button } from "./ui/button"
 import { Suspense } from "react"
 import { Loader2 } from "lucide-react"
-import useAppDataStore from "@/stores/useAppDataStore"
 import useDataStore from "@/stores/useDataStore"
-import useHistoricalData from "@/hooks/useHistoricalData"
-import useFarmStore from "@/stores/useFarmStore"
 import CameraControlButtons from "./camera/CameraControlButtons"
-import { set } from "date-fns"
+import useHistoricalData from "@/hooks/useHistoricalData"
 
-const TankModel = ({boardIds, selectedTime}) => {
+const TankModel = ({ mode, filters, boardIds, selectedFarm, selectedTime, onTimeSelected }) => {
   const { selectedTank } = useTankStore((state) => state)
-  const { mode, filters} = useAppDataStore((state) => state)
-  const { selectedFarm } = useFarmStore((state) => state)
+  const [currentView, setCurrentView] = useState("default")
+
+  // Get real-time data directly in this component
   const {
     encoderData,
     milkQuantityData,
@@ -31,6 +31,7 @@ const TankModel = ({boardIds, selectedTime}) => {
     gyroscopeData,
   } = useDataStore((state) => state)
 
+  // Organize real-time data
   const realTimeData = {
     encoderData,
     milkQuantityData,
@@ -42,34 +43,57 @@ const TankModel = ({boardIds, selectedTime}) => {
     gyroscopeData,
   }
 
-  const { selectedHistoricalData, historicalData, error, fetchHistoricalData } = useHistoricalData({
+  // LOGICA FETCH DATOS HISTORICOS
+  const { historicalData, selectedHistoricalData, error, fetchHistoricalData, handleTimeSelected } = useHistoricalData({
     filters,
     boardIds,
     selectedFarm,
     selectedTime,
   })
 
-  const [currentView, setCurrentView] = useState("default")
+  // Effect to fetch historical data when selectedDate changes
+  useEffect(() => {
+    if (mode === "historical" && filters.selectedDate) {
+      fetchHistoricalData()
+    }
+  }, [mode, filters.selectedDate, fetchHistoricalData])
+
+  // Handle time selection and notify parent
+  const handleTimeSelectionChange = useCallback(
+    (timeString) => {
+      handleTimeSelected(timeString)
+      if (onTimeSelected) {
+        onTimeSelected(timeString)
+      }
+    },
+    [handleTimeSelected, onTimeSelected],
+  )
+
+  // Log when selectedTime changes
+  useEffect(() => {
+    if (selectedTime) {
+      console.log(`TankModel: Time selected changed to ${selectedTime}`)
+      handleTimeSelected(selectedTime)
+    }
+  }, [selectedTime, handleTimeSelected])
 
   // Sincronizar la vista con selectedData
   useEffect(() => {
     if (selectedData) {
       // Cambiar la vista basada en selectedData
-      setCurrentView(selectedData);
-    }else {
+      setCurrentView(selectedData)
+    } else {
       setCurrentView("default")
     }
-  }, [selectedData]);
+  }, [selectedData])
 
   const handleViewChange = (view) => {
-    setCurrentView(view); // Actualizar la vista desde los botones
-  };
+    setCurrentView(view) // Actualizar la vista desde los botones
+  }
 
-  console.log("Current view", currentView)
-  console.log("Selected data", selectedData)
   const renderTankModel = () => {
-    const data = mode === "realtime" ? realTimeData : selectedHistoricalData
-    const selectedData = realTimeData.selectedData
+    // Use the appropriate data source based on mode
+    const data = mode === "realtime" ? realTimeData : selectedHistoricalData || historicalData
 
     // Case 1: Historical mode but no date range selected
     if (mode === "historical" && !filters.dateRange) {
@@ -185,8 +209,7 @@ const TankModel = ({boardIds, selectedTime}) => {
   return (
     <div className="w-full h-full bg-white relative">
       {/* Only show sensor data overlay when in realtime mode or when historical data is loaded */}
-      {(mode === "realtime" ||
-        (historicalData && historicalData !== "loading" && !error)) && (
+      {(mode === "realtime" || (historicalData && historicalData !== "loading" && !error)) && (
         <>
           <div className="absolute top-4 left-4 z-10">
             <SelectedSensorData />
@@ -194,10 +217,9 @@ const TankModel = ({boardIds, selectedTime}) => {
         </>
       )}
       {renderTankModel()}
-      <CameraControlButtons handleViewChange={handleViewChange}/>
+      <CameraControlButtons handleViewChange={handleViewChange} />
     </div>
-  );
+  )
 }
 
 export default TankModel
-
