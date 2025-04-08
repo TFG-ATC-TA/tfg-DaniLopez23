@@ -17,7 +17,7 @@ const url = config.influxDB.INFLUX_URL;
 // const org = config.influxDB.LOCAL_INFLUX_ORG;
 // const url = config.influxDB.LOCAL_INFLUX_URL;
 
-debug("InfluxDB Config:", { token, org, url });
+debug("INFLUX CONFIGURATION:", { token, org, url });
 
 const client = new InfluxDB({ url, token });
 const queryApi = client.getQueryApi(org);
