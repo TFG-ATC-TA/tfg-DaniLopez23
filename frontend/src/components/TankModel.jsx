@@ -1,5 +1,3 @@
-"use client"
-
 import { useEffect, useState, useCallback } from "react"
 import { Canvas } from "@react-three/fiber"
 import useTankStore from "@/stores/useTankStore"
@@ -49,6 +47,7 @@ const TankModel = ({ mode, filters, boardIds, selectedFarm, selectedTime, onTime
     boardIds,
     selectedFarm,
     selectedTime,
+    selectedTank,
   })
 
   // Effect to fetch historical data when selectedDate changes
@@ -58,16 +57,6 @@ const TankModel = ({ mode, filters, boardIds, selectedFarm, selectedTime, onTime
     }
   }, [mode, filters.selectedDate, fetchHistoricalData])
 
-  // Handle time selection and notify parent
-  const handleTimeSelectionChange = useCallback(
-    (timeString) => {
-      handleTimeSelected(timeString)
-      if (onTimeSelected) {
-        onTimeSelected(timeString)
-      }
-    },
-    [handleTimeSelected, onTimeSelected],
-  )
 
   // Log when selectedTime changes
   useEffect(() => {
@@ -91,9 +80,11 @@ const TankModel = ({ mode, filters, boardIds, selectedFarm, selectedTime, onTime
     setCurrentView(view) // Actualizar la vista desde los botones
   }
 
+  // Use the appropriate data source based on mode
+  const data = mode === "realtime" ? realTimeData : selectedHistoricalData || historicalData
+  console.log("TankModel: Data being used", data)
+
   const renderTankModel = () => {
-    // Use the appropriate data source based on mode
-    const data = mode === "realtime" ? realTimeData : selectedHistoricalData || historicalData
 
     // Case 1: Historical mode but no date range selected
     if (mode === "historical" && !filters.dateRange) {
@@ -212,7 +203,15 @@ const TankModel = ({ mode, filters, boardIds, selectedFarm, selectedTime, onTime
       {(mode === "realtime" || (historicalData && historicalData !== "loading" && !error)) && (
         <>
           <div className="absolute top-4 left-4 z-10">
-            <SelectedSensorData />
+            <SelectedSensorData             
+              encoderData={data?.encoderData}
+              milkQuantityData={data?.milkQuantityData}
+              switchStatus={data?.switchStatus}
+              weightData={data?.weightData}
+              tankTemperaturesData={data?.tankTemperaturesData}
+              airQualityData={data?.airQualityData}
+              selectedData={selectedData}
+            />
           </div>
         </>
       )}

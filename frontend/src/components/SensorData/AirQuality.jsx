@@ -3,19 +3,19 @@ import { Wind } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 const AirQuality = ({ airQualityData }) => {
-  const { airQuality = {}, sensorId, readableDate } = airQualityData || {};
+  const { value, tags, readableDate } = airQualityData || {};
 
   const metrics = [
-    { label: "Breath VOC Equivalent", value: airQuality.breath_voc_equivalent, unit: "ppb" },
-    { label: "CO2 Equivalent", value: airQuality.co2_equivalent, unit: "ppm" },
-    { label: "Gas Percentage", value: airQuality.gas_percentage, unit: "%" },
-    { label: "Humidity", value: airQuality.heat_compensated_humidity, unit: "%" },
-    { label: "Temperature", value: airQuality.heat_compensated_temperature, unit: "°C" },
-    { label: "IAQ", value: airQuality.iaq, unit: "" },
-    { label: "Raw Gas", value: airQuality.raw_gas, unit: "ohm" },
-    { label: "Raw Humidity", value: airQuality.raw_humidity, unit: "%" },
-    { label: "Raw Pressure", value: airQuality.raw_pressure, unit: "Pa" },
-    { label: "Raw Temperature", value: airQuality.raw_temperature, unit: "°C" },
+    { label: "Breath VOC", value: value.breath_voc_equivalent, unit: "ppb" },
+    { label: "CO2 ", value: value.co2_equivalent, unit: "ppm" },
+    { label: "Gas Percentage", value: value.gas_percentage, unit: "%" },
+    { label: "Humidity", value: value.heat_compensated_humidity, unit: "%" },
+    { label: "Temperature", value: value.heat_compensated_temperature, unit: "°C" },
+    { label: "IAQ", value: value.iaq, unit: "" },
+    { label: "Raw Gas", value: value.raw_gas, unit: "ohm" },
+    { label: "Raw Humidity", value: value.raw_humidity, unit: "%" },
+    { label: "Raw Pressure", value: value.raw_pressure, unit: "Pa" },
+    { label: "Raw Temperature", value: value.raw_temperature, unit: "°C" },
   ];
 
   return (
@@ -31,8 +31,8 @@ const AirQuality = ({ airQualityData }) => {
         <div className="space-y-4">
           <div className="space-y-1">
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground">Sensor ID:</span>
-              <span className="font-medium">{sensorId || 'N/A'}</span>
+              <span className="text-muted-foreground">Board ID:</span>
+              <span className="font-medium">{tags?.board_id || 'N/A'}</span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Last Reading:</span>
@@ -46,7 +46,7 @@ const AirQuality = ({ airQualityData }) => {
                 key={label}
                 className="bg-blue-100/30 p-2 rounded-md"
               >
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center space-x-1">
                   <span className="text-xs text-muted-foreground">{label}</span>
                   <span className="text-sm font-medium text-blue-600">
                     {value !== undefined ? `${value.toFixed(2)} ${unit}` : "N/A"}

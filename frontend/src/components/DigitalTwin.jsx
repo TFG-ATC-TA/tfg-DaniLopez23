@@ -24,7 +24,6 @@ const DigitalTwin = () => {
   const [selectedTime, setSelectedTime] = useState(null)
   const [isSensorsVisible, setIsSensorsVisible] = useState(true)
   const [isFiltersVisible, setIsFiltersVisible] = useState(true)
-
   const boardIds = getBoardIdsFromTank(selectedTank)
 
   // LOGICA FETCH ESTADOS TANQUES
@@ -47,6 +46,8 @@ const DigitalTwin = () => {
         setPrevSelectedDate(filters.selectedDate)
       }
     }
+  
+
   }, [filters.selectedDate, fetchTankStates, mode, prevSelectedDate])
 
   // Efecto para detectar cambios en el rango de fechas

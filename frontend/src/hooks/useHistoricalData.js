@@ -1,15 +1,12 @@
-"use client"
-
 import { useState, useCallback, useEffect, useRef } from "react"
 import { getHistoricalData } from "@/services/farm"
 import { format } from "date-fns"
 
-const useHistoricalData = ({ filters, boardIds, selectedFarm, selectedTime }) => {
+const useHistoricalData = ({ filters, boardIds, selectedFarm, selectedTime, selectedTank }) => {
   const [historicalData, setHistoricalData] = useState(null)
   const [selectedHistoricalData, setSelectedHistoricalData] = useState(null)
   const [error, setError] = useState(null)
   const lastFetchedDate = useRef(null)
-
   // Helper function to convert time string (HH:MM) to minutes
   const timeStringToMinutes = (timeString) => {
     if (!timeString) return 0
@@ -18,9 +15,7 @@ const useHistoricalData = ({ filters, boardIds, selectedFarm, selectedTime }) =>
   }
 
   const updateSelectedHistoricalData = useCallback((data, timeString) => {
-    if (!data || data === "loading" || !timeString) return
-
-    console.log(`Updating selected historical data for time: ${timeString}`)
+    if (!data || data === "loading" || !timeString) return   
 
     // Check if the exact time exists in the data
     if (data[timeString]) {
@@ -47,7 +42,6 @@ const useHistoricalData = ({ filters, boardIds, selectedFarm, selectedTime }) =>
       })
 
       setSelectedHistoricalData(data[closestTime])
-      console.log(`Using closest available time: ${closestTime} for requested time: ${timeString}`)
     } else {
       console.warn(`No data found for time ${timeString}`)
       setSelectedHistoricalData(null)
@@ -72,7 +66,6 @@ const useHistoricalData = ({ filters, boardIds, selectedFarm, selectedTime }) =>
 
       // Check if we've already fetched data for this date
       if (lastFetchedDate.current === formattedDate && historicalData && historicalData !== "loading") {
-        console.log(`Using cached data for ${formattedDate}`)
 
         // If there's a selected time, update the selected data
         if (selectedTime) {
@@ -89,6 +82,7 @@ const useHistoricalData = ({ filters, boardIds, selectedFarm, selectedTime }) =>
         date: formattedDate,
         boardIds,
         farm: selectedFarm.broker,
+        tank: selectedTank,
       })
 
       if (data === null) {

@@ -1,6 +1,5 @@
 const topics = require("./topics");
 const debug = require("debug")("app:dataHandling");
-const TANK_HEIGHT = 4000; // Altura del tanque en mm
 
 const parseCommonData = (rawData) => {
   try {
@@ -54,7 +53,7 @@ const getMilkQuantityData = (rawData) => {
 
   return {
     ...baseStructure(lastObject),
-    value: (lastObject.fields.range / TANK_HEIGHT) * 100,
+    value: lastObject.fields.range,
 
   };
 };

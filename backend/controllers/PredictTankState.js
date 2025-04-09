@@ -157,6 +157,12 @@ PredictTankStatesRouter.post("/", validateRequest, async (req, res) => {
     const influxData = await executeQuery(fluxQuery);
     debug("Datos de InfluxDB:", influxData.slice(0, 5)); 
 
+    if (influxData.length === 0) {
+      debug("No se encontraron datos en InfluxDB para la fecha y filtros dados.");
+      return res.status(404).json({ message: "No se encontraron datos." });
+    }
+
+
     const processedData = processData(influxData);
     debug("Datos procesados:", processedData.slice(0, 5)); 
 

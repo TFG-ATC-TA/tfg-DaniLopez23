@@ -21,7 +21,7 @@ const MilkQuantity = ({ milkQuantityData }) => {
               <span className="text-muted-foreground">Board ID:</span>
               <span className="font-medium">{milkQuantityData?.tags.board_id || 'N/A'}</span>
             </div>
-            <div className="flex justify-between text-xs">
+            <div className="flex justify-between text-xs space-x-2">
               <span className="text-muted-foreground">Last Reading:</span>
               <span className="font-medium">{milkQuantityData?.readableDate || 'N/A'}</span>
             </div>
