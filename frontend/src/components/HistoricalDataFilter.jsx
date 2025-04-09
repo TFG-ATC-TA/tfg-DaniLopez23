@@ -36,7 +36,7 @@ const HistoricalDataFilter = () => {
   // Si el panel está oculto, solo mostrar el botón flotante
   if (!isFiltersVisible) {
     return (
-      <div className="absolute right-0 top-1/4 z-30">
+      <div className="absolute right-0 top-2/4 z-30">
         <Button
           variant="secondary"
           onClick={() => setIsFiltersVisible(true)}

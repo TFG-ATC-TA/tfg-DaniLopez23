@@ -40,13 +40,11 @@ export function HorizontalTank2Blades({
   });
 
   const renderMilkQuantity = () => {
-    const range = getVisibleMilkCilinder(milkQuantityData?.milkQuantity ?? 0);
-
+    const range = getVisibleMilkCilinder(milkQuantityData?.value ?? 0);
     if (!range) return null;
 
     const nodeKey = `MilkCilinder${range.max}`;
     const node = nodes[nodeKey];
-
     return (
       <mesh
         geometry={node.geometry}
@@ -206,7 +204,7 @@ export function HorizontalTank2Blades({
       {(selectedData === "MagneticSwitch" || selectedData == null) &&
         renderMagneticSwitch()}
       {(selectedData === "Weight" || selectedData == null) && renderWeight()}
-      {(selectedData === "TankTemperatures" || selectedData == null) &&
+      {(selectedData === "TankTemperatures") &&
         renderTankTemperatures()}
       {selectedData === "AirQuality" && renderAirQuality()}
     </group>
