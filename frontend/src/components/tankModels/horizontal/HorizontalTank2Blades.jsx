@@ -3,6 +3,7 @@ import { useSpring, animated } from "@react-spring/three";
 import CallOutText from "../CallOutText";
 import ParticleField from "../ParticleField";
 import { getRotationDuration, getAlcalineAcidCylinders, getVisibleMilkCilinder } from "../Transformations";
+
 export function HorizontalTank2Blades({
   encoderData,
   milkQuantityData,
@@ -20,14 +21,14 @@ export function HorizontalTank2Blades({
     loop: true,
     to: { rotation: [0, Math.PI * 2, 0] },
     from: { rotation: [0, 0, 0] },
-    config: { duration: getRotationDuration(encoderData?.value ?? 0) },
+    config: { duration: getRotationDuration(encoderData?.value["00"] ?? 0) },
   });
 
   const rotationBlade2 = useSpring({
     loop: true,
     to: { rotation: [0, -Math.PI * 2, 0] },
     from: { rotation: [0, 0, 0] },
-    config: { duration: getRotationDuration(encoderData?.value ?? 0) },
+    config: { duration: getRotationDuration(encoderData?.value["01"] ?? 0) },
   });
 
   const { rotation: rotationHatch } = useSpring({
@@ -87,12 +88,12 @@ export function HorizontalTank2Blades({
       <CallOutText
         position={[0, 2.75, 1.1]}
         title={"Encoder"}
-        value={`${encoderData?.value ?? "No data"}`}
+        value={`${encoderData?.value["00"] ?? "No data"}`}
       />
       <CallOutText
         position={[0, 2.75, -1.1]}
         title={"Encoder"}
-        value={`${encoderData?.value ?? "No data"}`}
+        value={`${encoderData?.value["01"] ?? "No data"}`}
       />
     </>
   );
@@ -188,7 +189,8 @@ export function HorizontalTank2Blades({
   };
 
   const renderAirQuality = () => (
-    <ParticleField particleCount={1000} humidity={10} temperature={20} />
+    <ParticleField particleCount={1000} humidity={airQualityData?.value.humidity || 0} temperature={airQualityData?.value.temperature || 0} />
+    
   );
 
   return (

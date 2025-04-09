@@ -2,8 +2,8 @@ import { ToggleRight } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 const MagneticSwitch = ({ switchStatus }) => {
-  const { status, tags, readableDate } = switchStatus || {};
-  const isOpen = status === 1;
+  const { value, tags, readableDate } = switchStatus || {};
+  const isOpen = value === 1;
   return (
     <Card className="ring-2 ring-yellow-200 bg-yellow-50/20">
       <CardHeader className="pb-2">
@@ -17,10 +17,10 @@ const MagneticSwitch = ({ switchStatus }) => {
         <div className="space-y-4">
           <div className="space-y-1">
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground">Sensor ID:</span>
+              <span className="text-muted-foreground">Board ID:</span>
               <span className="font-medium">{tags?.board_id || 'N/A'}</span>
             </div>
-            <div className="flex justify-between text-xs">
+            <div className="flex justify-between text-xs space-x-2">
               <span className="text-muted-foreground">Last Reading:</span>
               <span className="font-medium">{readableDate || 'N/A'}</span>
             </div>

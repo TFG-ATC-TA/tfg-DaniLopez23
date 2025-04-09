@@ -17,7 +17,7 @@ const url = config.influxDB.INFLUX_URL;
 // const org = config.influxDB.LOCAL_INFLUX_ORG;
 // const url = config.influxDB.LOCAL_INFLUX_URL;
 
-debug("InfluxDB Config:", { token, org, url });
+debug("INFLUX CONFIGURATION:", { token, org, url });
 
 const client = new InfluxDB({ url, token });
 const queryApi = client.getQueryApi(org);
@@ -156,6 +156,12 @@ PredictTankStatesRouter.post("/", validateRequest, async (req, res) => {
 
     const influxData = await executeQuery(fluxQuery);
     debug("Datos de InfluxDB:", influxData.slice(0, 5)); 
+
+    if (influxData.length === 0) {
+      debug("No se encontraron datos en InfluxDB para la fecha y filtros dados.");
+      return res.status(404).json({ message: "No se encontraron datos." });
+    }
+
 
     const processedData = processData(influxData);
     debug("Datos procesados:", processedData.slice(0, 5)); 
