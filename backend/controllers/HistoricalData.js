@@ -26,7 +26,7 @@ const queryApi = client.getQueryApi(org);
 // Ruta para obtener datos históricos
 HistoricalDataRouter.post("/", async (req, res) => {
   const { farm, date, boardIds, tank } = req.body;
-  debug("Received filters:", { farm, date, boardIds });
+  debug("Received filters:", { farm, date, boardIds, tank });
 
   try {
     if (!date) {

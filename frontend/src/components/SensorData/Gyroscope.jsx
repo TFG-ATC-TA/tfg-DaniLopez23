@@ -1,55 +1,89 @@
-import { Compass } from "lucide-react";
+import { useState } from "react";
+import { Compass, ChevronDown, ChevronUp } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const Gyroscope = ({ gyroscopeData, isSelected, onSelect }) => {
+const Gyroscope = ({ gyroscopeData }) => {
+  const [expanded, setExpanded] = useState(true);
+  const { value, readableDate } = gyroscopeData || {};
+  const hasSensorValues = value && Object.keys(value).length > 0;
 
+  const toggleExpanded = () => setExpanded(!expanded);
 
   return (
     <Card
       className={cn(
-        "transition-all duration-300 hover:shadow-lg",
-        isSelected && "ring-2 ring-purple-200"
+        `transition-all duration-300 ease-in-out overflow-hidden 
+         ring-2 ring-purple-200 bg-purple-50/20
+         ${expanded ? "w-64 h-auto" : "w-16 h-16 flex items-center justify-center"}`
       )}
-      onClick={onSelect}
-      tabIndex={0}
-      role="button"
-      aria-pressed={isSelected}
     >
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Compass size={16} className="text-purple-500" />
-            <span>Gyroscope Data</span>
-          </div>
-          <div
-            className={cn(
-              "w-2 h-2 rounded-full transition-all duration-300",
-              isSelected ? "bg-purple-500" : "bg-gray-300"
-            )}
-          />
-        </CardTitle>
-      </CardHeader>
-      <p className="text-xs text-muted-foreground mb-2 px-6">
-        Last update: {gyroscopeData?.readableDate || "N/A"}
-      </p>
-      <CardContent>
-        {gyroscopeData ? (
-          <div className="grid grid-cols-3 gap-4 text-center">
-            {["gyro_x", "gyro_y", "gyro_z"].map((axis) => (
-              <div key={axis} className="flex flex-col items-center">
-                <span className="text-xs font-medium uppercase">{axis.slice(-1)}</span>
-                <span className="text-lg font-bold text-black">
-                  {gyroscopeData.value[axis]?.toFixed(2) || "0.00"}
-                </span>
-                <span className="text-xs text-muted-foreground">rad/s</span>
+      {expanded ? (
+        <>
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium flex items-center space-x-2">
+                <Compass size={20} className="text-purple-500" />
+                <span>Gyroscope Sensor</span>
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleExpanded}
+                className="text-purple-500 hover:bg-transparent"
+              >
+                <ChevronUp size={18} />
+              </Button>
+            </div>
+          </CardHeader>
+
+          <CardContent>
+            <div className="space-y-4">
+              <div className="space-y-1 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Last Reading:</span>
+                  <span className="font-medium">{readableDate || "N/A"}</span>
+                </div>
               </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">No data available</p>
-        )}
-      </CardContent>
+
+              <div className="bg-purple-100/30 p-4 rounded-md">
+                <h3 className="text-sm font-medium text-purple-600 mb-2">Gyroscope (rad/s)</h3>
+                <div className="grid grid-cols-3 gap-4 text-center mb-4">
+                  {["gyro_x", "gyro_y", "gyro_z"].map((axis) => (
+                    <div key={axis} className="flex flex-col items-center">
+                      <span className="text-xs font-medium uppercase">{axis.slice(-1)}</span>
+                      <span className="text-lg font-bold text-black">
+                        {value?.[axis]?.toFixed(2) || "0.00"}
+                      </span>
+                      <span className="text-xs text-muted-foreground">rad/s</span>
+                    </div>
+                  ))}
+                </div>
+
+                <h3 className="text-sm font-medium text-purple-600 mb-2">Accelerometer (m/s²)</h3>
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  {["accel_x", "accel_y", "accel_z"].map((axis) => (
+                    <div key={axis} className="flex flex-col items-center">
+                      <span className="text-xs font-medium uppercase">{axis.slice(-1)}</span>
+                      <span className="text-lg font-bold text-black">
+                        {value?.[axis]?.toFixed(2) || "0.00"}
+                      </span>
+                      <span className="text-xs text-muted-foreground">m/s²</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </>
+      ) : (
+        // Vista colapsada
+        <button onClick={toggleExpanded} className="flex flex-col items-center space-y-1">
+          <Compass size={20} className="text-purple-500" />
+          <ChevronDown size={16} className="text-muted-foreground" />
+        </button>
+      )}
     </Card>
   );
 };

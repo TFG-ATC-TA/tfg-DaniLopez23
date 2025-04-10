@@ -1,16 +1,11 @@
-"use client"
-
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Activity, Radio, Loader2, CircleX } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import SensorInfoItem from "./SensorInfoItem"
-import useHistoricalData from "@/hooks/useHistoricalData"
-import useAppDataStore from "@/stores/useAppDataStore"
 import useDataStore from "@/stores/useDataStore"
 
-const SensorDataTab = ({ mode, boardIds, selectedFarm, onToggleVisibility, selectedTime }) => {
+const SensorDataTab = ({ mode, selectedHistoricalData, historicalData, error}) => {
   const [isSensorsTabVisible, setIsSensorsTabVisible] = useState(true)
-  const { filters } = useAppDataStore((state) => state)
 
   // Get real-time data directly in this component
   const {
@@ -35,29 +30,6 @@ const SensorDataTab = ({ mode, boardIds, selectedFarm, onToggleVisibility, selec
     selectedData,
     gyroscopeData,
   }
-
-  // LOGICA FETCH DATOS HISTORICOS
-  const { historicalData, selectedHistoricalData, error, fetchHistoricalData, handleTimeSelected } = useHistoricalData({
-    filters,
-    boardIds,
-    selectedFarm,
-    selectedTime,
-  })
-
-  // Effect to fetch historical data when selectedDate changes
-  useEffect(() => {
-    if (mode === "historical" && filters.selectedDate) {
-      fetchHistoricalData()
-    }
-  }, [mode, filters.selectedDate, fetchHistoricalData])
-
-  // Effect to handle time selection
-  useEffect(() => {
-    if (selectedTime && mode === "historical") {
-      handleTimeSelected(selectedTime)
-    }
-  }, [selectedTime, handleTimeSelected, mode])
-
 
 
   // Si el panel está oculto, solo mostrar el botón flotante
@@ -110,9 +82,6 @@ const SensorDataTab = ({ mode, boardIds, selectedFarm, onToggleVisibility, selec
         ) : error && mode === "historical" ? (
           <div className="text-center p-4">
             <p className="text-sm text-red-500 mb-2">Error loading sensor data</p>
-            <Button onClick={fetchHistoricalData} size="sm" variant="outline">
-              Try Again
-            </Button>
           </div>
         ) : (
           <SensorInfoItem historicalData={dataToDisplay} isRealTime={mode === "realtime"} />

@@ -38,7 +38,7 @@ const TankTemperatures = ({ tankTemperaturesData }) => {
             </div>
           </CardHeader>
 
-          <CardContent>
+          { tankTemperaturesData ? <CardContent>
             <div className="space-y-4">
               <div className="space-y-1 text-xs">
                 <div className="flex justify-between">
@@ -72,7 +72,11 @@ const TankTemperatures = ({ tankTemperaturesData }) => {
                 </div>
               </div>
             </div>
-          </CardContent>
+          </CardContent> :
+            <CardContent className="flex items-center justify-center h-full">
+              <span className="text-sm text-muted-foreground">No data available</span>
+            </CardContent>
+          }
         </>
       ) : (
         // Vista colapsada: solo icono y botón

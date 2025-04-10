@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState } from "react"
 import { Canvas } from "@react-three/fiber"
 import useTankStore from "@/stores/useTankStore"
 import SelectedSensorData from "./sensorData/SelectedSensorData"
@@ -11,9 +11,8 @@ import { Suspense } from "react"
 import { Loader2 } from "lucide-react"
 import useDataStore from "@/stores/useDataStore"
 import CameraControlButtons from "./camera/CameraControlButtons"
-import useHistoricalData from "@/hooks/useHistoricalData"
 
-const TankModel = ({ mode, filters, boardIds, selectedFarm, selectedTime, onTimeSelected }) => {
+const TankModel = ({ mode, filters, selectedTime, handleTimeSelected, selectedHistoricalData, historicalData, error, fetchHistoricalData }) => {
   const { selectedTank } = useTankStore((state) => state)
   const [currentView, setCurrentView] = useState("default")
 
@@ -40,22 +39,6 @@ const TankModel = ({ mode, filters, boardIds, selectedFarm, selectedTime, onTime
     selectedData,
     gyroscopeData,
   }
-
-  // LOGICA FETCH DATOS HISTORICOS
-  const { historicalData, selectedHistoricalData, error, fetchHistoricalData, handleTimeSelected } = useHistoricalData({
-    filters,
-    boardIds,
-    selectedFarm,
-    selectedTime,
-    selectedTank,
-  })
-
-  // Effect to fetch historical data when selectedDate changes
-  useEffect(() => {
-    if (mode === "historical" && filters.selectedDate) {
-      fetchHistoricalData()
-    }
-  }, [mode, filters.selectedDate, fetchHistoricalData])
 
 
   // Log when selectedTime changes
@@ -211,6 +194,7 @@ const TankModel = ({ mode, filters, boardIds, selectedFarm, selectedTime, onTime
               tankTemperaturesData={data?.tankTemperaturesData}
               airQualityData={data?.airQualityData}
               selectedData={selectedData}
+              gyroscopeData={data?.gyroscopeData}
             />
           </div>
         </>

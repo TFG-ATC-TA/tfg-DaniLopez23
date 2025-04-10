@@ -159,7 +159,7 @@ PredictTankStatesRouter.post("/", validateRequest, async (req, res) => {
 
     if (influxData.length === 0) {
       debug("No se encontraron datos en InfluxDB para la fecha y filtros dados.");
-      return res.status(404).json({ message: "No se encontraron datos." });
+      return res.status(200).json(null);
     }
 
 
