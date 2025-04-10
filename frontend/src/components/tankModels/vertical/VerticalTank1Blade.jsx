@@ -61,7 +61,7 @@ export function VerticalTank1Blade({
         scale={[0.061, 0.045, 0.061]}
       />
       <CallOutText
-        position={[0, 3, 0.5]}
+        position={[0, 3.1, 0.4]}
         title={"Encoder"}
         value={`${encoderData?.value["01"] ?? "No data"}`}
       />
@@ -77,7 +77,7 @@ export function VerticalTank1Blade({
         rotation={rotationHatch}
       />
       <CallOutText
-        position={[0, 3, -0.5]}
+        position={[0, 3, -0.9]}
         title={"Magnetic Switch"}
         value={`${switchStatus == null ? "No Data" : switchStatus?.value ? "Open" : "Closed"}`}
       />
@@ -121,12 +121,12 @@ export function VerticalTank1Blade({
           position={[1.763, 0.27, 1.817]}
         />
         <CallOutText
-          position={[0.9, 0.9, 1.5]}
+          position={[0.85, 0.9, 1.55]}
           title="Alcaline"
           value={weightData?.value}
         />
         <CallOutText
-          position={[1.8, 0.9, 1.9]}
+          position={[1.7, 0.9, 1.8]}
           title="Acid"
           value={weightData?.value}
         />
