@@ -30,6 +30,9 @@ export function VerticalTank1Blade({
   });
   
   const renderMilkQuantity = () => {
+
+    if (milkQuantityData == null) return null;
+
     const morphInfluence = Math.min(Math.max((milkQuantityData?.value ?? 0) / 100, 0), 1);
   
     return (

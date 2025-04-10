@@ -105,8 +105,9 @@ async def predict(request: PredictionRequest):
             })
 
         # Agregar predicciones al DataFrame
+        prediction_labels = le.inverse_transform(predictions)
         df["Prediction"] = [
-            le.inverse_transform([predictions[j // WINDOW_SIZE]])[0]
+            prediction_labels[min(j // WINDOW_SIZE, len(prediction_labels) - 1)]
             for j in range(len(df))
         ]
 
