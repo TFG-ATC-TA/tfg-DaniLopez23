@@ -191,7 +191,7 @@ const TankModel = ({ mode, filters, boardIds, selectedFarm, selectedTime, onTime
         <directionalLight position={[-10, -10, -10]} intensity={0.5} />
         <Suspense fallback={null}>
           <group>{selectTankDisplayType(selectedTank?.display, selectedTank?.blades)}</group>
-          <CameraSettings view={currentView} />
+          <CameraSettings view={currentView} tankDisplay={selectedTank?.display}/>
         </Suspense>
       </Canvas>
     )

@@ -1,18 +1,14 @@
-'use client';
-
 import { useRef, useEffect } from "react";
-import { CameraControls, GizmoHelper, GizmoViewport } from "@react-three/drei";
+import { CameraControls} from "@react-three/drei";
 import { cameraViews } from "./CameraViews";
-import { useThree } from "@react-three/fiber";
 
-const CameraSettings = ({ view }) => {
+const CameraSettings = ({ view, tankDisplay }) => {
   const cameraControlsRef = useRef();
-  const { gl } = useThree();
 
   // Efecto para restricciones iniciales y cambios de vista
   useEffect(() => {
     if (cameraControlsRef.current) {
-      const config = cameraViews[view] || cameraViews.default;
+      const config = cameraViews[tankDisplay][view] || cameraViews.default;
       
       // Configurar posición y objetivo
       cameraControlsRef.current.setLookAt(
@@ -44,7 +40,7 @@ const CameraSettings = ({ view }) => {
     }
     
 
-  }, [view]);
+  }, [view, tankDisplay]);
   
   return (
     <>

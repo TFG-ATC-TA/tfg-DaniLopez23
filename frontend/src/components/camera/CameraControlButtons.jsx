@@ -4,10 +4,13 @@ import { Maximize, Minimize, ArrowUpCircle, ArrowRightCircle, ArrowLeftCircle } 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import useAppDataStore from "@/stores/useAppDataStore"
 
 const CameraControlButtons = ({ handleViewChange }) => {
   const [isFullscreen, setIsFullscreen] = useState(false)
 
+  const {mode, filters} = useAppDataStore((state) => state)
+  
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement
@@ -30,6 +33,10 @@ const CameraControlButtons = ({ handleViewChange }) => {
           })
       }
     }
+  }
+
+  if(mode === "historical" && filters.dateRange === null) {
+    return null
   }
 
   return (

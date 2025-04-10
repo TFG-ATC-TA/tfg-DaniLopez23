@@ -58,21 +58,15 @@ const SensorDataTab = ({ mode, boardIds, selectedFarm, onToggleVisibility, selec
     }
   }, [selectedTime, handleTimeSelected, mode])
 
-  // Handle visibility toggle
-  const toggleVisibility = (visible) => {
-    setIsSensorsTabVisible(visible)
-    if (onToggleVisibility) {
-      onToggleVisibility(visible)
-    }
-  }
+
 
   // Si el panel está oculto, solo mostrar el botón flotante
   if (!isSensorsTabVisible) {
     return (
-      <div className="absolute left-0 top-1/4 z-30">
+      <div className="absolute left-0 top-2/4 z-30">
         <Button
           variant="secondary"
-          onClick={() => toggleVisibility(true)}
+          onClick={() => setIsSensorsTabVisible(true)}
           className="h-auto py-3 px-2 rounded-l-none shadow-md flex flex-col gap-2 bg-white border-l-0"
         >
           <Activity className="h-5 w-5" />
@@ -98,7 +92,7 @@ const SensorDataTab = ({ mode, boardIds, selectedFarm, onToggleVisibility, selec
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => toggleVisibility(false)}
+            onClick={() => setIsSensorsTabVisible(false)}
             className="h-9 w-9 p-0 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
           >
             <CircleX className="h-4 w-4" />
