@@ -75,7 +75,7 @@ HistoricalDataRouter.post("/", async (req, res) => {
     debug("Executing query:", fluxQuery);
 
     const result = await queryApi.collectRows(fluxQuery);
-
+          
     const formattedResult = {};
 
     result.forEach((row) => {

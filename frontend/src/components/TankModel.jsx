@@ -44,7 +44,6 @@ const TankModel = ({ mode, filters, selectedTime, handleTimeSelected, selectedHi
   // Log when selectedTime changes
   useEffect(() => {
     if (selectedTime) {
-      console.log(`TankModel: Time selected changed to ${selectedTime}`)
       handleTimeSelected(selectedTime)
     }
   }, [selectedTime, handleTimeSelected])

@@ -1,5 +1,3 @@
-"use client"
-
 import { Wifi, History } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"

@@ -110,6 +110,18 @@ const DigitalTwin = () => {
     setSelectedTime(timeString);
   };
 
+  const changeMode = (isRealTime) => {
+    const newMode = isRealTime ? "realtime" : "historical";
+    console.log("Changing mode to:", newMode);
+    setMode(newMode);
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      dateRange: null,
+      selectedDate: null,
+    }));
+    setSelectedTime(null);
+  };
+
   if (!selectedTank) {
     return (
       <div className="flex items-center justify-center h-full text-lg text-muted-foreground">
@@ -118,7 +130,6 @@ const DigitalTwin = () => {
     );
   }
   
-  console.log("Tank states", tankStates);
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       {/* Barra superior con TankDate, DataModeToggle y TankStatus */}
@@ -127,9 +138,7 @@ const DigitalTwin = () => {
         <div className="flex-[0_0_220px] min-w-[220px] order-2 md:order-2">
           <DataModeToggle
             isRealTime={mode === "realtime"}
-            onToggle={() =>
-              setMode(mode === "realtime" ? "historical" : "realtime")
-            }
+            onToggle={changeMode}
           />
         </div>
 
