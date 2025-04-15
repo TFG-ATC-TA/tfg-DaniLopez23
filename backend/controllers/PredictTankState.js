@@ -36,7 +36,7 @@ const validateRequest = (req, res, next) => {
 
 function processData(rawData) {
   // Valor estándar inicial para las temperaturas
-  let lastTemps = { surface: 6, overSurface: 6 };
+  let lastTemps = { surface: 4, overSurface: 4 };
   const processed = [];
 
   // Ordenar los datos por DateTime
