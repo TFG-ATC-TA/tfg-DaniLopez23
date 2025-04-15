@@ -14,7 +14,7 @@ import useFarmStore from "@/stores/useFarmStore";
 import useTankStore from "@/stores/useTankStore";
 import { Loader2 } from "lucide-react";
 import useTankStates from "@/hooks/useTankStates";
-
+import useHistoricalData from "@/hooks/useHistoricalData";
 const DigitalTwin = () => {
   const { selectedFarm } = useFarmStore((state) => state);
   const { filters, mode, setMode, setFilters } = useAppDataStore(
@@ -41,6 +41,29 @@ const DigitalTwin = () => {
     selectedFarm,
     selectedTank,
   });
+
+  // LOGICA FETCH DATOS HISTORICOS
+  const { historicalData, selectedHistoricalData, error, fetchHistoricalData, handleTimeSelected } = useHistoricalData({
+    filters,
+    boardIds,
+    selectedFarm,
+    selectedTime,
+    selectedTank,
+  })
+
+  // Effect to fetch historical data when selectedDate changes
+  useEffect(() => {
+    if (mode === "historical" && filters.selectedDate) {
+      fetchHistoricalData()
+    }
+  }, [mode, filters.selectedDate, fetchHistoricalData])
+
+  // Effect to handle time selection
+  useEffect(() => {
+    if (selectedTime && mode === "historical") {
+      handleTimeSelected(selectedTime)
+    }
+  }, [selectedTime, handleTimeSelected, mode])
 
   // Efecto para hacer fetch cuando cambia selectedDate
   useEffect(() => {
@@ -87,6 +110,18 @@ const DigitalTwin = () => {
     setSelectedTime(timeString);
   };
 
+  const changeMode = (isRealTime) => {
+    const newMode = isRealTime ? "realtime" : "historical";
+    console.log("Changing mode to:", newMode);
+    setMode(newMode);
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      dateRange: null,
+      selectedDate: null,
+    }));
+    setSelectedTime(null);
+  };
+
   if (!selectedTank) {
     return (
       <div className="flex items-center justify-center h-full text-lg text-muted-foreground">
@@ -94,7 +129,7 @@ const DigitalTwin = () => {
       </div>
     );
   }
-
+  
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       {/* Barra superior con TankDate, DataModeToggle y TankStatus */}
@@ -103,9 +138,7 @@ const DigitalTwin = () => {
         <div className="flex-[0_0_220px] min-w-[220px] order-2 md:order-2">
           <DataModeToggle
             isRealTime={mode === "realtime"}
-            onToggle={() =>
-              setMode(mode === "realtime" ? "historical" : "realtime")
-            }
+            onToggle={changeMode}
           />
         </div>
 
@@ -125,10 +158,9 @@ const DigitalTwin = () => {
         <div className={isSensorsVisible ? "block" : "hidden"}>
           <SensorDataTab
             mode={mode}
-            boardIds={boardIds}
-            selectedFarm={selectedFarm}
-            onToggleVisibility={(visible) => setIsSensorsVisible(visible)}
-            selectedTime={selectedTime}
+            selectedHistoricalData={selectedHistoricalData}
+            historicalData={historicalData}
+            error={error}
           />
         </div>
 
@@ -138,10 +170,12 @@ const DigitalTwin = () => {
             <TankModel
               mode={mode}
               filters={filters}
-              boardIds={boardIds}
-              selectedFarm={selectedFarm}
+              selectedHistoricalData={selectedHistoricalData}
+              historicalData={historicalData}
+              error={error}
+              handleTimeSelected={handleTimeSelected}
+              fetchHistoricalData={fetchHistoricalData}
               selectedTime={selectedTime}
-              onTimeSelected={handleTimeSelectionChange}
             />
           </div>
 
@@ -159,7 +193,7 @@ const DigitalTwin = () => {
                 <div className="flex items-center justify-center h-[100px]">
                   <div className="text-center">
                     <p className="text-sm text-red-500 mb-2">
-                      Error loading tank states
+                      Error loading tank states. Select other date and try again
                     </p>
                     <button
                       onClick={retryFetchTankStates}
@@ -169,7 +203,7 @@ const DigitalTwin = () => {
                     </button>
                   </div>
                 </div>
-              ) : tankStates ? (
+              ) : tankStates && Object.keys(tankStates).length > 0 ? (
                 <TimeSeriesSlider
                   startDate={filters.dateRange.from}
                   endDate={filters.dateRange.to}

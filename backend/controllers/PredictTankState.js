@@ -36,7 +36,7 @@ const validateRequest = (req, res, next) => {
 
 function processData(rawData) {
   // Valor estándar inicial para las temperaturas
-  let lastTemps = { surface: 20, overSurface: 20 };
+  let lastTemps = { surface: 4, overSurface: 4 };
   const processed = [];
 
   // Ordenar los datos por DateTime
@@ -159,7 +159,7 @@ PredictTankStatesRouter.post("/", validateRequest, async (req, res) => {
 
     if (influxData.length === 0) {
       debug("No se encontraron datos en InfluxDB para la fecha y filtros dados.");
-      return res.status(404).json({ message: "No se encontraron datos." });
+      return res.status(200).json(null);
     }
 
 

@@ -108,8 +108,6 @@ const useHistoricalData = ({ filters, boardIds, selectedFarm, selectedTime, sele
     (timeString) => {
       if (!timeString) return
 
-      console.log(`Time selected: ${timeString}`)
-
       if (historicalData && historicalData !== "loading") {
         updateSelectedHistoricalData(historicalData, timeString)
       } else {

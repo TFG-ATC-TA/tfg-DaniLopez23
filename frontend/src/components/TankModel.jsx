@@ -1,4 +1,6 @@
-import { useEffect, useState, useCallback } from "react"
+"use client"
+
+import { useEffect, useState, useRef } from "react"
 import { Canvas } from "@react-three/fiber"
 import useTankStore from "@/stores/useTankStore"
 import SelectedSensorData from "./sensorData/SelectedSensorData"
@@ -11,11 +13,21 @@ import { Suspense } from "react"
 import { Loader2 } from "lucide-react"
 import useDataStore from "@/stores/useDataStore"
 import CameraControlButtons from "./camera/CameraControlButtons"
-import useHistoricalData from "@/hooks/useHistoricalData"
 
-const TankModel = ({ mode, filters, boardIds, selectedFarm, selectedTime, onTimeSelected }) => {
+const TankModel = ({
+  mode,
+  filters,
+  selectedTime,
+  handleTimeSelected,
+  selectedHistoricalData,
+  historicalData,
+  error,
+  fetchHistoricalData,
+}) => {
   const { selectedTank } = useTankStore((state) => state)
   const [currentView, setCurrentView] = useState("default")
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const tankContainerRef = useRef(null)
 
   // Get real-time data directly in this component
   const {
@@ -41,27 +53,9 @@ const TankModel = ({ mode, filters, boardIds, selectedFarm, selectedTime, onTime
     gyroscopeData,
   }
 
-  // LOGICA FETCH DATOS HISTORICOS
-  const { historicalData, selectedHistoricalData, error, fetchHistoricalData, handleTimeSelected } = useHistoricalData({
-    filters,
-    boardIds,
-    selectedFarm,
-    selectedTime,
-    selectedTank,
-  })
-
-  // Effect to fetch historical data when selectedDate changes
-  useEffect(() => {
-    if (mode === "historical" && filters.selectedDate) {
-      fetchHistoricalData()
-    }
-  }, [mode, filters.selectedDate, fetchHistoricalData])
-
-
   // Log when selectedTime changes
   useEffect(() => {
     if (selectedTime) {
-      console.log(`TankModel: Time selected changed to ${selectedTime}`)
       handleTimeSelected(selectedTime)
     }
   }, [selectedTime, handleTimeSelected])
@@ -80,12 +74,15 @@ const TankModel = ({ mode, filters, boardIds, selectedFarm, selectedTime, onTime
     setCurrentView(view) // Actualizar la vista desde los botones
   }
 
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen)
+  }
+
   // Use the appropriate data source based on mode
   const data = mode === "realtime" ? realTimeData : selectedHistoricalData || historicalData
   console.log("TankModel: Data being used", data)
 
   const renderTankModel = () => {
-
     // Case 1: Historical mode but no date range selected
     if (mode === "historical" && !filters.dateRange) {
       return (
@@ -191,19 +188,24 @@ const TankModel = ({ mode, filters, boardIds, selectedFarm, selectedTime, onTime
         <directionalLight position={[-10, -10, -10]} intensity={0.5} />
         <Suspense fallback={null}>
           <group>{selectTankDisplayType(selectedTank?.display, selectedTank?.blades)}</group>
-          <CameraSettings view={currentView} tankDisplay={selectedTank?.display}/>
+          <CameraSettings view={currentView} tankDisplay={selectedTank?.display} />
         </Suspense>
       </Canvas>
     )
   }
 
   return (
-    <div className="w-full h-full bg-white relative">
+    <div
+      ref={tankContainerRef}
+      className={`bg-white relative transition-all duration-300 ${
+        isFullscreen ? "fixed top-0 left-0 w-screen h-screen z-50" : "w-full h-full"
+      }`}
+    >
       {/* Only show sensor data overlay when in realtime mode or when historical data is loaded */}
       {(mode === "realtime" || (historicalData && historicalData !== "loading" && !error)) && (
         <>
           <div className="absolute top-4 left-4 z-10">
-            <SelectedSensorData             
+            <SelectedSensorData
               encoderData={data?.encoderData}
               milkQuantityData={data?.milkQuantityData}
               switchStatus={data?.switchStatus}
@@ -211,12 +213,17 @@ const TankModel = ({ mode, filters, boardIds, selectedFarm, selectedTime, onTime
               tankTemperaturesData={data?.tankTemperaturesData}
               airQualityData={data?.airQualityData}
               selectedData={selectedData}
+              gyroscopeData={data?.gyroscopeData}
             />
           </div>
         </>
       )}
       {renderTankModel()}
-      <CameraControlButtons handleViewChange={handleViewChange} />
+      <CameraControlButtons
+        handleViewChange={handleViewChange}
+        toggleFullscreen={toggleFullscreen}
+        isFullscreen={isFullscreen}
+      />
     </div>
   )
 }

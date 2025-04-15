@@ -1,41 +1,27 @@
-"use client"
-
-import { Maximize, Minimize, ArrowUpCircle, ArrowRightCircle, ArrowLeftCircle } from "lucide-react"
+import { Maximize, Minimize, Bird, MonitorUp, AlignLeft } from "lucide-react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import useAppDataStore from "@/stores/useAppDataStore"
 
-const CameraControlButtons = ({ handleViewChange }) => {
-  const [isFullscreen, setIsFullscreen] = useState(false)
+const CameraControlButtons = ({ handleViewChange, toggleFullscreen, isFullscreen }) => {
+  const [currentView, setCurrentView] = useState("default")
 
-  const {mode, filters} = useAppDataStore((state) => state)
-  
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement
-        .requestFullscreen()
-        .then(() => {
-          setIsFullscreen(true)
-        })
-        .catch((err) => {
-          console.error(`Error attempting to enable fullscreen: ${err.message}`)
-        })
+  const { mode, filters } = useAppDataStore((state) => state)
+
+  const toggleView = (view) => {
+    // Si la vista actual es la misma que se está solicitando, volver a la vista predeterminada
+    if (currentView === view) {
+      setCurrentView("default")
+      handleViewChange("default")
     } else {
-      if (document.exitFullscreen) {
-        document
-          .exitFullscreen()
-          .then(() => {
-            setIsFullscreen(false)
-          })
-          .catch((err) => {
-            console.error(`Error attempting to exit fullscreen: ${err.message}`)
-          })
-      }
+      // De lo contrario, cambiar a la vista solicitada
+      setCurrentView(view)
+      handleViewChange(view)
     }
   }
 
-  if(mode === "historical" && filters.dateRange === null) {
+  if (mode === "historical" && filters.dateRange === null) {
     return null
   }
 
@@ -46,12 +32,12 @@ const CameraControlButtons = ({ handleViewChange }) => {
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                variant="outline"
+                variant={currentView === "lateral" ? "default" : "outline"}
                 size="icon"
-                className="h-8 w-8 bg-white hover:bg-gray-100"
-                onClick={() => handleViewChange("lateral")}
+                className={`h-8 w-8 ${currentView === "lateral" ? "bg-gray-200" : "bg-white hover:bg-gray-100"}`}
+                onClick={() => toggleView("lateral")}
               >
-                <ArrowLeftCircle className="h-4 w-4" />
+                <AlignLeft className="h-4 w-4" />
                 <span className="sr-only">Vista Lateral</span>
               </Button>
             </TooltipTrigger>
@@ -63,12 +49,12 @@ const CameraControlButtons = ({ handleViewChange }) => {
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                variant="outline"
+                variant={currentView === "front" ? "default" : "outline"}
                 size="icon"
-                className="h-8 w-8 bg-white hover:bg-gray-100"
-                onClick={() => handleViewChange("front")}
+                className={`h-8 w-8 ${currentView === "front" ? "bg-gray-200" : "bg-white hover:bg-gray-100"}`}
+                onClick={() => toggleView("front")}
               >
-                <ArrowRightCircle className="h-4 w-4" />
+                <MonitorUp className="h-4 w-4" />
                 <span className="sr-only">Vista Frontal</span>
               </Button>
             </TooltipTrigger>
@@ -80,12 +66,12 @@ const CameraControlButtons = ({ handleViewChange }) => {
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                variant="outline"
+                variant={currentView === "top" ? "default" : "outline"}
                 size="icon"
-                className="h-8 w-8 bg-white hover:bg-gray-100"
-                onClick={() => handleViewChange("top")}
+                className={`h-8 w-8 ${currentView === "top" ? "bg-gray-200" : "bg-white hover:bg-gray-100"}`}
+                onClick={() => toggleView("top")}
               >
-                <ArrowUpCircle className="h-4 w-4" />
+                <Bird className="h-4 w-4" />
                 <span className="sr-only">Vista Zenital</span>
               </Button>
             </TooltipTrigger>

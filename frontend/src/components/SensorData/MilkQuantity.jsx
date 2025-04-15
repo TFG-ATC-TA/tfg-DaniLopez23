@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 const MilkQuantity = ({ milkQuantityData }) => {
   const [expanded, setExpanded] = useState(true);
-
+  
   const toggleExpanded = () => {
     setExpanded(!expanded);
   };

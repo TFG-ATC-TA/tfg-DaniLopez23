@@ -421,6 +421,11 @@ export default function TimeSeriesSlider({ startDate, endDate, onTimeSelected, t
 
   // Keep the original state markers for backward compatibility
   const stateMarkers = useMemo(() => {
+
+    if (!tankStateData || !tankStateData.states) {
+      return []
+    }
+
     return tankStateData?.states
       .filter((state) => isSameDay(state.date, currentDate))
       .map((state) => ({
@@ -569,7 +574,7 @@ export default function TimeSeriesSlider({ startDate, endDate, onTimeSelected, t
         />
 
         <div className="flex justify-center mt-1">
-          <StateLegend states={tankStateData ? [...new Set(tankStateData.states.map((item) => item.state))] : []} />
+          <StateLegend states={tankStateData ? [...new Set(tankStateData?.states.map((item) => item.state))] : []} />
         </div>
       </div>
 
