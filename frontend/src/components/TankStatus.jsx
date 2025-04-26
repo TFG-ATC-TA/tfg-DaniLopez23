@@ -4,11 +4,10 @@ import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import useTankStore from "@/stores/useTankStore"
-import useAppDataStore from "@/stores/useAppDataStore"
 import { TANK_STATES } from "@/constants/tankStates"
+
 const TankStatus = () => {
   const { selectedTank } = useTankStore()
-  const { mode } = useAppDataStore()
 
   if (!selectedTank) return null
 

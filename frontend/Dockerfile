@@ -34,7 +34,10 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM nginx:1.25-alpine AS production
+FROM nginx:1.26-alpine-slim AS production
+
+# Eliminar configuración por defecto para evitar conflictos
+RUN rm /etc/nginx/conf.d/default.conf
 
 # Copiar build de producción
 COPY --from=builder /app/dist /usr/share/nginx/html
