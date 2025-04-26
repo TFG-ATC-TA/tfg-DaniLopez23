@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import SensorDataTab from "./sensorData/SensorDataTab";
 import TankDate from "./TankDate";
@@ -113,6 +111,7 @@ const DigitalTwin = () => {
   const changeMode = (isRealTime) => {
     const newMode = isRealTime ? "realtime" : "historical";
     console.log("Changing mode to:", newMode);
+    selectedTank.state = "NO DATA"; 
     setMode(newMode);
     setFilters((prevFilters) => ({
       ...prevFilters,

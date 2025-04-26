@@ -43,8 +43,8 @@ COPY --chown=appuser:appuser bin ./bin
 COPY --chown=appuser:appuser public ./public
 
 # Instalar solo dependencias de producción
-RUN npm ci --omit=dev
-
+RUN npm ci --omit=dev && npm cache clean --force
+COPY --chown=appuser:appuser . .
 # Variables de entorno para producción
 ENV NODE_ENV=production
 ENV PORT=3001
