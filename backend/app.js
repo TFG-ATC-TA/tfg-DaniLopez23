@@ -24,10 +24,11 @@ const corsOptions = {
 app.use(cors(corsOptions)); // Configura el middleware de CORS
 app.use(express.json()); 
 
-mongoose.connect(MONGO_URI).then(() => {
-  debug('Connected to MongoDB: %s', MONGO_URI);
+mongoose.connect(MONGO_URI, {
+}).then(() => {
+  console.log('Connected to MongoDB: %s', MONGO_URI);
 }).catch((err) => {
-  debug('Error connecting to MongoDB: %O', err);
+  console.log('Error connecting to MongoDB: %O', err);
 });
 
 const server = http.createServer(app);
@@ -44,6 +45,7 @@ app.use("/farms", farmRouter);
 app.use("/historical-data", historicalDataRouter);
 app.use("/equipments", equipmentRouter)
 app.use("/predict", predictTankStatesRouter);
+
 // Establece el manejador para los mensajes entrantes desde MQTT
 mqttService.setMessageHandler((farmId, boardId, topic, data) => {
   

@@ -1,6 +1,5 @@
 const topics = require("./topics");
 const debug = require("debug")("app:dataHandling");
-const TANK_HEIGHT = 4000; // Altura del tanque en mm
 
 const parseCommonData = (rawData) => {
   try {
@@ -14,7 +13,21 @@ const parseCommonData = (rawData) => {
 
 const getReadableDate = (timestamp) => {
   const date = new Date(timestamp * 1000);
-  return date.toLocaleString();
+
+  // Convertir a la zona horaria de Madrid y mostrar segundos
+  const options = {
+    timeZone: "Europe/Madrid", // Zona horaria de Madrid
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit", // Incluir segundos
+    hour12: false, // Formato de 24 horas
+  };
+
+  const formattedDate = date.toLocaleString("en-GB", options); // Formato DD/MM/YYYY HH:mm:ss
+  return formattedDate;
 };
 
 const baseStructure = (lastObject) => ({
@@ -54,7 +67,7 @@ const getMilkQuantityData = (rawData) => {
 
   return {
     ...baseStructure(lastObject),
-    value: (lastObject.fields.range / TANK_HEIGHT) * 100,
+    value: lastObject.fields.range,
 
   };
 };

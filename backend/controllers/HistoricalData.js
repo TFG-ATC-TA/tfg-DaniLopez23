@@ -25,8 +25,8 @@ const queryApi = client.getQueryApi(org);
 
 // Ruta para obtener datos históricos
 HistoricalDataRouter.post("/", async (req, res) => {
-  const { farm, date, boardIds } = req.body;
-  debug("Received filters:", { farm, date, boardIds });
+  const { farm, date, boardIds, tank } = req.body;
+  debug("Received filters:", { farm, date, boardIds, tank });
 
   try {
     if (!date) {
@@ -75,7 +75,7 @@ HistoricalDataRouter.post("/", async (req, res) => {
     debug("Executing query:", fluxQuery);
 
     const result = await queryApi.collectRows(fluxQuery);
-
+          
     const formattedResult = {};
 
     result.forEach((row) => {
@@ -85,16 +85,22 @@ HistoricalDataRouter.post("/", async (req, res) => {
         hour12: false,
         timeZone: "UTC",
       });
-
+    
       const {
         _measurement: measurement,
-        _field: field,
-        _value: value,
+        _field: rawField,
+        _value: rawValue,
         tags_board_id: boardId,
         tags_sensor_id: sensorId,
         ...tags
       } = row;
-
+    
+      // Redondear el valor a 2 decimales
+      const value = parseFloat(rawValue.toFixed(2));
+    
+      // Limpiar el nombre del campo eliminando el prefijo "fields_"
+      const field = rawField.startsWith("fields_") ? rawField.replace("fields_", "") : rawField;
+    
       // Determine the key for the formatted result based on the measurement
       const measurementMap = {
         '6_dof_imu': 'gyroscopeData',
@@ -103,15 +109,15 @@ HistoricalDataRouter.post("/", async (req, res) => {
         'magnetic_switch': 'switchStatus',
         'tank_distance': 'milkQuantityData',
         'weight': 'weightData',
-        'temperature_probe': 'tankTemperaturesData'
+        'temperature_probe': 'tankTemperaturesData',
       };
-      
+    
       const key = measurementMap[measurement] || measurement;
-
+    
       if (!formattedResult[time]) {
         formattedResult[time] = {};
       }
-
+    
       if (!formattedResult[time][key]) {
         formattedResult[time][key] = {
           measurement,
@@ -123,24 +129,38 @@ HistoricalDataRouter.post("/", async (req, res) => {
           readableDate: new Date(row._time).toLocaleString("en-US", {
             timeZone: "UTC",
           }),
-          value: measurement === "6_dof_imu" ? {} : value, // Initialize value as an object for gyroscope data
-          sensorData: {},
+          value: {}, // Initialize as an object to handle multiple fields
         };
       }
-
-      // Add sensor-specific data
-      if (!formattedResult[time][key].sensorData[sensorId]) {
-        formattedResult[time][key].sensorData[sensorId] = {};
-      }
-
-      if (measurement === "6_dof_imu") {
-        // For gyroscope data, store multiple fields in the value
-        formattedResult[time][key].value[field] = value;
-        formattedResult[time][key].sensorData[sensorId][field] = value;
+    
+      // Handle specific cases for weight and encoder
+      if (measurement === "weight" || measurement === "encoder") {
+        if (typeof formattedResult[time][key].value !== "object") {
+          formattedResult[time][key].value = {};
+        }
+        formattedResult[time][key].value[sensorId] = value;
+      } else if (measurement === "tank_distance") {
+        // Only include the "range" field for milkQuantityData and apply the calculation
+        if (field === "range" && tank?.height) {
+          formattedResult[time][key].value = (value / tank.height) * 100;
+        }
       } else {
-        // For other measurements, store a single value
-        formattedResult[time][key].sensorData[sensorId] = { value };
+        // For other measurements, store multiple fields in the value object
+        formattedResult[time][key].value[field] = value;
       }
+    });
+    
+    // Post-process to handle cases where only one field exists
+    Object.keys(formattedResult).forEach((time) => {
+      Object.keys(formattedResult[time]).forEach((key) => {
+        const valueObj = formattedResult[time][key].value;
+    
+        // If there's only one field, convert the value object to a single value
+        const fields = Object.keys(valueObj);
+        if (fields.length === 1) {
+          formattedResult[time][key].value = valueObj[fields[0]];
+        }
+      });
     });
 
     return res.status(200).json(formattedResult);

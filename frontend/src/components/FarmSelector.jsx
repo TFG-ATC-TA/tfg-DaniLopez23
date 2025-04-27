@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { Info } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -9,6 +7,7 @@ import useFarmStore from "@/stores/useFarmStore"
 import useTankStore from "@/stores/useTankStore"
 import useAppDataStore from "@/stores/useAppDataStore"
 import { useTank } from "@/hooks/useTank"
+import useDataStore from "@/stores/useDataStore"
 
 const FarmSelector = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -19,25 +18,44 @@ const FarmSelector = () => {
   const { filters, setFilters, setMode } = useAppDataStore((state) => state)
 
   const handleFarmChange = (value) => {
-    const selectedFarmId = value
-    const farm = farms.find((farm) => farm._id === selectedFarmId)
+    const selectedFarmId = value;
+    const farm = farms.find((farm) => farm._id === selectedFarmId);
+  
     if (farm) {
-      setSelectedFarm(farm)
+      // Actualizar la granja seleccionada
+      setSelectedFarm(farm);
+  
+      // Limpiar los filtros
       setFilters({
         ...filters,
         dateRange: null,
         selectedStatus: "all",
         selectedSensor: "all",
-      })
-      setMode("realtime")
-
+      });
+  
+      // Cambiar el modo a "realtime"
+      setMode("realtime");
+  
+      // Limpiar los datos de la store
+      useDataStore.setState({
+        encoderData: null,
+        gyroscopeData: null,
+        milkQuantityData: null,
+        tankTemperaturesData: null,
+        switchStatus: null,
+        weightData: null,
+        airQualityData: null,
+        selectedData: null,
+      });
+  
+      // Cambiar el tanque seleccionado
       if (farm.equipments.length > 0) {
-        changeSelectedTank(farm.equipments[0], farm.broker)
+        changeSelectedTank(farm.equipments[0], farm.broker);
       } else {
-        setSelectedTank(null)
+        setSelectedTank(null);
       }
     }
-  }
+  };
 
   return (
     <div className="flex items-center gap-3">
