@@ -182,7 +182,7 @@ const TankModel = ({
 
     // Render the 3D tank model
     return (
-      <Canvas className="w-full h-full">
+      <Canvas className="w-full h-full z-40">
         <ambientLight intensity={0.6} />
         <directionalLight position={[-10, -10, -10]} intensity={0.5} />
         <Suspense fallback={null}>
