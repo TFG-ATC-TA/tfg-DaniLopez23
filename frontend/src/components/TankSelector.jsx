@@ -33,7 +33,7 @@ const TankSelector = () => {
   }
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3 relative">
       <div className="flex items-center gap-2">
         <h2 className="text-lg font-semibold text-gray-700 whitespace-nowrap">Tank</h2>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -48,7 +48,9 @@ const TankSelector = () => {
             </Button>
           </DialogTrigger>
 
-          <DialogContent>
+          <DialogContent
+            className="z-50" // Asegura que el modal tenga un z-index alto
+          >
             <DialogHeader>
               <DialogTitle>Tank Specifications</DialogTitle>
             </DialogHeader>
@@ -100,4 +102,3 @@ const TankSelector = () => {
 }
 
 export default TankSelector
-

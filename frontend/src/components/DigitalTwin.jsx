@@ -49,13 +49,6 @@ const DigitalTwin = () => {
     selectedTank,
   })
 
-  // Effect to fetch historical data when selectedDate changes
-  useEffect(() => {
-    if (mode === "historical" && filters.selectedDate) {
-      fetchHistoricalData()
-    }
-  }, [mode, filters.selectedDate, fetchHistoricalData])
-
   // Effect to handle time selection
   useEffect(() => {
     if (selectedTime && mode === "historical") {
@@ -71,11 +64,13 @@ const DigitalTwin = () => {
 
       // Solo si la fecha seleccionada ha cambiado realmente o es la primera carga
       if (currentSelectedDate !== prevDate) {
+        fetchHistoricalData()
         fetchTankStates();
         setPrevSelectedDate(filters.selectedDate);
+        console.log(historicalData, "historicalData")
       }
     }
-  }, [filters.selectedDate, fetchTankStates, mode, prevSelectedDate]);
+  }, [filters.selectedDate, fetchTankStates, mode, prevSelectedDate, fetchHistoricalData]);
 
   // Efecto para detectar cambios en el rango de fechas
   useEffect(() => {
