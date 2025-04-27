@@ -1,4 +1,4 @@
-import { Activity, HelpCircle, Info } from "lucide-react"
+import { Activity, HelpCircle, Info, RefreshCw } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
