@@ -5,11 +5,17 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { cn } from "@/lib/utils"
 import useTankStore from "@/stores/useTankStore"
 import { TANK_STATES } from "@/constants/tankStates"
-
+import { predictRealTimeStates } from "@/services/predictStates"
 const TankStatus = () => {
   const { selectedTank } = useTankStore()
 
   if (!selectedTank) return null
+
+  const handleRefresh = async () => {
+    if (selectedTank) {
+      await predictRealTimeStates(selectedTank.id);
+    }
+  };
 
   // Get the tank state or default to NO DATA
   const tankState = selectedTank.state || "NO DATA"
@@ -77,6 +83,25 @@ const TankStatus = () => {
             </Tooltip>
           </TooltipProvider>
         </div>
+        
+        {/* Botón de Actualizar */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-5 w-5 p-0"
+                onClick={handleRefresh}
+              >
+                <RefreshCw className="h-3.5 w-3.5 text-gray-400 hover:text-gray-600 transition-colors" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Actualizar estado del tanque</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </div>
   )

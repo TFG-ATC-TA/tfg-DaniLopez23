@@ -217,4 +217,125 @@ PredictTankStatesRouter.post("/", validateRequest, async (req, res) => {
   }
 });
 
+//TODO: IGUAL QUE LA ANTERIOR PERO CON LA ULTIMA MEDIA HORA ES DECIR SI SON LAS 23:30 DESDE 23:00 HASTA QUE HAYA DATOS PASADAS MEDIA HORA DE ESA HORA
+
+PredictTankStatesRouter.post("/real-time", validateRequest, async (req, res) => {
+  const { farm, tank, date, boardIds } = req.body;
+  debug("Received filters for real-time:", { farm, tank, date, boardIds });
+
+  try {
+    // Calcular el rango de tiempo para la última media hora
+    const stopDate = new Date(date); // Fecha actual
+    const startDate = new Date(stopDate.getTime() - 30 * 60 * 1000); // Media hora antes
+
+    if (isNaN(startDate.getTime()) || isNaN(stopDate.getTime()))
+      return res.status(400).json({ message: "Fechas inválidas" });
+
+    const start = startDate.toISOString();
+    const stop = stopDate.toISOString();
+
+    debug("Rango de tiempo para real-time:", { start, stop });
+
+    // Consultar InfluxDB
+    const fluxQuery = `
+      from(bucket: "${farm}")
+        |> range(start: ${start}, stop: ${stop})
+        |> filter(fn: (r) => r["_field"] == "fields_accel_x" 
+            or r["_field"] == "fields_surface_temperature" 
+            or r["_field"] == "fields_over_surface_temperature")
+        |> filter(fn: (r) => ${boardIds
+          .map((id) => `r["tags_board_id"] == "${id}"`)
+          .join(" or ")})
+        |> aggregateWindow(
+            every: 5s,
+            fn: mean,
+            createEmpty: true
+        )
+        |> fill(usePrevious: true)
+        |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
+        |> keep(columns: ["_time", "fields_accel_x", 
+              "fields_surface_temperature", 
+              "fields_over_surface_temperature"])
+        |> rename(columns: {
+            _time: "DateTime",
+            fields_accel_x: "AccelX",
+            fields_surface_temperature: "Surface temperature (ºC)",
+            fields_over_surface_temperature: "Over surface temperature (ºC)"
+        })
+    `;
+
+    debug("Executing real-time query:", fluxQuery);
+
+    const executeQuery = async (query) => {
+      return new Promise((resolve, reject) => {
+        const influxData = [];
+        queryApi.queryRows(query, {
+          next(row, tableMeta) {
+            influxData.push(tableMeta.toObject(row));
+          },
+          error(error) {
+            debug("Error en InfluxDB:", error.message);
+            reject(new Error("Error en consulta a InfluxDB"));
+          },
+          complete() {
+            debug("Consulta InfluxDB completada");
+            resolve(influxData);
+          },
+        });
+      });
+    };
+
+    const influxData = await executeQuery(fluxQuery);
+    debug("Datos de InfluxDB (real-time):", influxData.slice(0, 5));
+
+    const processedData = processData(influxData);
+    debug("Datos procesados (real-time):", processedData.slice(0, 5));
+
+    // Enviar a ML-API en el formato requerido
+    const payload = {
+      data: processedData.map((row) => ({
+        DateTime: new Date(row.DateTime)
+          .toISOString()
+          .replace("T", " ") // Reemplazar 'T' por un espacio
+          .replace(/\.\d{3}Z$/, "+00:00"), // Eliminar milisegundos y agregar '+00:00'
+        AccelX: row.AccelX,
+        OverSurfaceTemperature: row["OverSurfaceTemperature"],
+        SurfaceTemperature: row["SurfaceTemperature"],
+      })),
+    };
+
+    debug("Datos procesados para ML-API (real-time):", payload.data.slice(0, 5));
+
+    // Enviar datos a la API de ML
+    try {
+      const response = await axios.post("http://ml-api:8000/predict", payload);
+      debug("Respuesta de ML-API (real-time):", response.data);
+
+      // Transformar los intervalos para la respuesta
+      const transformedStates = response.data.intervals.map((interval) => ({
+        startTime: new Date(interval.inicio).toISOString().substring(11, 16), // Extraer HH:mm
+        endTime: new Date(interval.fin).toISOString().substring(11, 16), // Extraer HH:mm
+        state: interval.estado,
+      }));
+
+      return res.status(200).json({
+        tankId: tank,
+        farmId: farm,
+        date: new Date(date),
+        states: transformedStates,
+      });
+    } catch (error) {
+      debug("Error en ML-API (real-time):", error.message);
+      return res
+        .status(500)
+        .json({ message: "Error en ML-API", error: error.message });
+    }
+  } catch (error) {
+    debug("Error en PredictTankStatesRouter (real-time):", error.message);
+    return res
+      .status(500)
+      .json({ message: "Error interno del servidor", error: error.message });
+  }
+});
+  
 module.exports = PredictTankStatesRouter;
