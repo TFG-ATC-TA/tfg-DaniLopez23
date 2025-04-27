@@ -67,6 +67,7 @@ const DigitalTwin = () => {
         fetchHistoricalData()
         fetchTankStates();
         setPrevSelectedDate(filters.selectedDate);
+        console.log(historicalData, "historicalData")
       }
     }
   }, [filters.selectedDate, fetchTankStates, mode, prevSelectedDate, fetchHistoricalData]);

@@ -2,17 +2,19 @@ import { useState, useCallback, useEffect, useRef } from "react"
 import { getHistoricalData } from "@/services/farm"
 import { format } from "date-fns"
 
+// Helper function to convert time string (HH:MM) to minutes
+const timeStringToMinutes = (timeString) => {
+  if (!timeString) return 0
+  const [hours, minutes] = timeString.split(":").map(Number)
+  return hours * 60 + minutes
+}
+
 const useHistoricalData = ({ filters, boardIds, selectedFarm, selectedTime, selectedTank }) => {
   const [historicalData, setHistoricalData] = useState(null)
   const [selectedHistoricalData, setSelectedHistoricalData] = useState(null)
   const [error, setError] = useState(null)
   const lastFetchedDate = useRef(null)
-  // Helper function to convert time string (HH:MM) to minutes
-  const timeStringToMinutes = (timeString) => {
-    if (!timeString) return 0
-    const [hours, minutes] = timeString.split(":").map(Number)
-    return hours * 60 + minutes
-  }
+  
 
   const updateSelectedHistoricalData = useCallback((data, timeString) => {
     if (!data || data === "loading" || !timeString) return   
@@ -43,7 +45,6 @@ const useHistoricalData = ({ filters, boardIds, selectedFarm, selectedTime, sele
 
       setSelectedHistoricalData(data[closestTime])
     } else {
-      console.warn(`No data found for time ${timeString}`)
       setSelectedHistoricalData(null)
     }
   }, [])
@@ -86,6 +87,7 @@ const useHistoricalData = ({ filters, boardIds, selectedFarm, selectedTime, sele
       })
 
       if (data === null) {
+        console.warn(`No historical data found for date ${formattedDate}`)
         setHistoricalData(null)
         return
       }

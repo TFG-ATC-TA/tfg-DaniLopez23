@@ -80,7 +80,6 @@ const TankModel = ({
 
   // Use the appropriate data source based on mode
   const data = mode === "realtime" ? realTimeData : selectedHistoricalData || historicalData
-  console.log("TankModel: Data being used", data)
 
   const renderTankModel = () => {
     // Case 1: Historical mode but no date range selected
