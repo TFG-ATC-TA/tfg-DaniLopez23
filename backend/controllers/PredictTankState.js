@@ -220,12 +220,12 @@ PredictTankStatesRouter.post("/", validateRequest, async (req, res) => {
 //TODO: IGUAL QUE LA ANTERIOR PERO CON LA ULTIMA MEDIA HORA ES DECIR SI SON LAS 23:30 DESDE 23:00 HASTA QUE HAYA DATOS PASADAS MEDIA HORA DE ESA HORA
 
 PredictTankStatesRouter.post("/real-time", validateRequest, async (req, res) => {
-  const { farm, tank, date, boardIds } = req.body;
-  debug("Received filters for real-time:", { farm, tank, date, boardIds });
+  const { farm, tank, boardIds } = req.body;
+  debug("Received filters for real-time:", { farm, tank, boardIds });
 
   try {
     // Calcular el rango de tiempo para la última media hora
-    const stopDate = new Date(date); // Fecha actual
+    const stopDate = new Date(); // Fecha actual
     const startDate = new Date(stopDate.getTime() - 30 * 60 * 1000); // Media hora antes
 
     if (isNaN(startDate.getTime()) || isNaN(stopDate.getTime()))
