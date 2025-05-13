@@ -41,20 +41,26 @@ const DigitalTwin = () => {
   });
 
   // LOGICA FETCH DATOS HISTORICOS
-  const { historicalData, selectedHistoricalData, error, fetchHistoricalData, handleTimeSelected } = useHistoricalData({
+  const {
+    historicalData,
+    selectedHistoricalData,
+    error,
+    fetchHistoricalData,
+    handleTimeSelected,
+  } = useHistoricalData({
     filters,
     boardIds,
     selectedFarm,
     selectedTime,
     selectedTank,
-  })
+  });
 
   // Effect to handle time selection
   useEffect(() => {
     if (selectedTime && mode === "historical") {
-      handleTimeSelected(selectedTime)
+      handleTimeSelected(selectedTime);
     }
-  }, [selectedTime, handleTimeSelected, mode])
+  }, [selectedTime, handleTimeSelected, mode]);
 
   // Efecto para hacer fetch cuando cambia selectedDate
   useEffect(() => {
@@ -64,13 +70,19 @@ const DigitalTwin = () => {
 
       // Solo si la fecha seleccionada ha cambiado realmente o es la primera carga
       if (currentSelectedDate !== prevDate) {
-        fetchHistoricalData()
+        fetchHistoricalData();
         fetchTankStates();
         setPrevSelectedDate(filters.selectedDate);
-        console.log(historicalData, "historicalData")
+        console.log(historicalData, "historicalData");
       }
     }
-  }, [filters.selectedDate, fetchTankStates, mode, prevSelectedDate, fetchHistoricalData]);
+  }, [
+    filters.selectedDate,
+    fetchTankStates,
+    mode,
+    prevSelectedDate,
+    fetchHistoricalData,
+  ]);
 
   // Efecto para detectar cambios en el rango de fechas
   useEffect(() => {
@@ -106,7 +118,7 @@ const DigitalTwin = () => {
   const changeMode = (isRealTime) => {
     const newMode = isRealTime ? "realtime" : "historical";
     console.log("Changing mode to:", newMode);
-    selectedTank.state = "NO DATA"; 
+    selectedTank.state = "NO DATA";
     setMode(newMode);
     setFilters((prevFilters) => ({
       ...prevFilters,
@@ -123,26 +135,26 @@ const DigitalTwin = () => {
       </div>
     );
   }
-  
+
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       {/* Barra superior con TankDate, DataModeToggle y TankStatus */}
-      <div className="flex flex-wrap md:flex-nowrap gap-2 p-2 z-10">
-        {/* DataModeToggle y TankStatus mantienen su tamaño mínimo */}
-        <div className="flex-[0_0_220px] min-w-[220px] order-2 md:order-2">
+      <div className="flex flex-wrap gap-2 p-2 z-10">
+        {/* TankDate ocupa todo el ancho disponible en móvil y se ajusta en escritorio */}
+        <div className="order-1 w-full md:order-1 md:flex-1 md:min-w-[150px]">
+          <TankDate mode={mode} filters={filters} />
+        </div>
+
+        {/* DataModeToggle y TankStatus mantienen tamaño fijo, pero se apilan en móvil */}
+        <div className="order-2 w-full md:order-2 md:w-[220px]">
           <DataModeToggle
             isRealTime={mode === "realtime"}
             onToggle={changeMode}
           />
         </div>
 
-        <div className="flex-[0_0_220px] min-w-[220px] order-3 md:order-3">
+        <div className="order-3 w-full md:order-3 md:w-[220px]">
           <TankStatus isRealTime={mode === "realtime"} />
-        </div>
-
-        {/* TankDate ocupa más espacio pero se reduce proporcionalmente */}
-        <div className="flex-[1_1_auto] min-w-[150px] order-1 md:order-1">
-          <TankDate mode={mode} filters={filters} />
         </div>
       </div>
 
