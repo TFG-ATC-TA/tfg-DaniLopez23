@@ -35,11 +35,11 @@ const SensorDataTab = ({ mode, selectedHistoricalData, historicalData, error}) =
   // Si el panel está oculto, solo mostrar el botón flotante
   if (!isSensorsTabVisible) {
     return (
-      <div className="absolute left-0 top-2/4 z-30">
+      <div className="absolute left-0 top-2/4 z-20">
         <Button
           variant="secondary"
           onClick={() => setIsSensorsTabVisible(true)}
-          className="h-auto py-3 px-2 rounded-l-none shadow-md flex flex-col gap-2 bg-white border-l-0"
+          className="h-auto py-3 px-2 rounded-l-none shadow-md flex flex-col gap-2 bg-white border-l-0 z-10" 
         >
           <Activity className="h-5 w-5" />
           <span className="text-xs font-medium">Sensores</span>

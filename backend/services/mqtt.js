@@ -48,7 +48,10 @@ const connect = () => {
   });
 
   mqttClient.on("message", (topic, message) => {
-
+      if (!topic.startsWith("farm-") && !topic.startsWith("synthetic-farm-")) {
+        debug("Ignoring message from topic: %s", topic); 
+        return;
+      }
       const processedData = dataHandling.processData(topic, message);
       const farmId = topic.split("/")[0];
       const boardId = processedData.tags.board_id;
