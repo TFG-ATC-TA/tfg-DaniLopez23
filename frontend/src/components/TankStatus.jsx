@@ -125,7 +125,7 @@ const TankStatus = () => {
 
       {/* Botón de actualización con mejor alineación */}
       <div className="flex items-center justify-end mt-auto">
-        {loading ? (
+        {mode == "realtime" && loading ? (
           <div className="flex items-center justify-center w-full py-0.5">
             <Loader className="h-3 w-3 text-primary animate-spin mr-1.5" />
             <p className="text-[10px] text-gray-500">Actualizando...</p>

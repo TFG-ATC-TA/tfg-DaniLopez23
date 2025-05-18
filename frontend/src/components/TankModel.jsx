@@ -201,7 +201,7 @@ const TankModel = ({
       {/* Only show sensor data overlay when in realtime mode or when historical data is loaded */}
       {(mode === "realtime" || (historicalData && historicalData !== "loading" && !error)) && (
         <>
-          <div className="absolute top-4 left-4 z-10">
+          <div className="absolute top-4 left-4 z-20">
             <SelectedSensorData
               encoderData={data?.encoderData}
               milkQuantityData={data?.milkQuantityData}
