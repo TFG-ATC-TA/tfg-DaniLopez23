@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from matplotlib.patches import Patch
 
-MODEL_PATH = "model/trained_model.pkl"
+MODEL_PATH = "model/trained_model - new.pkl"
 
 app = FastAPI()
 
