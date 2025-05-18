@@ -11,19 +11,26 @@ const TankDate = () => {
   const { mode, filters } = useAppDataStore((state) => state)
   const { lastSensorData } = useDataStore((state) => state)
 
+  const isRealtime = mode === "realtime"
+  const isHistorical = mode === "historical"
+
+  const hasRealtimeData = !!lastSensorData?.readableDate
+
   const getDisplayDate = () => {
-    if (mode === "historical" && filters.dateRange) {
-      const from = format(filters.dateRange.from, "d MMM yyyy", { locale: es })
-      const to = format(filters.dateRange.to, "d MMM yyyy", { locale: es })
-      return from === to ? from : `${from} - ${to}`
+    if (isHistorical) {
+      if (filters.dateRange?.from && filters.dateRange?.to) {
+        const from = format(filters.dateRange.from, "d MMM yyyy", { locale: es })
+        const to = format(filters.dateRange.to, "d MMM yyyy", { locale: es })
+        return from === to ? from : `${from} - ${to}`
+      } else {
+        return "Selecciona un rango"
+      }
     }
 
-    // Si estamos en tiempo real, usa `readableDate` de `lastSensorData`
-    if (mode === "realtime" && lastSensorData?.readableDate) {
-      return lastSensorData.readableDate
+    if (isRealtime) {
+      return hasRealtimeData ? lastSensorData.readableDate : "Aún no han llegado datos"
     }
 
-    // Si no hay datos, muestra un mensaje de que no hay datos disponibles
     return null
   }
 
@@ -41,18 +48,22 @@ const TankDate = () => {
             <CalendarIcon className="text-primary w-3.5 h-3.5" />
           </div>
           <p className="text-xs font-medium text-gray-500 uppercase">
-            {mode === "historical" ? "Rango histórico" : "Tiempo real"}
+            {isHistorical ? "Rango histórico" : "Tiempo real"}
           </p>
         </div>
       </div>
 
-      {/* Date Display - Improved for better text handling */}
-      <div className="flex items-center mt-2">
-        {displayDate ? (
-          <p className="text-sm font-semibold text-gray-800 line-clamp-2 w-full">{displayDate}</p>
-        ) : (
-          <p className="text-sm font-semibold text-red-500 line-clamp-2 w-full">Aún no han llegado datos</p>
-        )}
+      {/* Display */}
+      <div className="flex items-center mt-2 min-h-[1.5rem]">
+        <p
+          className={`text-sm font-semibold line-clamp-2 w-full ${
+            displayDate === "Selecciona un rango" || displayDate === "Aún no han llegado datos"
+              ? "text-red-500"
+              : "text-gray-800"
+          }`}
+        >
+          {displayDate}
+        </p>
       </div>
     </div>
   )

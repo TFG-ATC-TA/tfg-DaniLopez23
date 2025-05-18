@@ -32,6 +32,7 @@ const TankStatus = () => {
   if (!selectedTank) return null
 
   const handleRefresh = async () => {
+    if (mode !== "realtime") return
     if (loading) return
     setLoading(true)
     setError(null)
@@ -124,7 +125,7 @@ const TankStatus = () => {
       </div>
 
       {/* Botón de actualización con mejor alineación */}
-      <div className="flex items-center justify-end mt-auto">
+      { mode == "realtime"  && (<div className="flex items-center justify-end mt-auto">
         {mode == "realtime" && loading ? (
           <div className="flex items-center justify-center w-full py-0.5">
             <Loader className="h-3 w-3 text-primary animate-spin mr-1.5" />
@@ -134,7 +135,7 @@ const TankStatus = () => {
           <div className="flex items-center justify-center w-full py-0.5">
             <p className="text-[10px] text-red-500">{error}</p>
           </div>
-        ) : mode === "realtime" ? (
+        ) : mode == "realtime" ? (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -157,7 +158,7 @@ const TankStatus = () => {
         ) : (
           <div className="h-6"></div> // Espacio reservado para mantener la altura consistente
         )}
-      </div>
+      </div>)}
     </div>
   )
 }
