@@ -1,5 +1,3 @@
-"use client"
-
 import { useEffect, useState, useRef } from "react"
 import { Canvas } from "@react-three/fiber"
 import useTankStore from "@/stores/useTankStore"

@@ -1,7 +1,7 @@
 import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
-import { useState, useRef, useEffect } from "react"
+import { useRef } from "react"
 import useDataStore from "@/stores/useDataStore"
 import useAppDataStore from "@/stores/useAppDataStore"
 
@@ -10,7 +10,6 @@ const TankDate = () => {
 
   const { mode, filters } = useAppDataStore((state) => state)
   const { lastSensorData } = useDataStore((state) => state)
-
 
   const getDisplayDate = () => {
     if (mode === "historical" && filters.dateRange) {
@@ -34,9 +33,9 @@ const TankDate = () => {
     <div
       ref={ref}
       className="relative p-3 rounded-lg bg-white shadow-sm h-full flex flex-col justify-between cursor-pointer"
-      >
+    >
       {/* Header */}
-      <div className="flex items-center border-b pb-1.5">
+      <div className="flex items-center justify-between border-b pb-1.5">
         <div className="flex items-center gap-1.5">
           <div className="flex-shrink-0 flex items-center justify-center bg-primary/10 p-1 rounded-full">
             <CalendarIcon className="text-primary w-3.5 h-3.5" />
@@ -47,14 +46,12 @@ const TankDate = () => {
         </div>
       </div>
 
-      {/* Date Display */}
-      <div className="flex items-center mt-1.5 overflow-hidden">
+      {/* Date Display - Improved for better text handling */}
+      <div className="flex items-center mt-2">
         {displayDate ? (
-          <p className="text-sm font-semibold text-gray-800 truncate w-full">{displayDate}</p>
+          <p className="text-sm font-semibold text-gray-800 line-clamp-2 w-full">{displayDate}</p>
         ) : (
-          <p className="text-sm font-semibold text-red-500 truncate w-full">
-            Aún no han llegado datos
-          </p>
+          <p className="text-sm font-semibold text-red-500 line-clamp-2 w-full">Aún no han llegado datos</p>
         )}
       </div>
     </div>
