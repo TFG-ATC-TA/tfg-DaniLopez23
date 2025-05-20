@@ -1,4 +1,4 @@
-import { Maximize, Minimize, Eye, Layout, ArrowUp } from "lucide-react"; // Nuevos iconos
+import { Maximize, Minimize, ArrowUpFromLine, Square, PanelLeft } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -10,12 +10,10 @@ const CameraControlButtons = ({ handleViewChange, toggleFullscreen, isFullscreen
   const { mode, filters } = useAppDataStore((state) => state);
 
   const toggleView = (view) => {
-    // Si la vista actual es la misma que se está solicitando, volver a la vista predeterminada
     if (currentView === view) {
       setCurrentView("default");
       handleViewChange("default");
     } else {
-      // De lo contrario, cambiar a la vista solicitada
       setCurrentView(view);
       handleViewChange(view);
     }
@@ -37,7 +35,7 @@ const CameraControlButtons = ({ handleViewChange, toggleFullscreen, isFullscreen
                 className={`h-8 w-8 ${currentView === "lateral" ? "bg-gray-200" : "bg-white hover:bg-gray-100"}`}
                 onClick={() => toggleView("lateral")}
               >
-                <Layout className="h-4 w-4" /> {/* Icono para vista lateral */}
+                <PanelLeft className="h-4 w-4" /> {/* Icono para vista lateral */}
                 <span className="sr-only">Vista Lateral</span>
               </Button>
             </TooltipTrigger>
@@ -54,7 +52,7 @@ const CameraControlButtons = ({ handleViewChange, toggleFullscreen, isFullscreen
                 className={`h-8 w-8 ${currentView === "front" ? "bg-gray-200" : "bg-white hover:bg-gray-100"}`}
                 onClick={() => toggleView("front")}
               >
-                <Eye className="h-4 w-4" /> {/* Icono para vista frontal */}
+                <Square className="h-4 w-4" /> {/* Icono para vista frontal */}
                 <span className="sr-only">Vista Frontal</span>
               </Button>
             </TooltipTrigger>
@@ -71,7 +69,7 @@ const CameraControlButtons = ({ handleViewChange, toggleFullscreen, isFullscreen
                 className={`h-8 w-8 ${currentView === "top" ? "bg-gray-200" : "bg-white hover:bg-gray-100"}`}
                 onClick={() => toggleView("top")}
               >
-                <ArrowUp className="h-4 w-4" /> {/* Icono para vista zenital */}
+                <ArrowUpFromLine className="h-4 w-4" /> {/* Icono para vista zenital */}
                 <span className="sr-only">Vista Zenital</span>
               </Button>
             </TooltipTrigger>

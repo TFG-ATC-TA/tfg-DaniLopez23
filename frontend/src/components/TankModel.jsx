@@ -1,16 +1,16 @@
-import { useEffect, useState, useRef } from "react"
-import { Canvas } from "@react-three/fiber"
-import useTankStore from "@/stores/useTankStore"
-import SelectedSensorData from "./sensorData/SelectedSensorData"
-import CameraSettings from "./camera/CameraSettings"
-import { HorizontalTank2Blades } from "./tankModels/horizontal/HorizontalTank2Blades"
-import { HorizontalTank1Blade } from "./tankModels/horizontal/HorizontalTank1Blade"
-import { VerticalTank1Blade } from "./tankModels/vertical/VerticalTank1Blade"
-import { Button } from "./ui/button"
-import { Suspense } from "react"
-import { Loader2 } from "lucide-react"
-import useDataStore from "@/stores/useDataStore"
-import CameraControlButtons from "./camera/CameraControlButtons"
+import { useEffect, useState, useRef } from "react";
+import { Canvas } from "@react-three/fiber";
+import useTankStore from "@/stores/useTankStore";
+import SelectedSensorData from "./sensorData/SelectedSensorData";
+import CameraSettings from "./camera/CameraSettings";
+import { HorizontalTank2Blades } from "./tankModels/horizontal/HorizontalTank2Blades";
+import { HorizontalTank1Blade } from "./tankModels/horizontal/HorizontalTank1Blade";
+import { VerticalTank1Blade } from "./tankModels/vertical/VerticalTank1Blade";
+import { Button } from "./ui/button";
+import { Suspense } from "react";
+import { Loader2, X } from "lucide-react";
+import useDataStore from "@/stores/useDataStore";
+import CameraControlButtons from "./camera/CameraControlButtons";
 
 const TankModel = ({
   mode,
@@ -22,10 +22,10 @@ const TankModel = ({
   error,
   fetchHistoricalData,
 }) => {
-  const { selectedTank } = useTankStore((state) => state)
-  const [currentView, setCurrentView] = useState("default")
-  const [isFullscreen, setIsFullscreen] = useState(false)
-  const tankContainerRef = useRef(null)
+  const { selectedTank } = useTankStore((state) => state);
+  const [currentView, setCurrentView] = useState("default");
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const tankContainerRef = useRef(null);
 
   // Get real-time data directly in this component
   const {
@@ -37,7 +37,7 @@ const TankModel = ({
     airQualityData,
     selectedData,
     gyroscopeData,
-  } = useDataStore((state) => state)
+  } = useDataStore((state) => state);
 
   // Organize real-time data
   const realTimeData = {
@@ -49,35 +49,38 @@ const TankModel = ({
     airQualityData,
     selectedData,
     gyroscopeData,
-  }
+  };
 
   // Log when selectedTime changes
   useEffect(() => {
     if (selectedTime) {
-      handleTimeSelected(selectedTime)
+      handleTimeSelected(selectedTime);
     }
-  }, [selectedTime, handleTimeSelected])
+  }, [selectedTime, handleTimeSelected]);
 
   // Sincronizar la vista con selectedData
   useEffect(() => {
     if (selectedData) {
       // Cambiar la vista basada en selectedData
-      setCurrentView(selectedData)
+      setCurrentView(selectedData);
     } else {
-      setCurrentView("default")
+      setCurrentView("default");
     }
-  }, [selectedData])
+  }, [selectedData]);
 
   const handleViewChange = (view) => {
-    setCurrentView(view) // Actualizar la vista desde los botones
-  }
+    setCurrentView(view); // Actualizar la vista desde los botones
+  };
 
-  const toggleFullscreen = () => {
-    setIsFullscreen(!isFullscreen)
-  }
+  // Nueva función para fullscreen: solo muestra el modelo y un botón para salir
+  const handleFullscreen = () => setIsFullscreen(true);
+  const handleExitFullscreen = () => setIsFullscreen(false);
 
   // Use the appropriate data source based on mode
-  const data = mode === "realtime" ? realTimeData : selectedHistoricalData || historicalData
+  const data =
+    mode === "realtime"
+      ? realTimeData
+      : selectedHistoricalData || historicalData;
 
   const renderTankModel = () => {
     // Case 1: Historical mode but no date range selected
@@ -85,11 +88,15 @@ const TankModel = ({
       return (
         <div className="flex items-center justify-center h-full">
           <div className="text-center p-6 bg-gray-50 rounded-lg border border-gray-200 max-w-md">
-            <h3 className="text-lg font-medium text-gray-700 mb-2">No Date Selected</h3>
-            <p className="text-gray-500">Please select a date range to view historical data for this tank.</p>
+            <h3 className="text-lg font-medium text-gray-700 mb-2">
+              No Date Selected
+            </h3>
+            <p className="text-gray-500">
+              Please select a date range to view historical data for this tank.
+            </p>
           </div>
         </div>
-      )
+      );
     }
 
     // Case 2: Historical mode and data is loading
@@ -98,11 +105,15 @@ const TankModel = ({
         <div className="flex items-center justify-center h-full">
           <div className="text-center p-6 bg-gray-50 rounded-lg border border-gray-200 max-w-md">
             <Loader2 className="h-8 w-8 text-primary animate-spin mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-700 mb-2">Loading Data</h3>
-            <p className="text-gray-500">Retrieving historical data for the selected time period...</p>
+            <h3 className="text-lg font-medium text-gray-700 mb-2">
+              Loading Data
+            </h3>
+            <p className="text-gray-500">
+              Retrieving historical data for the selected time period...
+            </p>
           </div>
         </div>
-      )
+      );
     }
 
     // Case 3: Historical mode and there was an error
@@ -110,16 +121,22 @@ const TankModel = ({
       return (
         <div className="flex items-center justify-center h-full">
           <div className="text-center p-6 bg-gray-50 rounded-lg border border-gray-200 max-w-md">
-            <h3 className="text-lg font-medium text-red-600 mb-2">Error Loading Data</h3>
+            <h3 className="text-lg font-medium text-red-600 mb-2">
+              Error Loading Data
+            </h3>
             <p className="text-gray-500 mb-4">
-              We could not retrieve the historical data. Please try again or select a different time period.
+              We could not retrieve the historical data. Please try again or
+              select a different time period.
             </p>
-            <Button onClick={fetchHistoricalData} className="bg-primary hover:bg-primary/90">
+            <Button
+              onClick={fetchHistoricalData}
+              className="bg-primary hover:bg-primary/90"
+            >
               Try Again
             </Button>
           </div>
         </div>
-      )
+      );
     }
 
     // Case 4: Historical mode but no data available (not loading, no error)
@@ -127,14 +144,22 @@ const TankModel = ({
       return (
         <div className="flex items-center justify-center h-full">
           <div className="text-center p-6 bg-gray-50 rounded-lg border border-gray-200 max-w-md">
-            <h3 className="text-lg font-medium text-gray-700 mb-2">No Data Available</h3>
-            <p className="text-gray-500 mb-4">There is no historical data available for the selected time period.</p>
-            <Button onClick={fetchHistoricalData} className="bg-primary hover:bg-primary/90">
+            <h3 className="text-lg font-medium text-gray-700 mb-2">
+              No Data Available
+            </h3>
+            <p className="text-gray-500 mb-4">
+              There is no historical data available for the selected time
+              period.
+            </p>
+            <Button
+              onClick={fetchHistoricalData}
+              className="bg-primary hover:bg-primary/90"
+            >
               Refresh
             </Button>
           </div>
         </div>
-      )
+      );
     }
 
     // Function to select the appropriate tank model based on tank type and number of blades
@@ -150,7 +175,7 @@ const TankModel = ({
             airQualityData={data?.airQualityData}
             selectedData={selectedData}
           />
-        )
+        );
       } else if (tankType === "vertical") {
         return (
           <VerticalTank1Blade
@@ -162,7 +187,7 @@ const TankModel = ({
             airQualityData={data?.airQualityData}
             selectedData={selectedData}
           />
-        )
+        );
       } else {
         return (
           <HorizontalTank1Blade
@@ -174,9 +199,9 @@ const TankModel = ({
             airQualityData={data?.airQualityData}
             selectedData={selectedData}
           />
-        )
+        );
       }
-    }
+    };
 
     // Render the 3D tank model
     return (
@@ -184,22 +209,48 @@ const TankModel = ({
         <ambientLight intensity={0.6} />
         <directionalLight position={[-10, -10, -10]} intensity={0.5} />
         <Suspense fallback={null}>
-          <group>{selectTankDisplayType(selectedTank?.display, selectedTank?.blades)}</group>
-          <CameraSettings view={currentView} tankDisplay={selectedTank?.display} />
+          <group>
+            {selectTankDisplayType(selectedTank?.display, selectedTank?.blades)}
+          </group>
+          <CameraSettings
+            view={currentView}
+            tankDisplay={selectedTank?.display}
+          />
         </Suspense>
       </Canvas>
-    )
+    );
+  };
+
+  // Si está en fullscreen, solo renderiza el modelo y un botón para salir
+  if (isFullscreen) {
+    return (
+      <div className="fixed inset-0 z-[9999] bg-white flex flex-col">
+        {" "}
+        {/* Cambiado bg-black por bg-white */}
+        <div className="absolute top-4 right-4 z-50">
+          <Button
+            variant="outline"
+            size="icon"
+            className="bg-white/80 hover:bg-white"
+            onClick={handleExitFullscreen}
+          >
+            <X className="h-5 w-5 text-gray-700" />
+            <span className="sr-only">Salir de pantalla completa</span>
+          </Button>
+        </div>
+        <div className="flex-1 flex">{renderTankModel()}</div>
+      </div>
+    );
   }
 
   return (
     <div
       ref={tankContainerRef}
-      className={`bg-white relative transition-all duration-300 ${
-        isFullscreen ? "fixed top-0 left-0 w-screen h-screen z-50" : "w-full h-full"
-      }`}
+      className="bg-white relative transition-all duration-300 w-full h-full"
     >
       {/* Only show sensor data overlay when in realtime mode or when historical data is loaded */}
-      {(mode === "realtime" || (historicalData && historicalData !== "loading" && !error)) && (
+      {(mode === "realtime" ||
+        (historicalData && historicalData !== "loading" && !error)) && (
         <>
           <div className="absolute top-4 left-4 z-20">
             <SelectedSensorData
@@ -218,11 +269,11 @@ const TankModel = ({
       {renderTankModel()}
       <CameraControlButtons
         handleViewChange={handleViewChange}
-        toggleFullscreen={toggleFullscreen}
+        toggleFullscreen={handleFullscreen}
         isFullscreen={isFullscreen}
       />
     </div>
-  )
-}
+  );
+};
 
-export default TankModel
+export default TankModel;
