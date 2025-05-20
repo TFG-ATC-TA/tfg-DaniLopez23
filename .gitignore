@@ -1,3 +1,5 @@
 influxdb/accel (1).csv
 ml-api/__pycache__/*
+ml-api/test.csv
+ml-api/predictions:plot.png
 .env
