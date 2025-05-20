@@ -9,21 +9,27 @@ const Header = () => {
   const { serverStatus } = useAppDataStore((state) => state)
 
   return (
-    <div className="bg-white p-4 md:p-6 shadow-sm border-b">
-      <div className="w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-10">
-          <FarmSelector />
-          <TankSelector />
+    <div className="bg-white shadow-sm border-b sticky top-0 z-50">
+      {/* Header principal - siempre visible */}
+      <div className="p-3 md:p-4">
+        <div className="w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-6 w-full md:w-auto">
+            <FarmSelector />
+            <TankSelector />
+          </div>
+
+          {/* En desktop: siempre visible */}
+          <div>
+            <ServerStatus
+              serverStatus={serverStatus}
+              webSocketServerStatus={webSocketServerStatus}
+              mqttStatus={mqttStatus}
+            />
+          </div>
         </div>
-        <ServerStatus
-          serverStatus={serverStatus}
-          webSocketServerStatus={webSocketServerStatus}
-          mqttStatus={mqttStatus}
-        />
       </div>
     </div>
   )
 }
 
 export default Header
-

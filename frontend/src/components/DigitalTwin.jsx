@@ -139,21 +139,22 @@ const DigitalTwin = () => {
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       {/* Barra superior con TankDate, DataModeToggle y TankStatus */}
-      <div className="flex flex-wrap gap-2 p-2 z-10">
-        {/* TankDate ocupa todo el ancho disponible en móvil y se ajusta en escritorio */}
-        <div className="order-1 w-full md:order-1 md:flex-1 md:min-w-[150px]">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-3 p-3 z-10">
+        {/* TankDate - full width on mobile, 5/12 on desktop */}
+        <div className="md:col-span-5">
           <TankDate mode={mode} filters={filters} />
         </div>
 
-        {/* DataModeToggle y TankStatus mantienen tamaño fijo, pero se apilan en móvil */}
-        <div className="order-2 w-full md:order-2 md:w-[220px]">
+        {/* DataModeToggle - full width on mobile, 4/12 on desktop */}
+        <div className="md:col-span-4">
           <DataModeToggle
             isRealTime={mode === "realtime"}
             onToggle={changeMode}
           />
         </div>
 
-        <div className="order-3 w-full md:order-3 md:w-[220px]">
+        {/* TankStatus - full width on mobile, 3/12 on desktop */}
+        <div className="md:col-span-3">
           <TankStatus isRealTime={mode === "realtime"} />
         </div>
       </div>
