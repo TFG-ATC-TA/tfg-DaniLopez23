@@ -49,8 +49,6 @@ services:
     restart: unless-stopped
     ports:
       - "8086:8086"
-    env_file:
-      - .env
     volumes:
       - influxdb:/var/lib/influxdb
     networks:
