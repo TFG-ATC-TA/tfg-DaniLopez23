@@ -28,6 +28,9 @@ CMD ["npm", "run", "dev", "--", "--host"]
 # ========= ETAPA DE PRODUCCIÓN =========
 FROM node:${NODE_VERSION} AS builder
 
+ARG VITE_API_URL
+ENV VITE_API_URL=${VITE_API_URL}
+
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci

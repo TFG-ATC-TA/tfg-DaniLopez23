@@ -30,13 +30,12 @@ const validateRequest = (req, res, next) => {
     return res.status(400).json({ message: "Fecha no válida." });
   if (!Array.isArray(boardIds) || boardIds.length === 0)
     return res.status(400).json({ message: "Array de board IDs no válido." });
-
   next();
 };
 
 function processData(rawData) {
   // Valor estándar inicial para las temperaturas
-  let lastTemps = { surface: 4, overSurface: 4 };
+  let lastTemps = { surface: 4, overSurface: 6 };
   const processed = [];
 
   // Ordenar los datos por DateTime

@@ -25,15 +25,12 @@ services:
     build:
       context: ./frontend
       target: production
-    environment:
-      - NODE_ENV=production
-      - VITE_API_URL=http://backend:3001  # Mejor usar nombre de servicio, no hardcode URL
+      args:
+        - VITE_API_URL=http://backend:3001
     ports:
       - "80:80"
     networks:
       - tfg-digital-twin
-    depends_on:
-      - backend
 
   ml-api:
     build:
@@ -61,16 +58,27 @@ services:
       - tfg-digital-twin
 
   mongodb:
-    build:
-      context: ./mongodb
-    container_name: mongodb
-    restart: unless-stopped
-    ports:
-      - "27018:27017"
-    volumes:
-      - mongodb:/data/db
-    networks:
-      - tfg-digital-twin
+      image: mongo:7.0
+      container_name: mongodb_prod
+      restart: unless-stopped
+      command: mongod --auth --bind_ip_all  # ¡Esto es clave!
+      networks:
+        - tfg-digital-twin
+      environment:
+        - MONGO_INITDB_ROOT_USERNAME=admin_prod  # Cambiar por tu usuario
+        - MONGO_INITDB_ROOT_PASSWORD=adminpassword_prod  # Cambiar por tu contraseña
+        - MONGO_INITDB_DATABASE=tfg_prod
+      volumes:
+        - mongodb_data_prod:/data/db  # Volumen manejado por Docker
+        - ./mongo-data/init:/docker-entrypoint-initdb.d  # Monta ambos archivos
+      ports:
+        - "27018:27017"  # Solo para pruebas, quitar después
+      
+      healthcheck:
+        test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+        interval: 30s
+        timeout: 10s
+        retries: 3
 
 networks:
   tfg-digital-twin:
@@ -78,4 +86,4 @@ networks:
 
 volumes:
   influxdb:
-  mongodb:
+  mongodb_data_prod:  

@@ -13,6 +13,11 @@ debug = require("debug")("app:controllers:HistoricalData");
 const token = config.influxDB.INFLUX_TOKEN
 const org = config.influxDB.INFLUX_ORG;
 const url = config.influxDB.INFLUX_URL;
+console.log("Using InfluxDB configuration:", {
+  token,
+  org,
+  url,
+});
 
 debug("InfluxDB Configuration: ", {
   token,

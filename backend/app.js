@@ -5,8 +5,10 @@ const config = require("./config/index");
 const mongoose = require('mongoose');
 const debug = require('debug')('app');
 
-const MONGO_URI = config.mongoDB.MONGO_URL_LOCAL;
-console.log("Mongo URI: ", MONGO_URI); // Verifica que la URI sea correcta
+const isProd = process.env.NODE_ENV === 'production';
+console.log('Running in production mode:', isProd);
+const MONGO_URI = isProd ? config.mongoDB.MONGO_URL_LOCAL_PROD : config.mongoDB.MONGO_URL_LOCAL_DEV;
+console.log('Using MongoDB URI:', MONGO_URI);
 
 const farmRouter = require("./controllers/Farm"); 
 const historicalDataRouter = require("./controllers/HistoricalData");
@@ -18,8 +20,10 @@ const webSocketsService = require("./services/webSockets");
 const app = express();
 
 const corsOptions = {
-  origin: "http://localhost:5173", // Asegúrate de que esta URL sea la correcta
-};
+  origin: process.env.NODE_ENV === 'production' 
+      ? 'http://frontend' 
+      : 'http://localhost:5173',
+  };
 
 app.use(cors(corsOptions)); // Configura el middleware de CORS
 app.use(express.json()); 

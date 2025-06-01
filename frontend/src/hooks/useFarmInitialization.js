@@ -17,8 +17,9 @@ export const useFarmInitialization = () => {
     try {
 
       const farms = await getFarms();
+      console.log("Farms fetched:", farms);
       setFarms(farms);
-      const farmData = farms[1];
+      const farmData = farms[0];
       setSelectedFarm(farmData);
       const firstMilkTank = farmData.equipments.find(
         (tank) => tank.type === "Tanque de leche"
