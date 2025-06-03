@@ -1,9 +1,9 @@
-// services/websockets.js
 const socketIo = require("socket.io");
 const cacheData = require("./cache");
-const debug = require('debug')('app:websockets');
+const debug = require("debug")("app:websockets");
+const { getLastMqttStatus } = require("./mqttStatusStore");
 
-let io; 
+let io;
 
 const initializeWebSocket = (server) => {
   io = socketIo(server, {
@@ -13,11 +13,22 @@ const initializeWebSocket = (server) => {
   });
 
   io.on("connection", (socket) => {
-    debug(`New client connected: ${socket.id}`)
+    debug(`New client connected: ${socket.id}`);
+
+    const status = getLastMqttStatus();
+    if (status) {
+      debug("Emitting last MQTT status to client", status);
+      socket.emit("mqttStatus", status);
+    }
     // Escucha el evento de cambio de tanque
     let currentRooms = new Set(); // Almacena las rooms a las que está conectado el socket
 
     socket.on("selectTank", (farmId, boards) => {
+      const status = getLastMqttStatus();
+      if (status) {
+        debug("Emitting last MQTT status to client", status);
+        socket.emit("mqttStatus", status);
+      }
       debug(`Client ${socket.id} selected Farm-Tank: ${farmId}/[${boards}]`);
       if (!farmId) {
         debug("Invalid input for selectFarmAndTank. Expected farmId.");
@@ -52,21 +63,18 @@ const initializeWebSocket = (server) => {
     });
 
     socket.on("requestLastData", (farmId, boards) => {
-
       if (!boards) {
-        debug('Invalid boardIds format. Expected an array.');
+        debug("Invalid boardIds format. Expected an array.");
         return;
       }
 
       const data = cacheData.getDataByBoards(farmId, boards);
       socket.emit("last data", data);
-
-    })
+    });
 
     socket.on("reconnectMQTT", () => {
       debug("Manually Reconnecting MQTT...");
     });
-
 
     socket.on("disconnect", () => {
       debug(`Client disconnected: ${socket.id}`);
@@ -76,12 +84,11 @@ const initializeWebSocket = (server) => {
 
 // Función para emitir mensajes solo a la room del tanque seleccionado
 const emitToTank = (farmId, boardId, event, data) => {
-  
   if (!farmId) {
     debug("Invalid input for emitToTank. Expected farmId.");
     return;
   }
-  
+
   if (!boardId) {
     debug("No tank selected");
     return;

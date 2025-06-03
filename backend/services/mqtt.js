@@ -3,6 +3,7 @@ const config = require("../config/index");
 const topics = require("../config/topics");
 const dataHandling = require("../utils/dataHandling");
 const dataCache = require("./cache");
+const { setLastMqttStatus } = require("./mqttStatusStore");
 const webSocketsService = require("./webSockets");
 const debug = require("debug")("app:mqtt");
 
@@ -29,6 +30,7 @@ const connect = () => {
 
   mqttClient.on("connect", () => {
     debug("MQTT client connected %s", url);
+    setLastMqttStatus({ status: "connected" });
     webSocketsService.emitToAll("mqttStatus", { status: "connected" });
     reconnecting = false;
     reconnectAttempts = 0; // Restablecer el contador de intentos al conectar
@@ -69,10 +71,9 @@ const connect = () => {
 
   mqttClient.on("error", (err) => {
     debug("MQTT Connection Error: %O", err.message);
-    webSocketsService.emitToAll("mqttStatus", {
-      status: "error",
-      error: err.message,
-    });
+    const status = { status: "error", error: err.message };
+    setLastMqttStatus(status);
+    webSocketsService.emitToAll("mqttStatus", status);
   });
 
   mqttClient.on("reconnect", () => {
