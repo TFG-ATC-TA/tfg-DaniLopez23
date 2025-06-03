@@ -8,7 +8,7 @@ let io;
 const initializeWebSocket = (server) => {
   io = socketIo(server, {
     cors: {
-      origin: "http://localhost:5173", // Cambia esta URL si es necesario
+      origin: ["http://localhost:5173", "http://192.168.138.163:5173"], // agrega la IP de tu máquina host
     },
   });
 

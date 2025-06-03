@@ -20,10 +20,9 @@ const webSocketsService = require("./services/webSockets");
 const app = express();
 
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-      ? 'http://frontend' 
-      : 'http://localhost:5173',
-  };
+  origin: true, // Permite cualquier origen
+  credentials: true,
+};
 
 app.use(cors(corsOptions)); // Configura el middleware de CORS
 app.use(express.json()); 

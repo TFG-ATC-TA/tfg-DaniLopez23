@@ -2,13 +2,12 @@ import { io } from "socket.io-client";
 
 let socket = null;
 
-export const createSocket = (url = "http://localhost:3001", options = {}) => {
+export const createSocket = (url = import.meta.env.VITE_SOCKET_URL, options = {}) => {
   if (socket) {
     console.warn("Socket ya inicializado. Usando la instancia existente.");
     return socket;
   }
 
-  // Crear nueva instancia de Socket.IO
   socket = io(url, {
     autoConnect: false,
     reconnection: true,

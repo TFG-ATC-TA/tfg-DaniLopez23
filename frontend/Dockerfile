@@ -17,7 +17,6 @@ COPY . .
 
 # Variables de entorno para desarrollo
 ENV NODE_ENV=development
-ENV VITE_API_URL=http://localhost:3001
 
 # Exponer puerto de Vite
 EXPOSE 5173
