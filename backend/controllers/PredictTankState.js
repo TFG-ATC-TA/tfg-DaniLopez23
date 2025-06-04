@@ -45,12 +45,14 @@ function processData(rawData) {
     const newRow = {
       DateTime: row.DateTime,
       AccelX: row.AccelX !== null ? row.AccelX : null,
-      SurfaceTemperature: row["Surface temperature (ºC)"] !== null
-        ? row["Surface temperature (ºC)"]
-        : lastTemps.surface, // Usar el último valor conocido o el estándar
-      OverSurfaceTemperature: row["Over surface temperature (ºC)"] !== null
-        ? row["Over surface temperature (ºC)"]
-        : lastTemps.overSurface, // Usar el último valor conocido o el estándar
+      SurfaceTemperature:
+        row["Surface temperature (ºC)"] !== null
+          ? row["Surface temperature (ºC)"]
+          : lastTemps.surface, // Usar el último valor conocido o el estándar
+      OverSurfaceTemperature:
+        row["Over surface temperature (ºC)"] !== null
+          ? row["Over surface temperature (ºC)"]
+          : lastTemps.overSurface, // Usar el último valor conocido o el estándar
     };
 
     // Actualizar últimos valores conocidos si hay datos de temperatura
@@ -70,7 +72,6 @@ function processData(rawData) {
   return processed;
 }
 
-
 PredictTankStatesRouter.post("/", validateRequest, async (req, res) => {
   const { farm, tank, date, boardIds } = req.body;
   debug("Received filters:", { farm, tank, date, boardIds });
@@ -82,12 +83,11 @@ PredictTankStatesRouter.post("/", validateRequest, async (req, res) => {
       tankId: tank,
       date: new Date(date),
     });
-    
-    if (existingData){
+
+    if (existingData) {
       debug("Datos encontrados en MongoDB:", existingData);
       return res.status(200).json(existingData);
     }
-
 
     debug("Datos no encontrados en MongoDB. Consultando InfluxDB...");
 
@@ -154,41 +154,43 @@ PredictTankStatesRouter.post("/", validateRequest, async (req, res) => {
     };
 
     const influxData = await executeQuery(fluxQuery);
-    debug("Datos de InfluxDB:", influxData.slice(0, 5)); 
+    debug("Datos de InfluxDB:", influxData.slice(0, 5));
 
     if (influxData.length === 0) {
-      debug("No se encontraron datos en InfluxDB para la fecha y filtros dados.");
+      debug(
+        "No se encontraron datos en InfluxDB para la fecha y filtros dados."
+      );
       return res.status(200).json(null);
     }
 
-
     const processedData = processData(influxData);
-    debug("Datos procesados:", processedData.slice(0, 5)); 
+    debug("Datos procesados:", processedData.slice(0, 5));
 
     // Enviar a ML-API en el formato requerido
     const payload = {
-      data: processedData.map(row => ({
-        DateTime: new Date(row.DateTime).toISOString()
-        .replace("T", " ") // Reemplazar 'T' por un espacio
-        .replace(/\.\d{3}Z$/, "+00:00"), // Eliminar milisegundos y agregar '+00:00'
+      data: processedData.map((row) => ({
+        DateTime: new Date(row.DateTime)
+          .toISOString()
+          .replace("T", " ") // Reemplazar 'T' por un espacio
+          .replace(/\.\d{3}Z$/, "+00:00"), // Eliminar milisegundos y agregar '+00:00'
         AccelX: row.AccelX,
         OverSurfaceTemperature: row["OverSurfaceTemperature"],
-        SurfaceTemperature: row["SurfaceTemperature"]
-      }))
+        SurfaceTemperature: row["SurfaceTemperature"],
+      })),
     };
 
-    debug("Datos procesados para ML-API:", payload.data.slice(0, 5)); 
+    debug("Datos procesados para ML-API:", payload.data.slice(0, 5));
 
     // Enviar datos a la API de ML
     try {
       // Enviar a la API de ML
-      const response = await axios.post("http://ml-api:8000/predict", payload, );
+      const response = await axios.post("http://ml-api:8000/predict", payload);
       debug("Respuesta de ML-API:", response.data);
 
       // Transformar los intervalos para MongoDB
       const transformedStates = response.data.intervals.map((interval) => ({
         startTime: new Date(interval.inicio).toISOString().substring(11, 16), // Extraer HH:mm
-        endTime: new Date(interval.fin).toISOString().substring(11, 16),     // Extraer HH:mm
+        endTime: new Date(interval.fin).toISOString().substring(11, 16), // Extraer HH:mm
         state: interval.estado,
       }));
 
@@ -287,8 +289,28 @@ PredictTankStatesRouter.post("/real-time", async (req, res) => {
     const influxData = await executeQuery(fluxQuery);
     debug("Datos de InfluxDB (real-time):", influxData.slice(0, 5));
 
+    if (!influxData || influxData.length === 0) {
+      debug(
+        "No se encontraron datos en InfluxDB para la fecha y filtros dados (real-time)."
+      );
+      return res.status(200).json({
+        message:
+          "No se encontraron datos históricos para los filtros seleccionados.",
+        data: null,
+      });
+    }
+
     const processedData = processData(influxData);
     debug("Datos procesados (real-time):", processedData.slice(0, 5));
+
+    if (!processedData || processedData.length === 0) {
+      debug("No hay datos válidos tras el procesado (real-time).");
+      return res.status(200).json({
+        message:
+          "No se encontraron datos históricos válidos tras el procesado.",
+        data: null,
+      });
+    }
 
     // Enviar a ML-API en el formato requerido
     const payload = {
@@ -303,12 +325,27 @@ PredictTankStatesRouter.post("/real-time", async (req, res) => {
       })),
     };
 
-    debug("Datos procesados para ML-API (real-time):", payload.data.slice(0, 5));
+    debug(
+      "Datos procesados para ML-API (real-time):",
+      payload.data.slice(0, 5)
+    );
 
     // Enviar datos a la API de ML
     try {
       const response = await axios.post("http://ml-api:8000/predict", payload);
       debug("Respuesta de ML-API (real-time):", response.data);
+
+      if (
+        !response.data ||
+        !Array.isArray(response.data.intervals) ||
+        response.data.intervals.length === 0
+      ) {
+        debug("ML-API no devolvió intervalos válidos (real-time).");
+        return res.status(200).json({
+          message: "La ML-API no devolvió intervalos de predicción.",
+          data: null,
+        });
+      }
 
       // Transformar los intervalos para la respuesta
       const transformedStates = response.data.intervals.map((interval) => ({
@@ -336,5 +373,5 @@ PredictTankStatesRouter.post("/real-time", async (req, res) => {
       .json({ message: "Error interno del servidor", error: error.message });
   }
 });
-  
+
 module.exports = PredictTankStatesRouter;

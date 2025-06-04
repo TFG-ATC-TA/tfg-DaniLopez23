@@ -3,6 +3,7 @@ import { Activity, Radio, Loader2, CircleX } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import SensorInfoItem from "./SensorInfoItem"
 import useDataStore from "@/stores/useDataStore"
+import useAppDataStore from "@/stores/useAppDataStore"
 
 const SensorDataTab = ({ mode, selectedHistoricalData, historicalData, error}) => {
   const [isSensorsTabVisible, setIsSensorsTabVisible] = useState(true)
@@ -18,6 +19,8 @@ const SensorDataTab = ({ mode, selectedHistoricalData, historicalData, error}) =
     selectedData,
     gyroscopeData,
   } = useDataStore((state) => state)
+
+  const {filters} =useAppDataStore((state) => state)
 
   // Organize real-time data
   const realTimeData = {
@@ -81,7 +84,11 @@ const SensorDataTab = ({ mode, selectedHistoricalData, historicalData, error}) =
           </div>
         ) : error && mode === "historical" ? (
           <div className="text-center p-4">
-            <p className="text-sm text-red-500 mb-2">Error loading sensor data</p>
+            <p className="text-sm text-grey-500 mb-2">{`Error loading sensor data: ${error.message}`}</p>
+          </div>
+        ) : mode === "historical" && !filters.dateRange ? (
+          <div className="text-center p-4">
+            <p className="text-sm text-muted-foreground">Selecciona un rango de fechas para ver los datos históricos de sensores.</p>
           </div>
         ) : (
           <SensorInfoItem historicalData={dataToDisplay} isRealTime={mode === "realtime"} />

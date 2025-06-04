@@ -46,7 +46,6 @@ export const useSocketInitialization = () => {
 
       // Escuchar el canal mqttStatus y actualizar el estado
       socketInstance.on("mqttStatus", (status) => {
-        console.log("MQTT status update:", status);
         setMqttStatus({ status: status.status, error: status.error || null });
       });
 

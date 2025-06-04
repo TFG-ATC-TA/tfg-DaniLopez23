@@ -359,7 +359,6 @@ export default function TimeSeriesSlider({ startDate, endDate, onTimeSelected, t
 
         // Call the onTimeSelected callback with the formatted time string
         if (onTimeSelected) {
-          console.log(`TimeSeriesSlider: Calling onTimeSelected with ${timeString}`)
           onTimeSelected(timeString)
         }
 

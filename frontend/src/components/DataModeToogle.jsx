@@ -1,8 +1,26 @@
 import { Wifi, History } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
+import useDataStore from "@/stores/useDataStore"
 
-const DataModeToggle = ({ onToggle, isRealTime }) => {
+const DataModeToggle = ({ isRealTime, setMode, setFilters, selectedTank, setSelectedTime }) => {
+  
+  const {setSelectedData} = useDataStore((state) => state)
+  
+  const changeMode = (isRealTime) => {
+    const newMode = isRealTime ? "realtime" : "historical";
+    console.log("Changing mode to:", newMode);
+    selectedTank.state = "NO DATA";
+    setMode(newMode);
+    setSelectedData(null)
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      dateRange: null,
+      selectedDate: null,
+    }));
+    setSelectedTime(null);
+  };
+
   return (
     <div className="relative p-3 rounded-lg bg-white shadow-sm h-full flex flex-col justify-between">
       {/* Header */}
@@ -27,20 +45,20 @@ const DataModeToggle = ({ onToggle, isRealTime }) => {
               "flex items-center justify-center px-2 py-1 rounded-md text-xs font-medium transition-colors flex-1",
               isRealTime ? "bg-green-50 text-green-600 border border-green-200" : "text-gray-600 hover:bg-gray-100",
             )}
-            onClick={() => onToggle(true)}
+            onClick={() => changeMode(true)}
           >
             <Wifi className="mr-1 h-3 w-3 flex-shrink-0" />
             <span className="truncate">Tiempo real</span>
           </button>
 
-          <Switch checked={!isRealTime} onCheckedChange={(checked) => onToggle(!checked)} className="mx-1 scale-75" />
+          <Switch checked={!isRealTime} onCheckedChange={(checked) => changeMode(!checked)} className="mx-1 scale-75" />
 
           <button
             className={cn(
               "flex items-center justify-center px-2 py-1 rounded-md text-xs font-medium transition-colors flex-1",
               !isRealTime ? "bg-purple-50 text-purple-600 border border-purple-200" : "text-gray-600 hover:bg-gray-100",
             )}
-            onClick={() => onToggle(false)}
+            onClick={() => changeMode(false)}
           >
             <History className="mr-1 h-3 w-3 flex-shrink-0" />
             <span className="truncate">Histórico</span>

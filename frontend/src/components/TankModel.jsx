@@ -122,7 +122,7 @@ const TankModel = ({
         <div className="flex items-center justify-center h-full">
           <div className="text-center p-6 bg-gray-50 rounded-lg border border-gray-200 max-w-md">
             <h3 className="text-lg font-medium text-red-600 mb-2">
-              Error Loading Data
+              {`Error Loading Data: ${error.message}`}
             </h3>
             <p className="text-gray-500 mb-4">
               We could not retrieve the historical data. Please try again or
@@ -215,6 +215,7 @@ const TankModel = ({
           <CameraSettings
             view={currentView}
             tankDisplay={selectedTank?.display}
+            isFullscreen={isFullscreen}
           />
         </Suspense>
       </Canvas>

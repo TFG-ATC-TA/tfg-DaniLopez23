@@ -1,4 +1,4 @@
-import { Server, Wifi, WifiOff, Info, RefreshCw } from "lucide-react";
+import { Server, Wifi, Info, RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -22,11 +22,6 @@ const statusText = {
 const ServerStatus = ({ serverStatus, webSocketServerStatus, mqttStatus }) => {
   const { retryInitialization } = useFarmInitialization();
 
-  console.log("mqtt status component rendered with:", {
-    serverStatus,
-    webSocketServerStatus,
-    mqttStatus,
-  });
   return (
     <div className="flex items-center gap-3 px-3 py-2">
       <div className="flex items-center gap-2">

@@ -10,7 +10,7 @@ debug = require("debug")("app:controllers:HistoricalData");
 // const url = config.influxDB.LOCAL_INFLUX_URL;
 
 // Configuración de InfluxDB lactokeeper
-const token = config.influxDB.INFLUX_TOKEN
+const token = config.influxDB.INFLUX_TOKEN;
 const org = config.influxDB.INFLUX_ORG;
 const url = config.influxDB.INFLUX_URL;
 console.log("Using InfluxDB configuration:", {
@@ -80,7 +80,15 @@ HistoricalDataRouter.post("/", async (req, res) => {
     debug("Executing query:", fluxQuery);
 
     const result = await queryApi.collectRows(fluxQuery);
-          
+
+    if (!result || result.length === 0) {
+      debug("No historical data found for the given filters.");
+      return res.status(200).json({
+        message: "No historical data found for the selected filters.",
+        data: null,
+      });
+    }
+    
     const formattedResult = {};
 
     result.forEach((row) => {
@@ -90,7 +98,7 @@ HistoricalDataRouter.post("/", async (req, res) => {
         hour12: false,
         timeZone: "UTC",
       });
-    
+
       const {
         _measurement: measurement,
         _field: rawField,
@@ -99,30 +107,32 @@ HistoricalDataRouter.post("/", async (req, res) => {
         tags_sensor_id: sensorId,
         ...tags
       } = row;
-    
+
       // Redondear el valor a 2 decimales
       const value = parseFloat(rawValue.toFixed(2));
-    
+
       // Limpiar el nombre del campo eliminando el prefijo "fields_"
-      const field = rawField.startsWith("fields_") ? rawField.replace("fields_", "") : rawField;
-    
+      const field = rawField.startsWith("fields_")
+        ? rawField.replace("fields_", "")
+        : rawField;
+
       // Determine the key for the formatted result based on the measurement
       const measurementMap = {
-        '6_dof_imu': 'gyroscopeData',
-        'air_quality': 'airQualityData',
-        'encoder': 'encoderData',
-        'magnetic_switch': 'switchStatus',
-        'tank_distance': 'milkQuantityData',
-        'weight': 'weightData',
-        'temperature_probe': 'tankTemperaturesData',
+        "6_dof_imu": "gyroscopeData",
+        air_quality: "airQualityData",
+        encoder: "encoderData",
+        magnetic_switch: "switchStatus",
+        tank_distance: "milkQuantityData",
+        weight: "weightData",
+        temperature_probe: "tankTemperaturesData",
       };
-    
+
       const key = measurementMap[measurement] || measurement;
-    
+
       if (!formattedResult[time]) {
         formattedResult[time] = {};
       }
-    
+
       if (!formattedResult[time][key]) {
         formattedResult[time][key] = {
           measurement,
@@ -137,7 +147,7 @@ HistoricalDataRouter.post("/", async (req, res) => {
           value: {}, // Initialize as an object to handle multiple fields
         };
       }
-    
+
       // Handle specific cases for weight and encoder
       if (measurement === "weight" || measurement === "encoder") {
         if (typeof formattedResult[time][key].value !== "object") {
@@ -154,12 +164,12 @@ HistoricalDataRouter.post("/", async (req, res) => {
         formattedResult[time][key].value[field] = value;
       }
     });
-    
+
     // Post-process to handle cases where only one field exists
     Object.keys(formattedResult).forEach((time) => {
       Object.keys(formattedResult[time]).forEach((key) => {
         const valueObj = formattedResult[time][key].value;
-    
+
         // If there's only one field, convert the value object to a single value
         const fields = Object.keys(valueObj);
         if (fields.length === 1) {

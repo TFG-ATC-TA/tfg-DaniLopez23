@@ -13,7 +13,9 @@ import useTankStore from "@/stores/useTankStore";
 import { Loader2 } from "lucide-react";
 import useTankStates from "@/hooks/useTankStates";
 import useHistoricalData from "@/hooks/useHistoricalData";
+import useDataStore from "@/stores/useDataStore";
 const DigitalTwin = () => {
+
   const { selectedFarm } = useFarmStore((state) => state);
   const { filters, mode, setMode, setFilters } = useAppDataStore(
     (state) => state
@@ -25,7 +27,6 @@ const DigitalTwin = () => {
   const [isSensorsVisible, setIsSensorsVisible] = useState(true);
   const [isFiltersVisible, setIsFiltersVisible] = useState(true);
   const boardIds = getBoardIdsFromTank(selectedTank);
-
   // LOGICA FETCH ESTADOS TANQUES
   const {
     tankStates,
@@ -115,19 +116,6 @@ const DigitalTwin = () => {
     setSelectedTime(timeString);
   };
 
-  const changeMode = (isRealTime) => {
-    const newMode = isRealTime ? "realtime" : "historical";
-    console.log("Changing mode to:", newMode);
-    selectedTank.state = "NO DATA";
-    setMode(newMode);
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      dateRange: null,
-      selectedDate: null,
-    }));
-    setSelectedTime(null);
-  };
-
   if (!selectedTank) {
     return (
       <div className="flex items-center justify-center h-full text-lg text-muted-foreground">
@@ -149,7 +137,10 @@ const DigitalTwin = () => {
         <div className="md:col-span-4">
           <DataModeToggle
             isRealTime={mode === "realtime"}
-            onToggle={changeMode}
+            setMode={setMode}
+            setFilters={setFilters} 
+            selectedTank={selectedTank}
+            setSelectedTime={setSelectedTime}
           />
         </div>
 
@@ -171,7 +162,7 @@ const DigitalTwin = () => {
           />
         </div>
 
-        {/* Modelo 3D (centro) */}
+        {/* Modelo 3D*/}
         <div className="flex-1 flex flex-col bg-white rounded-lg shadow-sm overflow-hidden m-1">
           <div className="flex-1 relative">
             <TankModel
@@ -187,9 +178,16 @@ const DigitalTwin = () => {
           </div>
 
           {/* Time Series Slider Container - Always visible in historical mode with date range */}
-          {mode === "historical" && filters.dateRange && (
+          {mode === "historical" && filters.dateRange && !error && (
             <div className="px-4 py-3 border-t bg-gray-50 min-h-[140px]">
-              {tankStatesLoading ? (
+              {historicalData == "loading" ? (
+                <div className="flex items-center justify-center h-[100px]">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary mr-2" />
+                  <span className="text-sm text-muted-foreground">
+                    Loading historical data...
+                  </span>
+                </div>
+              ) : tankStatesLoading ? (
                 <div className="flex items-center justify-center h-[100px]">
                   <Loader2 className="h-5 w-5 animate-spin text-primary mr-2" />
                   <span className="text-sm text-muted-foreground">
