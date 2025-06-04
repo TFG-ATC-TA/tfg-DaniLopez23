@@ -13,9 +13,8 @@ import useTankStore from "@/stores/useTankStore";
 import { Loader2 } from "lucide-react";
 import useTankStates from "@/hooks/useTankStates";
 import useHistoricalData from "@/hooks/useHistoricalData";
-import useDataStore from "@/stores/useDataStore";
-const DigitalTwin = () => {
 
+const DigitalTwin = () => {
   const { selectedFarm } = useFarmStore((state) => state);
   const { filters, mode, setMode, setFilters } = useAppDataStore(
     (state) => state
@@ -24,9 +23,9 @@ const DigitalTwin = () => {
   const [prevDateRange, setPrevDateRange] = useState(null);
   const [prevSelectedDate, setPrevSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
-  const [isSensorsVisible, setIsSensorsVisible] = useState(true);
   const [isFiltersVisible, setIsFiltersVisible] = useState(true);
   const boardIds = getBoardIdsFromTank(selectedTank);
+
   // LOGICA FETCH ESTADOS TANQUES
   const {
     tankStates,
@@ -94,7 +93,7 @@ const DigitalTwin = () => {
       // Solo si el rango ha cambiado realmente
       if (currentRangeFrom !== prevRangeFrom) {
         // Si no hay selectedDate o si selectedDate no está dentro del nuevo rango,
-        // establecer selectedDate al primer día del rango
+        // establecer selectedDate al primer día del rango y hacer fetch
         if (
           !filters.selectedDate ||
           filters.selectedDate.getTime() < filters.dateRange.from.getTime() ||
@@ -104,12 +103,24 @@ const DigitalTwin = () => {
             ...filters,
             selectedDate: filters.dateRange.from,
           });
+          // Lanzar fetch para el primer día del rango
+          fetchHistoricalData();
+          fetchTankStates();
+          setPrevSelectedDate(filters.dateRange.from);
         }
-
         setPrevDateRange(filters.dateRange);
       }
     }
-  }, [mode, filters.dateRange, prevDateRange, setFilters, filters]);
+  }, [
+    mode,
+    filters.dateRange,
+    prevDateRange,
+    setFilters,
+    filters,
+    fetchHistoricalData,
+    fetchTankStates,
+    setPrevSelectedDate,
+  ]);
 
   // Handler for time selection from the slider
   const handleTimeSelectionChange = (timeString) => {
@@ -138,9 +149,10 @@ const DigitalTwin = () => {
           <DataModeToggle
             isRealTime={mode === "realtime"}
             setMode={setMode}
-            setFilters={setFilters} 
+            setFilters={setFilters}
             selectedTank={selectedTank}
             setSelectedTime={setSelectedTime}
+            historicalData={historicalData}
           />
         </div>
 
@@ -153,7 +165,7 @@ const DigitalTwin = () => {
       {/* Contenedor principal del modelo y paneles laterales */}
       <div className="flex-1 flex overflow-hidden">
         {/* Panel de sensores (a la izquierda) */}
-        <div className={isSensorsVisible ? "block" : "hidden"}>
+        <div>
           <SensorDataTab
             mode={mode}
             selectedHistoricalData={selectedHistoricalData}

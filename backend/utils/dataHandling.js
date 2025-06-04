@@ -1,4 +1,3 @@
-const topics = require("./topics");
 const debug = require("debug")("app:dataHandling");
 
 const parseCommonData = (rawData) => {
@@ -145,10 +144,7 @@ const topicHandlers = {
 };
 
 const processData = (topic, rawData) => {
-  if (!topics) {
-    debug("Topics not initialized");
-    return null;
-  }
+
 
   const topicParts = topic.split("/");
   const topicName = topicParts[topicParts.length - 1];

@@ -3,7 +3,7 @@ import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
 import useDataStore from "@/stores/useDataStore"
 
-const DataModeToggle = ({ isRealTime, setMode, setFilters, selectedTank, setSelectedTime }) => {
+const DataModeToggle = ({ isRealTime, setMode, setFilters, selectedTank, setSelectedTime, historicalData }) => {
   
   const {setSelectedData} = useDataStore((state) => state)
   

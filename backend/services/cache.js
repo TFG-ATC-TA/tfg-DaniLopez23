@@ -13,6 +13,7 @@ function getBoardData(farmId, boardId) {
   return sensorCache.get(`${farmId}-${boardId}`) || null;
 }
 
+
 /**
  * Obtiene los datos de múltiples boards dentro de una granja específica.
  * @param {string} farmId - El ID de la granja.

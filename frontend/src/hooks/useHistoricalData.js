@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { getHistoricalData } from "@/services/farm";
 import { format } from "date-fns";
 
@@ -19,7 +19,6 @@ const useHistoricalData = ({
   const [historicalData, setHistoricalData] = useState(null);
   const [selectedHistoricalData, setSelectedHistoricalData] = useState(null);
   const [error, setError] = useState(null);
-  const lastFetchedDate = useRef(null);
 
   const updateSelectedHistoricalData = useCallback((data, timeString) => {
     if (!data || data === "loading" || !timeString) return;
@@ -74,20 +73,6 @@ const useHistoricalData = ({
 
       const formattedDate = format(new Date(dateToUse), "yyyy-MM-dd");
 
-      // Check if we've already fetched data for this date
-      if (
-        lastFetchedDate.current === formattedDate &&
-        historicalData &&
-        historicalData !== "loading"
-      ) {
-        // If there's a selected time, update the selected data
-        if (selectedTime) {
-          updateSelectedHistoricalData(historicalData, selectedTime);
-        }
-
-        return;
-      }
-
       setHistoricalData("loading");
       setError(null);
 
@@ -109,7 +94,6 @@ const useHistoricalData = ({
       }
 
       setHistoricalData(data);
-      lastFetchedDate.current = formattedDate;
 
       // If there's a selected time, update the selected data
       if (selectedTime) {
@@ -157,6 +141,7 @@ const useHistoricalData = ({
     fetchHistoricalData,
     handleTimeSelected,
     setSelectedHistoricalData,
+    setHistoricalData
   };
 };
 

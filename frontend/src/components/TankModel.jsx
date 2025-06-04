@@ -252,7 +252,6 @@ const TankModel = ({
       {/* Only show sensor data overlay when in realtime mode or when historical data is loaded */}
       {(mode === "realtime" ||
         (historicalData && historicalData !== "loading" && !error)) && (
-        <>
           <div className="absolute top-4 left-4 z-20">
             <SelectedSensorData
               encoderData={data?.encoderData}
@@ -265,14 +264,15 @@ const TankModel = ({
               gyroscopeData={data?.gyroscopeData}
             />
           </div>
-        </>
       )}
       {renderTankModel()}
-      <CameraControlButtons
+      
+      {(mode === "realtime" ||
+        (historicalData && historicalData !== "loading" && !error)) && (<CameraControlButtons
         handleViewChange={handleViewChange}
         toggleFullscreen={handleFullscreen}
         isFullscreen={isFullscreen}
-      />
+      />)}
     </div>
   );
 };
