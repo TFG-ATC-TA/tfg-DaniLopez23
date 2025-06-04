@@ -44,10 +44,10 @@ app.get("/", (req, res) => {
   res.json({ status: "Healthy" });
 });
 
-app.use("/farms", farmRouter);
-app.use("/historical-data", historicalDataRouter);
-app.use("/equipments", equipmentRouter)
-app.use("/predict", predictTankStatesRouter);
+app.use("/api/farms", farmRouter);
+app.use("/api/historical-data", historicalDataRouter);
+app.use("/api/equipments", equipmentRouter)
+app.use("/api/predict", predictTankStatesRouter);
 
 // Establece el manejador para los mensajes entrantes desde MQTT
 mqttService.setMessageHandler((farmId, boardId, topic, data) => {

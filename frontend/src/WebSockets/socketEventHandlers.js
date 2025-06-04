@@ -13,7 +13,7 @@ export const createSocketEventHandlers = () => {
     updateAirQualityData,
     updateLastSensorData,
   } = useDataStore.getState(); // Accede a las funciones del store directamente
-  
+
   const waitForSelectedTank = (callback) => {
     const interval = setInterval(() => {
       const { selectedTank } = useTankStore.getState();
@@ -23,7 +23,7 @@ export const createSocketEventHandlers = () => {
       }
     }, 100); // Verifica cada 100ms
   };
-  
+
   const updateMilkQuantity = (data) => {
     waitForSelectedTank((selectedTank) => {
       if (selectedTank.height) {
@@ -38,36 +38,28 @@ export const createSocketEventHandlers = () => {
   };
 
   const updateEncoder = (data) => {
-    console.log("Encoder data:", data); // Verifica si se recibe el evento correctamente
-  
-    // Asegúrate de que `data` tenga las propiedades necesarias
+    console.log("Encoder data:", data);
+
+    // Obtén el valor anterior del encoder del store
+    const prevEncoder = useDataStore.getState().encoderData?.value || {};
+
     if (data?.tags?.sensor_id && data?.value !== undefined) {
-      // Si `data.value` ya es un objeto, agrega el nuevo sensor_id y su valor
-      if (typeof data.value === "object" && !Array.isArray(data.value)) {
-        data.value = {
-          ...data.value, // Mantén los valores existentes
-          [data.tags.sensor_id]: data.value[data.tags.sensor_id] || data.value,
-        };
-      } else {
-        // Si `data.value` no es un objeto, inicialízalo como un objeto con el nuevo sensor_id
-        data.value = {
-          [data.tags.sensor_id]: data.value,
-        };
-      }
+      // Haz merge con el valor anterior
+      data.value = {
+        ...prevEncoder,
+        [data.tags.sensor_id]: data.value,
+      };
     } else {
-      // Si falta información, inicializa `value` como un objeto vacío
-      data.value = {};
+      data.value = { ...prevEncoder };
     }
-  
-    // Actualiza los datos en el store
+
     updateEncoderData(data);
-    updateLastSensorData(data); // Actualiza el último dato recibido
+    updateLastSensorData(data);
   };
-  
+
   return {
     [`encoder`]: (data) => {
       updateEncoder(data);
-      updateLastSensorData(data); // Actualiza también los últimos datos del sensor
     },
     [`6_dof_imu`]: (data) => {
       updateGyroscopeData(data);
@@ -75,7 +67,6 @@ export const createSocketEventHandlers = () => {
     },
     [`tank_distance`]: (data) => {
       updateMilkQuantity(data);
-      updateLastSensorData(data); // Actualiza también los últimos datos del sensor
     },
     [`tank_temperature_probes`]: (data) => {
       updateTankTemperaturesData(data);
@@ -98,7 +89,8 @@ export const createSocketEventHandlers = () => {
       if (data.encoder) updateEncoder(data.encoder);
       if (data["6_dof_imu"]) updateGyroscopeData(data["6_dof_imu"]);
       if (data.tank_distance) updateMilkQuantity(data.tank_distance);
-      if (data.temperature_probe) updateTankTemperaturesData(data.temperature_probe);
+      if (data.temperature_probe)
+        updateTankTemperaturesData(data.temperature_probe);
       if (data.magnetic_switch) updateSwitchStatus(data.magnetic_switch);
       if (data.weight) updateWeightData(data.weight);
       if (data.air_quality) updateAirQualityData(data.air_quality);

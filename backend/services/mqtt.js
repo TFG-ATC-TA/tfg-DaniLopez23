@@ -44,7 +44,6 @@ const connect = () => {
         });
       } else {
         debug("Subscribed to all topics");
-        webSocketsService.emitToAll("mqttStatus", { status: "subscribed" });
       }
     });
   });

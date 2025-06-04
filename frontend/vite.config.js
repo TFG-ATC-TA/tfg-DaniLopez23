@@ -4,14 +4,24 @@ import { defineConfig } from "vite"
 
 export default defineConfig({
   plugins: [react()],
-  define: {
-    'import.meta.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL || 'http://localhost:3001')
-  },
   server: {
     host: true,
     watch: {
       usePolling: true,
     },
+    proxy: {
+    // API REST
+    '/api': {
+      target: 'http://backend:3001',
+      changeOrigin: true,
+    },
+    // Socket.IO (todas las variantes)
+    '/socket.io': {
+      target: 'http://backend:3001',  // Puede ser http o ws
+      ws: true,  // ¡Esencial para WebSockets!
+      changeOrigin: true,
+    }
+  } 
   },
   resolve: {
     alias: {
