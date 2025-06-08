@@ -218,8 +218,6 @@ PredictTankStatesRouter.post("/", validateRequest, async (req, res) => {
   }
 });
 
-//TODO: IGUAL QUE LA ANTERIOR PERO CON LA ULTIMA MEDIA HORA ES DECIR SI SON LAS 23:30 DESDE 23:00 HASTA QUE HAYA DATOS PASADAS MEDIA HORA DE ESA HORA
-
 PredictTankStatesRouter.post("/real-time", async (req, res) => {
   const { farm, tank, boardIds } = req.body;
   debug("Received filters for real-time:", { farm, tank, boardIds });
@@ -275,7 +273,15 @@ PredictTankStatesRouter.post("/real-time", async (req, res) => {
             influxData.push(tableMeta.toObject(row));
           },
           error(error) {
-            debug("Error en InfluxDB:", error.message);
+            debug("Error en InfluxDB:", error.message, error.stack);
+            // Si el error es por columna inexistente o datos insuficientes
+            if (
+              error.message &&
+              (error.message.includes("rename error: column") ||
+                error.message.includes("invalid time value"))
+            ) {
+              return reject(new Error("NO_DATA"));
+            }
             reject(new Error("Error en consulta a InfluxDB"));
           },
           complete() {
@@ -286,8 +292,26 @@ PredictTankStatesRouter.post("/real-time", async (req, res) => {
       });
     };
 
-    const influxData = await executeQuery(fluxQuery);
-    debug("Datos de InfluxDB (real-time):", influxData.slice(0, 5));
+    try {
+      influxData = await executeQuery(fluxQuery);
+      debug("Datos de InfluxDB (real-time):", influxData.slice(0, 5));
+    } catch (err) {
+      if (err.message === "NO_DATA") {
+        debug(
+          "No hay datos suficientes en InfluxDB para los campos requeridos (real-time)."
+        );
+        return res.status(200).json({
+          message:
+            "No hay datos suficientes para realizar la predicción en tiempo real.",
+          data: null,
+        });
+      }
+      debug("Error en InfluxDB (real-time):", err.message);
+      return res.status(500).json({
+        message: "Error en consulta a InfluxDB",
+        error: err.message,
+      });
+    }
 
     if (!influxData || influxData.length === 0) {
       debug(

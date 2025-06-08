@@ -66,7 +66,7 @@ const TankStatus = () => {
       }
     } catch (err) {
       console.error("Error refreshing tank status:", err);
-      setError("Error al actualizar");
+      setError(err.message || "Error al actualizar");
       setRealTimeState("NO DATA");
     } finally {
       setLoading(false);
@@ -107,10 +107,12 @@ const TankStatus = () => {
             </DialogHeader>
             <div className="text-xs space-y-2 mt-2">
               <p>
-                <span className="font-medium">Tiempo Real:</span> Actualización automática cada 5 minutos
+                <span className="font-medium">Tiempo Real:</span> Actualización
+                automática cada 5 minutos
               </p>
               <p>
-                <span className="font-medium">Histórico:</span> Datos del rango de fechas seleccionado
+                <span className="font-medium">Histórico:</span> Datos del rango
+                de fechas seleccionado
               </p>
               <div className="mt-2 pt-2 border-t">
                 <p className="font-medium mb-1">Estado actual: {text}</p>
@@ -130,8 +132,13 @@ const TankStatus = () => {
 
       {/* Cuerpo principal: indicador, nombre, etiqueta y botón en línea */}
       <div className="flex items-center gap-3 w-full">
-        <span className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
-        <span className="text-sm font-medium text-gray-800 truncate max-w-[110px]">{selectedTank.name}</span>
+        <span
+          className="w-3 h-3 rounded-full"
+          style={{ backgroundColor: color }}
+        />
+        <span className="text-sm font-medium text-gray-800 truncate max-w-[110px]">
+          {selectedTank.name}
+        </span>
         <Badge
           variant="outline"
           className={cn(
@@ -143,34 +150,36 @@ const TankStatus = () => {
         >
           {text}
         </Badge>
-        {mode === "realtime" && (<div className="flex items-center ml-auto gap-2">
-          {loading ? (
-            <span className="flex items-center gap-1 text-xs text-gray-500">
-              <Loader className="h-4 w-4 animate-spin text-primary" />
-              Actualizando...
-            </span>
-          ) : (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-7 py-0 px-3 text-xs border-dashed"
-                    onClick={handleRefresh}
-                    disabled={loading}
-                  >
-                    <RefreshCw className="h-4 w-4 mr-1 text-gray-500" />
-                    Actualizar
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="text-xs p-1">
-                  Actualizar estado del tanque
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-        </div>)}
+        {mode === "realtime" && (
+          <div className="flex items-center ml-auto gap-2">
+            {loading ? (
+              <span className="flex items-center gap-1 text-xs text-gray-500">
+                <Loader className="h-4 w-4 animate-spin text-primary" />
+                Actualizando...
+              </span>
+            ) : (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 py-0 px-3 text-xs border-dashed"
+                      onClick={handleRefresh}
+                      disabled={loading}
+                    >
+                      <RefreshCw className="h-4 w-4 mr-1 text-gray-500" />
+                      Actualizar
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="text-xs p-1">
+                    Actualizar estado del tanque
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
+        )}
       </div>
       {/* Error debajo si existe */}
       {error && !loading && (
