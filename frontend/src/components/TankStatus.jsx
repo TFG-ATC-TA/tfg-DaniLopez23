@@ -143,7 +143,7 @@ const TankStatus = () => {
         >
           {text}
         </Badge>
-        <div className="flex items-center ml-auto gap-2">
+        {mode === "realtime" && (<div className="flex items-center ml-auto gap-2">
           {loading ? (
             <span className="flex items-center gap-1 text-xs text-gray-500">
               <Loader className="h-4 w-4 animate-spin text-primary" />
@@ -170,7 +170,7 @@ const TankStatus = () => {
               </Tooltip>
             </TooltipProvider>
           )}
-        </div>
+        </div>)}
       </div>
       {/* Error debajo si existe */}
       {error && !loading && (
