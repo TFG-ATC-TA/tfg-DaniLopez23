@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import SensorDataTab from "./sensorData/SensorDataTab";
 import TankDate from "./TankDate";
 import TankStatus from "./TankStatus";
@@ -12,17 +12,12 @@ import useFarmStore from "@/stores/useFarmStore";
 import useTankStore from "@/stores/useTankStore";
 import { Loader2 } from "lucide-react";
 import useTankStates from "@/hooks/useTankStates";
-import useHistoricalData from "@/hooks/useHistoricalData";
+import { useHistoricalDataStore } from "@/stores/useHistoricalDataStore";
 
 const DigitalTwin = () => {
   const { selectedFarm } = useFarmStore((state) => state);
-  const { filters, mode, setMode, setFilters } = useAppDataStore(
-    (state) => state
-  );
+  const { filters, mode, setFilters } = useAppDataStore((state) => state);
   const { selectedTank } = useTankStore();
-  const [prevDateRange, setPrevDateRange] = useState(null);
-  const [prevSelectedDate, setPrevSelectedDate] = useState(null);
-  const [selectedTime, setSelectedTime] = useState(null);
   const [isFiltersVisible, setIsFiltersVisible] = useState(true);
   const boardIds = getBoardIdsFromTank(selectedTank);
 
@@ -40,87 +35,12 @@ const DigitalTwin = () => {
     selectedTank,
   });
 
-  // LOGICA FETCH DATOS HISTORICOS
-  const {
-    historicalData,
-    selectedHistoricalData,
-    error,
-    fetchHistoricalData,
-    handleTimeSelected,
-  } = useHistoricalData({
-    filters,
-    boardIds,
-    selectedFarm,
-    selectedTime,
-    selectedTank,
-  });
-
-  // Effect to handle time selection
-  useEffect(() => {
-    if (selectedTime && mode === "historical") {
-      handleTimeSelected(selectedTime);
-    }
-  }, [selectedTime, handleTimeSelected, mode]);
-
-  // Efecto para hacer fetch cuando cambia selectedDate
-  useEffect(() => {
-    if (mode === "historical" && filters.selectedDate) {
-      const currentSelectedDate = filters.selectedDate?.getTime();
-      const prevDate = prevSelectedDate?.getTime();
-
-      // Solo si la fecha seleccionada ha cambiado realmente o es la primera carga
-      if (currentSelectedDate !== prevDate) {
-        fetchHistoricalData();
-        fetchTankStates();
-        setPrevSelectedDate(filters.selectedDate);
-        console.log(historicalData, "historicalData");
-      }
-    }
-  }, [
-    filters.selectedDate,
-    fetchTankStates,
-    mode,
-    prevSelectedDate,
-    fetchHistoricalData,
-  ]);
-
-  // Efecto para detectar cambios en el rango de fechas
-  useEffect(() => {
-    if (mode === "historical" && filters.dateRange) {
-      const currentRangeFrom = filters.dateRange.from?.getTime();
-      const prevRangeFrom = prevDateRange?.from?.getTime();
-
-      // Solo si el rango ha cambiado realmente
-      if (currentRangeFrom !== prevRangeFrom) {
-        // Si no hay selectedDate o si selectedDate no está dentro del nuevo rango,
-        // establecer selectedDate al primer día del rango y hacer fetch
-        if (
-          !filters.selectedDate ||
-          filters.selectedDate.getTime() < filters.dateRange.from.getTime() ||
-          filters.selectedDate.getTime() > filters.dateRange.to.getTime()
-        ) {
-          setFilters({
-            ...filters,
-            selectedDate: filters.dateRange.from,
-          });
-          // Lanzar fetch para el primer día del rango
-          fetchHistoricalData();
-          fetchTankStates();
-          setPrevSelectedDate(filters.dateRange.from);
-        }
-        setPrevDateRange(filters.dateRange);
-      }
-    }
-  }, [
-    mode,
-    filters.dateRange,
-    prevDateRange,
-    setFilters,
-    filters,
-    fetchHistoricalData,
-    fetchTankStates,
-    setPrevSelectedDate,
-  ]);
+  // Zustand store para datos históricos
+  const historicalData = useHistoricalDataStore((state) => state.historicalData);
+  const selectedHistoricalData = useHistoricalDataStore((state) => state.selectedHistoricalData);
+  const error = useHistoricalDataStore((state) => state.error);
+  const selectedTime = useHistoricalDataStore((state) => state.selectedTime);
+  const setSelectedTime = useHistoricalDataStore((state) => state.setSelectedTime);
 
   // Handler for time selection from the slider
   const handleTimeSelectionChange = (timeString) => {
@@ -146,14 +66,7 @@ const DigitalTwin = () => {
 
         {/* DataModeToggle - full width on mobile, 4/12 on desktop */}
         <div className="md:col-span-4">
-          <DataModeToggle
-            isRealTime={mode === "realtime"}
-            setMode={setMode}
-            setFilters={setFilters}
-            selectedTank={selectedTank}
-            setSelectedTime={setSelectedTime}
-            historicalData={historicalData}
-          />
+          <DataModeToggle isRealTime={mode === "realtime"}/>
         </div>
 
         {/* TankStatus - full width on mobile, 3/12 on desktop */}
@@ -166,27 +79,13 @@ const DigitalTwin = () => {
       <div className="flex-1 flex overflow-hidden">
         {/* Panel de sensores (a la izquierda) */}
         <div>
-          <SensorDataTab
-            mode={mode}
-            selectedHistoricalData={selectedHistoricalData}
-            historicalData={historicalData}
-            error={error}
-          />
+          <SensorDataTab />
         </div>
 
         {/* Modelo 3D*/}
         <div className="flex-1 flex flex-col bg-white rounded-lg shadow-sm overflow-hidden m-1">
           <div className="flex-1 relative">
-            <TankModel
-              mode={mode}
-              filters={filters}
-              selectedHistoricalData={selectedHistoricalData}
-              historicalData={historicalData}
-              error={error}
-              handleTimeSelected={handleTimeSelected}
-              fetchHistoricalData={fetchHistoricalData}
-              selectedTime={selectedTime}
-            />
+            <TankModel />
           </div>
 
           {/* Time Series Slider Container - Always visible in historical mode with date range */}

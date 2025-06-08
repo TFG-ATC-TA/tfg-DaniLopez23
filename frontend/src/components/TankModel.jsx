@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import useTankStore from "@/stores/useTankStore";
 import SelectedSensorData from "./sensorData/SelectedSensorData";
@@ -7,27 +7,24 @@ import { HorizontalTank2Blades } from "./tankModels/horizontal/HorizontalTank2Bl
 import { HorizontalTank1Blade } from "./tankModels/horizontal/HorizontalTank1Blade";
 import { VerticalTank1Blade } from "./tankModels/vertical/VerticalTank1Blade";
 import { Button } from "./ui/button";
-import { Suspense } from "react";
 import { Loader2, X } from "lucide-react";
 import useDataStore from "@/stores/useDataStore";
 import CameraControlButtons from "./camera/CameraControlButtons";
+import { useHistoricalDataStore } from "@/stores/useHistoricalDataStore";
+import useAppDataStore from "@/stores/useAppDataStore";
+import useFarmStore from "@/stores/useFarmStore";
+import { getBoardIdsFromTank } from "@/services/tank";
 
-const TankModel = ({
-  mode,
-  filters,
-  selectedTime,
-  handleTimeSelected,
-  selectedHistoricalData,
-  historicalData,
-  error,
-  fetchHistoricalData,
-}) => {
+const TankModel = () => {
   const { selectedTank } = useTankStore((state) => state);
+  const { selectedFarm } = useFarmStore((state) => state);
+  const boardIds = getBoardIdsFromTank(selectedTank);
+
   const [currentView, setCurrentView] = useState("default");
   const [isFullscreen, setIsFullscreen] = useState(false);
   const tankContainerRef = useRef(null);
 
-  // Get real-time data directly in this component
+  // Real-time data
   const {
     encoderData,
     milkQuantityData,
@@ -38,6 +35,18 @@ const TankModel = ({
     selectedData,
     gyroscopeData,
   } = useDataStore((state) => state);
+
+  // App state
+  const mode = useAppDataStore((state) => state.mode);
+  const filters = useAppDataStore((state) => state.filters);
+
+  // Historical data from Zustand store
+  const selectedHistoricalData = useHistoricalDataStore((state) => state.selectedHistoricalData);
+  const historicalData = useHistoricalDataStore((state) => state.historicalData);
+  const error = useHistoricalDataStore((state) => state.error);
+  const fetchHistoricalData = useHistoricalDataStore((state) => state.fetchHistoricalData);
+  const handleTimeSelected = useHistoricalDataStore((state) => state.handleTimeSelected);
+  const selectedTime = useHistoricalDataStore((state) => state.selectedTime);
 
   // Organize real-time data
   const realTimeData = {
@@ -61,7 +70,6 @@ const TankModel = ({
   // Sincronizar la vista con selectedData
   useEffect(() => {
     if (selectedData) {
-      // Cambiar la vista basada en selectedData
       setCurrentView(selectedData);
     } else {
       setCurrentView("default");
@@ -69,10 +77,19 @@ const TankModel = ({
   }, [selectedData]);
 
   const handleViewChange = (view) => {
-    setCurrentView(view); // Actualizar la vista desde los botones
+    setCurrentView(view);
   };
 
-  // Nueva función para fullscreen: solo muestra el modelo y un botón para salir
+  // Fetch historical data with all required params from stores
+  const handleHistoricalData = () => {
+    fetchHistoricalData({
+      filters,
+      boardIds,
+      selectedFarm,
+      selectedTank,
+    });
+  };
+
   const handleFullscreen = () => setIsFullscreen(true);
   const handleExitFullscreen = () => setIsFullscreen(false);
 
@@ -129,7 +146,7 @@ const TankModel = ({
               select a different time period.
             </p>
             <Button
-              onClick={fetchHistoricalData}
+              onClick={handleHistoricalData}
               className="bg-primary hover:bg-primary/90"
             >
               Try Again
@@ -152,7 +169,7 @@ const TankModel = ({
               period.
             </p>
             <Button
-              onClick={fetchHistoricalData}
+              onClick={handleHistoricalData}
               className="bg-primary hover:bg-primary/90"
             >
               Refresh
@@ -226,8 +243,6 @@ const TankModel = ({
   if (isFullscreen) {
     return (
       <div className="fixed inset-0 z-[9999] bg-white flex flex-col">
-        {" "}
-        {/* Cambiado bg-black por bg-white */}
         <div className="absolute top-4 right-4 z-50">
           <Button
             variant="outline"
@@ -249,30 +264,31 @@ const TankModel = ({
       ref={tankContainerRef}
       className="bg-white relative transition-all duration-300 w-full h-full"
     >
-      {/* Only show sensor data overlay when in realtime mode or when historical data is loaded */}
       {(mode === "realtime" ||
         (historicalData && historicalData !== "loading" && !error)) && (
-          <div className="absolute top-4 left-4 z-20">
-            <SelectedSensorData
-              encoderData={data?.encoderData}
-              milkQuantityData={data?.milkQuantityData}
-              switchStatus={data?.switchStatus}
-              weightData={data?.weightData}
-              tankTemperaturesData={data?.tankTemperaturesData}
-              airQualityData={data?.airQualityData}
-              selectedData={selectedData}
-              gyroscopeData={data?.gyroscopeData}
-            />
-          </div>
+        <div className="absolute top-4 left-4 z-20">
+          <SelectedSensorData
+            encoderData={data?.encoderData}
+            milkQuantityData={data?.milkQuantityData}
+            switchStatus={data?.switchStatus}
+            weightData={data?.weightData}
+            tankTemperaturesData={data?.tankTemperaturesData}
+            airQualityData={data?.airQualityData}
+            selectedData={selectedData}
+            gyroscopeData={data?.gyroscopeData}
+          />
+        </div>
       )}
       {renderTankModel()}
-      
+
       {(mode === "realtime" ||
-        (historicalData && historicalData !== "loading" && !error)) && (<CameraControlButtons
-        handleViewChange={handleViewChange}
-        toggleFullscreen={handleFullscreen}
-        isFullscreen={isFullscreen}
-      />)}
+        (historicalData && historicalData !== "loading" && !error)) && (
+        <CameraControlButtons
+          handleViewChange={handleViewChange}
+          toggleFullscreen={handleFullscreen}
+          isFullscreen={isFullscreen}
+        />
+      )}
     </div>
   );
 };

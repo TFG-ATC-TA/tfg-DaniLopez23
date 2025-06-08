@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Calendar } from "@/components/ui/calendar"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -10,33 +10,58 @@ import { cn } from "@/lib/utils"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useHistoricalDataStore } from "@/stores/useHistoricalDataStore"
+import useAppDataStore from "@/stores/useAppDataStore"
+import useFarmStore from "@/stores/useFarmStore"
+import useTankStore from "@/stores/useTankStore"
+import useTankStates from "@/hooks/useTankStates"
+import { getBoardIdsFromTank } from "@/services/tank"
 
 const CustomDateRangePicker = ({ value, onChange }) => {
-  // Ensure value is properly initialized
+  // Store & app state
+  const mode = useAppDataStore((state) => state.mode)
+  const filters = useAppDataStore((state) => state.filters)
+  const setFilters = useAppDataStore((state) => state.setFilters)
+  const selectedFarm = useFarmStore((state) => state.selectedFarm)
+  const selectedTank = useTankStore((state) => state.selectedTank)
+  const boardIds = getBoardIdsFromTank(selectedTank)
+  const fetchHistoricalData = useHistoricalDataStore((state) => state.fetchHistoricalData)
+  const setSelectedTime = useHistoricalDataStore((state) => state.setSelectedTime)
+  const setSelectedHistoricalData = useHistoricalDataStore((state) => state.setSelectedHistoricalData)
+  const setHistoricalData = useHistoricalDataStore((state) => state.setHistoricalData)
+  const setError = useHistoricalDataStore((state) => state.setError)
+  const { fetchTankStates } = useTankStates({
+    filters,
+    boardIds,
+    selectedFarm,
+    selectedTank,
+  })
+
+  // Local state
   const [isOpen, setIsOpen] = useState(false)
   const [tempRange, setTempRange] = useState(value)
-  const [error, setError] = useState(null)
-  const [timeMode, setTimeMode] = useState("fullDay") // "fullDay" or "custom"
+  const [error, setErrorLocal] = useState(null)
+  const [timeMode, setTimeMode] = useState("fullDay")
   const [startTime, setStartTime] = useState({ hours: "00", minutes: "00" })
   const [endTime, setEndTime] = useState({ hours: "23", minutes: "59" })
-  const [selectionMode, setSelectionMode] = useState("range") // "single" or "range"
-  
+  const [selectionMode, setSelectionMode] = useState("range")
+
+  // Refs to track previous values for comparison
+  const prevDateRange = useRef()
+  const prevSelectedDate = useRef()
+
   // Initialize with proper times when value changes
   useEffect(() => {
-    // Make sure we have a valid value object
     const currentValue = value || { from: undefined, to: undefined }
     setTempRange(currentValue)
 
     if (currentValue.from) {
-      // Extract time from existing values
       setStartTime({
         hours: format(currentValue.from, "HH"),
         minutes: format(currentValue.from, "mm"),
       })
 
-      // Determine if it's a single date or range
       if (currentValue.to) {
-        // Check if it's the same day (single date)
         if (format(currentValue.from, "yyyy-MM-dd") === format(currentValue.to, "yyyy-MM-dd")) {
           setSelectionMode("single")
         } else {
@@ -48,7 +73,6 @@ const CustomDateRangePicker = ({ value, onChange }) => {
           minutes: format(currentValue.to, "mm"),
         })
 
-        // Determine if it's full day or custom time
         const isFullDay = format(currentValue.from, "HH:mm") === "00:00" && format(currentValue.to, "HH:mm") === "23:59"
         setTimeMode(isFullDay ? "fullDay" : "custom")
       } else {
@@ -56,6 +80,60 @@ const CustomDateRangePicker = ({ value, onChange }) => {
       }
     }
   }, [value])
+
+  // --- NUEVA LÓGICA DE EFECTOS AQUÍ ---
+  // Efecto para detectar cambios en el rango de fechas y selectedDate
+  useEffect(() => {
+    if (mode !== "historical") return
+
+    // Detectar cambio de rango
+    if (filters.dateRange) {
+      const currentRangeFrom = filters.dateRange.from?.getTime()
+      const prevRangeFrom = prevDateRange.current?.from?.getTime()
+
+      if (currentRangeFrom !== prevRangeFrom) {
+        // Si no hay selectedDate o está fuera del rango, poner el primer día del rango
+        if (
+          !filters.selectedDate ||
+          filters.selectedDate.getTime() < filters.dateRange.from.getTime() ||
+          filters.selectedDate.getTime() > filters.dateRange.to.getTime()
+        ) {
+          setFilters({
+            ...filters,
+            selectedDate: filters.dateRange.from,
+          })
+          // Lanzar fetch para el primer día del rango
+          fetchHistoricalData({
+            filters: { ...filters, selectedDate: filters.dateRange.from },
+            boardIds,
+            selectedFarm,
+            selectedTank,
+          })
+          fetchTankStates()
+          prevSelectedDate.current = filters.dateRange.from
+        }
+        prevDateRange.current = filters.dateRange
+      }
+    }
+
+    // Detectar cambio de selectedDate
+    if (filters.selectedDate) {
+      const currentSelectedDate = filters.selectedDate?.getTime()
+      const prevDate = prevSelectedDate.current?.getTime()
+      if (currentSelectedDate !== prevDate) {
+        fetchHistoricalData({
+          filters,
+          boardIds,
+          selectedFarm,
+          selectedTank,
+        })
+        fetchTankStates()
+        prevSelectedDate.current = filters.selectedDate
+      }
+    }
+    // eslint-disable-next-line
+  }, [mode, filters.dateRange, filters.selectedDate, fetchHistoricalData, fetchTankStates, setFilters, boardIds, selectedFarm, selectedTank])
+
 
   const handleSelect = (date) => {
     if (!date) {

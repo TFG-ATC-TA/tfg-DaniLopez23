@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button"
 import SensorInfoItem from "./SensorInfoItem"
 import useDataStore from "@/stores/useDataStore"
 import useAppDataStore from "@/stores/useAppDataStore"
+import { useHistoricalDataStore } from "@/stores/useHistoricalDataStore"
 
-const SensorDataTab = ({ mode, selectedHistoricalData, historicalData, error}) => {
+const SensorDataTab = () => {
   const [isSensorsTabVisible, setIsSensorsTabVisible] = useState(true)
 
   // Get real-time data directly in this component
@@ -20,7 +21,13 @@ const SensorDataTab = ({ mode, selectedHistoricalData, historicalData, error}) =
     gyroscopeData,
   } = useDataStore((state) => state)
 
-  const {filters} =useAppDataStore((state) => state)
+  const { filters } = useAppDataStore((state) => state)
+
+  // Zustand store para datos históricos
+  const selectedHistoricalData = useHistoricalDataStore((state) => state.selectedHistoricalData)
+  const historicalData = useHistoricalDataStore((state) => state.historicalData)
+  const error = useHistoricalDataStore((state) => state.error)
+  const mode = useAppDataStore((state) => state.mode)
 
   // Organize real-time data
   const realTimeData = {
@@ -33,7 +40,6 @@ const SensorDataTab = ({ mode, selectedHistoricalData, historicalData, error}) =
     selectedData,
     gyroscopeData,
   }
-
 
   // Si el panel está oculto, solo mostrar el botón flotante
   if (!isSensorsTabVisible) {

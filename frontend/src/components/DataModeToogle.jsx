@@ -2,24 +2,36 @@ import { Wifi, History } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
 import useDataStore from "@/stores/useDataStore"
+import { useHistoricalDataStore } from "@/stores/useHistoricalDataStore"
+import useTankStore from "@/stores/useTankStore"
+import useAppDataStore from "@/stores/useAppDataStore"
 
-const DataModeToggle = ({ isRealTime, setMode, setFilters, selectedTank, setSelectedTime, historicalData }) => {
-  
-  const {setSelectedData} = useDataStore((state) => state)
+const DataModeToggle = ({isRealTime}) => {
+  const { setSelectedData } = useDataStore((state) => state)
+  const setFilters = useAppDataStore((state) => state.setFilters)
+  const setMode = useAppDataStore((state) => state.setMode)
+  const selectedTank = useTankStore((state) => state.selectedTank)
+
+  const resetHistoricalData = useHistoricalDataStore((state) => state.setHistoricalData)
+  const resetSelectedHistoricalData = useHistoricalDataStore((state) => state.setSelectedHistoricalData)
+  const resetError = useHistoricalDataStore((state) => state.setError)
+  const setSelectedTime = useHistoricalDataStore((state) => state.setSelectedTime)
   
   const changeMode = (isRealTime) => {
-    const newMode = isRealTime ? "realtime" : "historical";
-    console.log("Changing mode to:", newMode);
-    selectedTank.state = "NO DATA";
-    setMode(newMode);
+    const newMode = isRealTime ? "realtime" : "historical"
+    if (selectedTank) selectedTank.state = "NO DATA"
+    setMode(newMode)
     setSelectedData(null)
     setFilters((prevFilters) => ({
       ...prevFilters,
       dateRange: null,
       selectedDate: null,
-    }));
-    setSelectedTime(null);
-  };
+    }))
+    setSelectedTime(null)
+    resetHistoricalData(null)
+    resetSelectedHistoricalData(null)
+    resetError(null)
+  }
 
   return (
     <div className="relative p-3 rounded-lg bg-white shadow-sm h-full flex flex-col justify-between">
