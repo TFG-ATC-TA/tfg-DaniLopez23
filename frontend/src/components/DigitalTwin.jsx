@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import SensorDataTab from "./sensorData/SensorDataTab";
 import TankDate from "./TankDate";
 import TankStatus from "./TankStatus";
@@ -21,6 +21,9 @@ const DigitalTwin = () => {
   const [isFiltersVisible, setIsFiltersVisible] = useState(true);
   const boardIds = getBoardIdsFromTank(selectedTank);
 
+  // Refs to track previous values for comparison
+  const prevDateRange = useRef();
+  const prevSelectedDate = useRef();
   // LOGICA FETCH ESTADOS TANQUES
   const {
     tankStates,
@@ -36,17 +39,86 @@ const DigitalTwin = () => {
   });
 
   // Zustand store para datos históricos
-  const historicalData = useHistoricalDataStore((state) => state.historicalData);
-  const selectedHistoricalData = useHistoricalDataStore((state) => state.selectedHistoricalData);
+  const historicalData = useHistoricalDataStore(
+    (state) => state.historicalData
+  );
+  const selectedHistoricalData = useHistoricalDataStore(
+    (state) => state.selectedHistoricalData
+  );
+  const fetchHistoricalData = useHistoricalDataStore(
+    (state) => state.fetchHistoricalData
+  );
   const error = useHistoricalDataStore((state) => state.error);
   const selectedTime = useHistoricalDataStore((state) => state.selectedTime);
-  const setSelectedTime = useHistoricalDataStore((state) => state.setSelectedTime);
+  const setSelectedTime = useHistoricalDataStore(
+    (state) => state.setSelectedTime
+  );
 
   // Handler for time selection from the slider
   const handleTimeSelectionChange = (timeString) => {
     setSelectedTime(timeString);
   };
 
+  useEffect(() => {
+    if (mode !== "historical") return;
+    // Detectar cambio de rango
+    if (filters.dateRange) {
+      const currentRangeFrom = filters.dateRange.from?.getTime();
+      const prevRangeFrom = prevDateRange.current?.from?.getTime();
+
+      if (currentRangeFrom !== prevRangeFrom) {
+        // Si no hay selectedDate o está fuera del rango, poner el primer día del rango
+        if (
+          !filters.selectedDate ||
+          filters.selectedDate.getTime() < filters.dateRange.from.getTime() ||
+          filters.selectedDate.getTime() > filters.dateRange.to.getTime()
+        ) {
+          setFilters({
+            ...filters,
+            selectedDate: filters.dateRange.from,
+          });
+          // Lanzar fetch para el primer día del rango
+          fetchHistoricalData({
+            filters: { ...filters, selectedDate: filters.dateRange.from },
+            boardIds,
+            selectedFarm,
+            selectedTank,
+          });
+          fetchTankStates();
+          prevSelectedDate.current = filters.dateRange.from;
+        }
+        prevDateRange.current = filters.dateRange;
+      }
+    }
+
+    // Detectar cambio de selectedDate
+    if (filters.selectedDate) {
+      const currentSelectedDate = filters.selectedDate?.getTime();
+      const prevDate = prevSelectedDate.current?.getTime();
+      if (currentSelectedDate !== prevDate) {
+        fetchHistoricalData({
+          filters,
+          boardIds,
+          selectedFarm,
+          selectedTank,
+        });
+        fetchTankStates();
+        prevSelectedDate.current = filters.selectedDate;
+      }
+    }
+  }, [
+    mode,
+    filters.dateRange,
+    filters.selectedDate,
+    fetchHistoricalData,
+    fetchTankStates,
+    setFilters,
+    boardIds,
+    selectedFarm,
+    selectedTank,
+  ]);
+
+  console.log("Tank states:", tankStates);
   if (!selectedTank) {
     return (
       <div className="flex items-center justify-center h-full text-lg text-muted-foreground">
@@ -66,7 +138,7 @@ const DigitalTwin = () => {
 
         {/* DataModeToggle - full width on mobile, 4/12 on desktop */}
         <div className="md:col-span-4">
-          <DataModeToggle isRealTime={mode === "realtime"}/>
+          <DataModeToggle isRealTime={mode === "realtime"} />
         </div>
 
         {/* TankStatus - full width on mobile, 3/12 on desktop */}

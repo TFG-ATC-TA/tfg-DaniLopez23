@@ -8,7 +8,7 @@ import useTankStore from "@/stores/useTankStore"
 import useAppDataStore from "@/stores/useAppDataStore"
 import { useTank } from "@/hooks/useTank"
 import useDataStore from "@/stores/useDataStore"
-
+import {useHistoricalDataStore} from "@/stores/useHistoricalDataStore"
 
 const FarmSelector = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -17,7 +17,6 @@ const FarmSelector = () => {
   const { setSelectedTank } = useTankStore((state) => state)
   const { changeSelectedTank } = useTank()
   const { filters, setFilters, setMode } = useAppDataStore((state) => state)
-
 
   const handleFarmChange = (value) => {
     const selectedFarmId = value;
@@ -49,7 +48,14 @@ const FarmSelector = () => {
         airQualityData: null,
         selectedData: null,
       });
-  
+      
+      useHistoricalDataStore.setState({
+        historicalData: null,
+        selectedHistoricalData: null,
+        error: null,
+        selectedTime: null,
+      });
+
       // Cambiar el tanque seleccionado
       if (farm.equipments.length > 0) {
         changeSelectedTank(farm.equipments[0], farm.broker);
@@ -87,7 +93,13 @@ const FarmSelector = () => {
                 </div>
                 <div>
                   <strong className="block text-sm font-medium mb-1">Total Tanks:</strong>
-                  <p className="text-sm">{selectedFarm.equipments?.length || 0}</p>
+                  <p className="text-sm">
+                    {selectedFarm.equipments
+                      ? selectedFarm.equipments.filter(
+                          (eq) => eq.type === "Tanque de leche"
+                        ).length
+                      : 0}
+                  </p>{" "}
                 </div>
               </div>
             ) : (

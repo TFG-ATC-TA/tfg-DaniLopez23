@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useMemo, useEffect, useCallback, useRef } from "react"
 import {
   format,
@@ -30,56 +28,62 @@ const StateSummaryModal = ({ isOpen, onClose, intervals, currentDate }) => {
     (interval) => isSameDay(interval.start, currentDate) || isSameDay(interval.end, currentDate),
   )
 
-  // Calculate total duration and count for each state
+  // Agrupa intervalos contiguos del mismo estado como uno solo
+  const mergedIntervalsByState = useMemo(() => {
+    const groups = {};
+    dayIntervals
+      .sort((a, b) => a.start - b.start)
+      .forEach((interval) => {
+        if (!groups[interval.state]) groups[interval.state] = [];
+        const arr = groups[interval.state];
+        const last = arr[arr.length - 1];
+        if (
+          last &&
+          last.end.getTime() === interval.start.getTime()
+        ) {
+          // Son contiguos, fusionar
+          last.end = interval.end;
+        } else {
+          // Nuevo intervalo
+          arr.push({ start: interval.start, end: interval.end });
+        }
+      });
+    return groups;
+  }, [dayIntervals]);
+
+  // Calcula duración total y número de intervalos fusionados por estado
   const stateStats = useMemo(() => {
-    const stats = {}
-
-    // Agrupar por estado
-    const stateGroups = {}
-    dayIntervals.forEach((interval) => {
-      if (!stateGroups[interval.state]) {
-        stateGroups[interval.state] = []
-      }
-      stateGroups[interval.state].push(interval)
-    })
-
-    // Calcular estadísticas para cada estado
-    Object.entries(stateGroups).forEach(([state, intervals]) => {
-      let totalDuration = 0
-
+    const stats = {};
+    Object.entries(mergedIntervalsByState).forEach(([state, intervals]) => {
+      let totalDuration = 0;
       intervals.forEach((interval) => {
-        let startTime = interval.start
-        let endTime = interval.end
-
+        let startTime = interval.start;
+        let endTime = interval.end;
         if (!isSameDay(startTime, currentDate)) {
-          startTime = new Date(currentDate)
-          startTime.setHours(0, 0, 0, 0)
+          startTime = new Date(currentDate);
+          startTime.setHours(0, 0, 0, 0);
         }
-
         if (!isSameDay(endTime, currentDate)) {
-          endTime = new Date(currentDate)
-          endTime.setHours(23, 59, 59, 999)
+          endTime = new Date(currentDate);
+          endTime.setHours(23, 59, 59, 999);
         }
-
-        const durationMinutes = (endTime - startTime) / (1000 * 60)
-        totalDuration += durationMinutes
-      })
-
+        const durationMinutes = (endTime - startTime) / (1000 * 60);
+        totalDuration += durationMinutes;
+      });
       stats[state] = {
         totalDuration,
         count: intervals.length,
-      }
-    })
-
-    return stats
-  }, [dayIntervals, currentDate])
+      };
+    });
+    return stats;
+  }, [mergedIntervalsByState, currentDate]);
 
   // Format minutes as hours and minutes
   const formatDuration = (minutes) => {
-    const hours = Math.floor(minutes / 60)
-    const mins = Math.round(minutes % 60)
-    return `${hours}h ${mins}m`
-  }
+    const hours = Math.floor(minutes / 60);
+    const mins = Math.round(minutes % 60);
+    return `${hours}h ${mins}m`;
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -109,8 +113,8 @@ const StateSummaryModal = ({ isOpen, onClose, intervals, currentDate }) => {
         </div>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
 // Compact date selector component
 const CompactDateSelector = ({ startDate, endDate, currentDay, onChange }) => {

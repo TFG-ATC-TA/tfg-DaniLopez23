@@ -46,10 +46,6 @@ const CustomDateRangePicker = ({ value, onChange }) => {
   const [endTime, setEndTime] = useState({ hours: "23", minutes: "59" })
   const [selectionMode, setSelectionMode] = useState("range")
 
-  // Refs to track previous values for comparison
-  const prevDateRange = useRef()
-  const prevSelectedDate = useRef()
-
   // Initialize with proper times when value changes
   useEffect(() => {
     const currentValue = value || { from: undefined, to: undefined }
@@ -80,60 +76,6 @@ const CustomDateRangePicker = ({ value, onChange }) => {
       }
     }
   }, [value])
-
-  // --- NUEVA LÓGICA DE EFECTOS AQUÍ ---
-  // Efecto para detectar cambios en el rango de fechas y selectedDate
-  useEffect(() => {
-    if (mode !== "historical") return
-
-    // Detectar cambio de rango
-    if (filters.dateRange) {
-      const currentRangeFrom = filters.dateRange.from?.getTime()
-      const prevRangeFrom = prevDateRange.current?.from?.getTime()
-
-      if (currentRangeFrom !== prevRangeFrom) {
-        // Si no hay selectedDate o está fuera del rango, poner el primer día del rango
-        if (
-          !filters.selectedDate ||
-          filters.selectedDate.getTime() < filters.dateRange.from.getTime() ||
-          filters.selectedDate.getTime() > filters.dateRange.to.getTime()
-        ) {
-          setFilters({
-            ...filters,
-            selectedDate: filters.dateRange.from,
-          })
-          // Lanzar fetch para el primer día del rango
-          fetchHistoricalData({
-            filters: { ...filters, selectedDate: filters.dateRange.from },
-            boardIds,
-            selectedFarm,
-            selectedTank,
-          })
-          fetchTankStates()
-          prevSelectedDate.current = filters.dateRange.from
-        }
-        prevDateRange.current = filters.dateRange
-      }
-    }
-
-    // Detectar cambio de selectedDate
-    if (filters.selectedDate) {
-      const currentSelectedDate = filters.selectedDate?.getTime()
-      const prevDate = prevSelectedDate.current?.getTime()
-      if (currentSelectedDate !== prevDate) {
-        fetchHistoricalData({
-          filters,
-          boardIds,
-          selectedFarm,
-          selectedTank,
-        })
-        fetchTankStates()
-        prevSelectedDate.current = filters.selectedDate
-      }
-    }
-    // eslint-disable-next-line
-  }, [mode, filters.dateRange, filters.selectedDate, fetchHistoricalData, fetchTankStates, setFilters, boardIds, selectedFarm, selectedTank])
-
 
   const handleSelect = (date) => {
     if (!date) {

@@ -1,5 +1,3 @@
-"use client"
-
 import useAppDataStore from "@/stores/useAppDataStore"
 import { useTank } from "@/hooks/useTank"
 import { useState } from "react"
@@ -9,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import useTankStore from "@/stores/useTankStore"
 import useFarmStore from "@/stores/useFarmStore"
+import {useHistoricalDataStore} from "@/stores/useHistoricalDataStore"
 
 const TankSelector = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -20,6 +19,7 @@ const TankSelector = () => {
   const { filters, setFilters, setMode } = useAppDataStore((state) => state)
   const { selectedTank } = useTankStore((state) => state)
   const { selectedFarm } = useFarmStore((state) => state)
+
   const handleTankChange = (tankId) => {
     const tank = selectedFarm.equipments.find((tank) => tank._id === tankId)
     setFilters({
@@ -28,6 +28,14 @@ const TankSelector = () => {
       selectedStatus: "all",
       selectedSensor: "all",
     })
+
+    useHistoricalDataStore.setState({
+        historicalData: null,
+        selectedHistoricalData: null,
+        error: null,
+        selectedTime: null,
+      });
+
     setMode("realtime")
     if (tank) changeSelectedTank(tank, selectedFarm.broker)
   }
@@ -71,7 +79,7 @@ const TankSelector = () => {
                 </div>
                 <div>
                   <strong className="block text-sm font-medium mb-1">Status:</strong>
-                  <p className="text-sm">{selectedTank.status || "N/A"}</p>
+                  <p className="text-sm">{selectedTank.state || "N/A"}</p>
                 </div>
               </div>
             ) : (

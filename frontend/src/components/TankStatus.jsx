@@ -41,6 +41,10 @@ const TankStatus = () => {
     // eslint-disable-next-line
   }, [selectedTank, selectedFarm]);
 
+   useEffect(() => {
+    setError(null);
+  }, [mode]);
+  
   if (!selectedTank) return null;
 
   const handleRefresh = async () => {
