@@ -1,5 +1,3 @@
-"use client"
-
 import useAppDataStore from "@/stores/useAppDataStore"
 import { useTank } from "@/hooks/useTank"
 import { useState } from "react"
@@ -71,7 +69,7 @@ const TankSelector = () => {
                 </div>
                 <div>
                   <strong className="block text-sm font-medium mb-1">Status:</strong>
-                  <p className="text-sm">{selectedTank.status || "N/A"}</p>
+                  <p className="text-sm">{selectedTank.state || "N/A"}</p>
                 </div>
               </div>
             ) : (

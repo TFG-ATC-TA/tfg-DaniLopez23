@@ -348,7 +348,9 @@ PredictTankStatesRouter.post("/real-time", async (req, res) => {
         SurfaceTemperature: row["SurfaceTemperature"],
       })),
     };
-
+    debug(
+      `Cantidad de datos enviados a ML-API (real-time): ${payload.data.length}`
+    );
     debug(
       "Datos procesados para ML-API (real-time):",
       payload.data.slice(0, 5)
@@ -377,7 +379,7 @@ PredictTankStatesRouter.post("/real-time", async (req, res) => {
         endTime: new Date(interval.fin).toISOString().substring(11, 16), // Extraer HH:mm
         state: interval.estado,
       }));
-
+      debug("Estados transformados (real-time):", transformedStates.slice(0, 5));
       return res.status(200).json({
         tankId: tank,
         farmId: farm,
