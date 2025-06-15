@@ -2,6 +2,12 @@
 
 This repository implements a Bulk Milk Tank Digital Twin web app, consisting of several main components. Below is a general explanation of each major part:
 
+## Environment Configuration
+
+To run this project, you need a valid `.env` file with the required environment variables for backend service.  
+**This file is not included in the repository for security reasons.**  
+Please contact the project creator to obtain the appropriate `.env` file and instructions for setup.
+
 ---
 
 ## Backend
