@@ -364,7 +364,7 @@ const CustomDateRangePicker = ({ value, onChange }) => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[650px] p-0 overflow-hidden">
         <DialogHeader className="px-4 py-3 border-b">
-          <DialogTitle className="text-base font-medium">Seleccionar fecha y hora</DialogTitle>
+          <DialogTitle className="text-base font-medium">Select date and time</DialogTitle>
         </DialogHeader>
 
         <div className="p-4">
@@ -378,7 +378,7 @@ const CustomDateRangePicker = ({ value, onChange }) => {
                 className="h-8 px-3"
               >
                 <CalendarIcon className="mr-1 h-3.5 w-3.5" />
-                <span>Día único</span>
+                <span>Unique day</span>
               </Button>
               <Button
                 variant={selectionMode === "range" ? "default" : "outline"}
@@ -387,22 +387,22 @@ const CustomDateRangePicker = ({ value, onChange }) => {
                 className="h-8 px-3"
               >
                 <CalendarRange className="mr-1 h-3.5 w-3.5" />
-                <span>Rango</span>
+                <span>Range</span>
               </Button>
             </div>
 
             <div className="flex items-center gap-2">
               {selectionMode === "single" ? (
                 <Button variant="outline" size="sm" onClick={setToday} className="h-8 px-3">
-                  Hoy
+                  Today
                 </Button>
               ) : (
                 <>
                   <Button variant="outline" size="sm" onClick={setLastWeek} className="h-8 px-3">
-                    7 días
+                    7 days
                   </Button>
                   <Button variant="outline" size="sm" onClick={setLastMonth} className="h-8 px-3">
-                    30 días
+                    30 days
                   </Button>
                 </>
               )}
@@ -431,7 +431,7 @@ const CustomDateRangePicker = ({ value, onChange }) => {
                 <div className="text-sm border rounded-md p-2 bg-muted/20">
                   <div className="flex items-center justify-between mb-1">
                     <Badge variant="outline" className="bg-primary/10">
-                      Desde
+                      From
                     </Badge>
                     <span className="text-xs">{format(tempRange.from, "HH:mm", { locale: es })}</span>
                   </div>
@@ -441,7 +441,7 @@ const CustomDateRangePicker = ({ value, onChange }) => {
                     <>
                       <div className="flex items-center justify-between mb-1 mt-2">
                         <Badge variant="outline" className="bg-primary/10">
-                          Hasta
+                          To
                         </Badge>
                         <span className="text-xs">{format(tempRange.to, "HH:mm", { locale: es })}</span>
                       </div>
@@ -455,10 +455,10 @@ const CustomDateRangePicker = ({ value, onChange }) => {
               <Tabs value={timeMode} onValueChange={setTimeMode} className="w-full">
                 <TabsList className="grid w-full grid-cols-2 h-8">
                   <TabsTrigger value="fullDay" className="text-xs">
-                    Días completos
+                    Full Day
                   </TabsTrigger>
                   <TabsTrigger value="custom" className="text-xs">
-                    Personalizar
+                    Custom
                   </TabsTrigger>
                 </TabsList>
                 <TabsContent value="fullDay" className="pt-2">
@@ -469,7 +469,7 @@ const CustomDateRangePicker = ({ value, onChange }) => {
                 <TabsContent value="custom" className="pt-2">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <Label className="text-xs mb-1 block">Hora inicio</Label>
+                      <Label className="text-xs mb-1 block">Initial Time</Label>
                       <div className="flex space-x-1 items-center">
                         <Select
                           value={startTime.hours}
@@ -509,7 +509,7 @@ const CustomDateRangePicker = ({ value, onChange }) => {
                       </div>
                     </div>
                     <div>
-                      <Label className="text-xs mb-1 block">Hora fin</Label>
+                      <Label className="text-xs mb-1 block">Final Time</Label>
                       <div className="flex space-x-1 items-center">
                         <Select
                           value={endTime.hours}
@@ -564,10 +564,10 @@ const CustomDateRangePicker = ({ value, onChange }) => {
           {/* Action buttons */}
           <div className="flex justify-end space-x-2 pt-4 mt-4 border-t">
             <Button variant="outline" size="sm" onClick={() => setIsOpen(false)}>
-              Cancelar
+              Cancel
             </Button>
             <Button size="sm" onClick={handleApply} disabled={!tempRange || !tempRange.from || !!error}>
-              Aplicar
+              Aply
             </Button>
           </div>
         </div>

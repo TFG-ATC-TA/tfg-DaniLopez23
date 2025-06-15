@@ -45,7 +45,7 @@ const SensorDataTab = ({ mode, selectedHistoricalData, historicalData, error}) =
           className="h-auto py-3 px-2 rounded-l-none shadow-md flex flex-col gap-2 bg-white border-l-0 z-10" 
         >
           <Activity className="h-5 w-5" />
-          <span className="text-xs font-medium">Sensores</span>
+          <span className="text-xs font-medium">Sensors</span>
         </Button>
       </div>
     )
@@ -62,7 +62,7 @@ const SensorDataTab = ({ mode, selectedHistoricalData, historicalData, error}) =
         <div className="flex justify-between items-center gap-2">
           <div className="flex items-center gap-2">
             <Radio className="h-5 w-5 text-primary" />
-            <h3 className="text-base md:text-lg font-semibold truncate">Datos de Sensores</h3>
+            <h3 className="text-base md:text-lg font-semibold truncate">Sensor Data</h3>
           </div>
           <Button
             variant="ghost"
@@ -71,7 +71,7 @@ const SensorDataTab = ({ mode, selectedHistoricalData, historicalData, error}) =
             className="h-9 w-9 p-0 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
           >
             <CircleX className="h-4 w-4" />
-            <span className="sr-only">Cerrar panel</span>
+            <span className="sr-only">Close Panel</span>
           </Button>
         </div>
       </div>
@@ -88,7 +88,7 @@ const SensorDataTab = ({ mode, selectedHistoricalData, historicalData, error}) =
           </div>
         ) : mode === "historical" && !filters.dateRange ? (
           <div className="text-center p-4">
-            <p className="text-sm text-muted-foreground">Selecciona un rango de fechas para ver los datos históricos de sensores.</p>
+            <p className="text-sm text-muted-foreground">Select a date range to view historical sensor data</p>
           </div>
         ) : (
           <SensorInfoItem historicalData={dataToDisplay} isRealTime={mode === "realtime"} />

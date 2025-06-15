@@ -65,14 +65,17 @@ const TankStatus = () => {
         const status = await predictRealTimeStates(filters);
         if (status?.states?.length > 0) {
           setRealTimeState(status.states[0].state);
+          selectedTank.state = status.states[0].state;
         } else {
           setRealTimeState("NO DATA");
+          selectedTank.state = "NO DATA";
         }
       }
     } catch (err) {
       console.error("Error refreshing tank status:", err);
       setError(err.message || "Error al actualizar");
       setRealTimeState("NO DATA");
+      selectedTank.state = "NO DATA";
     } finally {
       setLoading(false);
     }
@@ -87,13 +90,13 @@ const TankStatus = () => {
 
   return (
     <div className="p-3 rounded-lg bg-white shadow-sm h-full flex flex-col border border-muted-foreground/10">
-      {/* Header con ayuda */}
+      {/* Header with help */}
       <div className="flex items-center justify-between border-b pb-2 mb-3">
         <div className="flex items-center gap-2">
           <span className="flex items-center justify-center bg-primary/10 p-1 rounded-full">
             <Activity className="h-4 w-4 text-primary" />
           </span>
-          <span className="text-sm font-semibold text-gray-700">Estado</span>
+          <span className="text-sm font-semibold text-gray-700">STATUS</span>
         </div>
         <Dialog>
           <DialogTrigger asChild>
@@ -101,33 +104,33 @@ const TankStatus = () => {
               variant="ghost"
               size="icon"
               className="h-6 w-6 p-0"
-              aria-label="Información"
+              aria-label="Information"
             >
               <HelpCircle className="h-4 w-4 text-gray-400" />
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-xs">
             <DialogHeader>
-              <DialogTitle>Información de Estados</DialogTitle>
+              <DialogTitle>State information</DialogTitle>
             </DialogHeader>
             <div className="text-xs space-y-2 mt-2">
               <p>
-                <span className="font-medium">Tiempo Real:</span> Actualización
-                automática cada 5 minutos
+                <span className="font-medium">Real Time:</span> Automatic
+                refresh every 5 minutes
               </p>
               <p>
-                <span className="font-medium">Histórico:</span> Datos del rango
-                de fechas seleccionado
+                <span className="font-medium">Historical: </span> State from
+                data selected on date range
               </p>
               <div className="mt-2 pt-2 border-t">
-                <p className="font-medium mb-1">Estado actual: {text}</p>
+                <p className="font-medium mb-1">Current state: {text}</p>
                 <p>
-                  {tankState === "MILKING" && "Tanque en proceso de ordeño"}
-                  {tankState === "COOLING" && "Tanque enfriando leche"}
-                  {tankState === "CLEANING" && "Tanque en proceso de limpieza"}
-                  {tankState === "MAINTENANCE" && "Tanque en mantenimiento"}
-                  {tankState === "EMPTY TANK" && "Tanque vacío"}
-                  {tankState === "NO DATA" && "Sin datos disponibles"}
+                  {tankState === "MILKING" && "Tank in milking process"}
+                  {tankState === "COOLING" && "Tank cooling milk"}
+                  {tankState === "CLEANING" && "Tank in cleaning process"}
+                  {tankState === "MAINTENANCE" && "Tank under maintenance"}
+                  {tankState === "EMPTY TANK" && "Tank is empty"}
+                  {tankState === "NO DATA" && "No data available"}
                 </p>
               </div>
             </div>
@@ -135,7 +138,7 @@ const TankStatus = () => {
         </Dialog>
       </div>
 
-      {/* Cuerpo principal: indicador, nombre, etiqueta y botón en línea */}
+      {/* Main body: indicator, name, label and inline button */}
       <div className="flex items-center gap-3 w-full">
         <span
           className="w-3 h-3 rounded-full"
@@ -160,7 +163,7 @@ const TankStatus = () => {
             {loading ? (
               <span className="flex items-center gap-1 text-xs text-gray-500">
                 <Loader className="h-4 w-4 animate-spin text-primary" />
-                Actualizando...
+                Updating...
               </span>
             ) : (
               <TooltipProvider>
@@ -174,11 +177,11 @@ const TankStatus = () => {
                       disabled={loading}
                     >
                       <RefreshCw className="h-4 w-4 mr-1 text-gray-500" />
-                      Actualizar
+                      Update
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="text-xs p-1">
-                    Actualizar estado del tanque
+                    Update tank state
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -186,7 +189,7 @@ const TankStatus = () => {
           </div>
         )}
       </div>
-      {/* Error debajo si existe */}
+      {/* Error below if exists */}
       {error && !loading && (
         <div className="flex items-center mt-2">
           <span className="text-xs text-red-500">{error}</span>

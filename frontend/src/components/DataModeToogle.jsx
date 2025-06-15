@@ -33,7 +33,7 @@ const DataModeToggle = ({ isRealTime, setMode, setFilters, selectedTank, setSele
               <History className="h-3.5 w-3.5 text-primary" />
             )}
           </div>
-          <p className="text-xs font-medium text-gray-500 uppercase">Modo</p>
+          <p className="text-xs font-medium text-gray-500 uppercase">Mode</p>
         </div>
       </div>
 
@@ -48,7 +48,7 @@ const DataModeToggle = ({ isRealTime, setMode, setFilters, selectedTank, setSele
             onClick={() => changeMode(true)}
           >
             <Wifi className="mr-1 h-3 w-3 flex-shrink-0" />
-            <span className="truncate">Tiempo real</span>
+            <span className="truncate">Real Time</span>
           </button>
 
           <Switch checked={!isRealTime} onCheckedChange={(checked) => changeMode(!checked)} className="mx-1 scale-75" />
@@ -61,7 +61,7 @@ const DataModeToggle = ({ isRealTime, setMode, setFilters, selectedTank, setSele
             onClick={() => changeMode(false)}
           >
             <History className="mr-1 h-3 w-3 flex-shrink-0" />
-            <span className="truncate">Histórico</span>
+            <span className="truncate">Historical</span>
           </button>
         </div>
 

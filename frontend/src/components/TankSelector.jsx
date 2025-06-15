@@ -29,7 +29,7 @@ const TankSelector = () => {
     setMode("realtime")
     if (tank) changeSelectedTank(tank, selectedFarm.broker)
   }
-
+  console.log("Selected Tank:", selectedTank)
   return (
     <div className="flex items-center gap-3 relative">
       <div className="flex items-center gap-2">

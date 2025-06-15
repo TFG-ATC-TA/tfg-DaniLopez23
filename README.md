@@ -41,3 +41,4 @@ The `mongo-data` (or similar) directory is used for MongoDB data persistence and
 ## Summary
 
 Together, these components provide a scalable, modular platform for monitoring, analyzing, and classify the state of bulk milk tanks using real-time sensor data, historical records, and machine learning all accessible through a modern web interface.
+

@@ -48,7 +48,7 @@ const TankDate = () => {
             <CalendarIcon className="text-primary w-3.5 h-3.5" />
           </div>
           <p className="text-xs font-medium text-gray-500 uppercase">
-            {isHistorical ? "Rango histórico" : "Tiempo real"}
+            {isHistorical ? "Historical Range" : "Real Time"}
           </p>
         </div>
       </div>

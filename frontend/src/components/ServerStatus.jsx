@@ -13,10 +13,10 @@ const statusColors = {
 };
 
 const statusText = {
-  connected: "Conectado",
-  disconnected: "Desconectado",
+  connected: "Connected",
+  disconnected: "Disconnected",
   error: "Error",
-  connecting: "Conectando",
+  connecting: "Connecting",
 };
 
 const ServerStatus = ({ serverStatus, webSocketServerStatus, mqttStatus }) => {
@@ -26,7 +26,7 @@ const ServerStatus = ({ serverStatus, webSocketServerStatus, mqttStatus }) => {
     <div className="flex items-center gap-3 px-3 py-2">
       <div className="flex items-center gap-2">
         <Server className="h-5 w-5 text-primary" />
-        <span className="font-medium text-sm text-gray-700">Servidor</span>
+        <span className="font-medium text-sm text-gray-700">Server</span>
         <Badge className={statusColors[serverStatus.status] || "bg-gray-400 text-white"}>
           {statusText[serverStatus.status] || "Desconocido"}
         </Badge>
@@ -42,7 +42,7 @@ const ServerStatus = ({ serverStatus, webSocketServerStatus, mqttStatus }) => {
               </DialogTrigger>
               <DialogContent className="sm:max-w-[320px]">
                 <DialogHeader>
-                  <DialogTitle>Detalles de conexión</DialogTitle>
+                  <DialogTitle>Connection details</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-3 mt-2">
                   <div className="flex items-center gap-2">

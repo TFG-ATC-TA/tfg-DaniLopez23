@@ -54,7 +54,7 @@ const HistoricalDataFilter = () => {
         <div className="flex justify-between items-center">
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
             <Sliders className="h-5 w-5 text-primary" />
-            Filtros Datos Históricos
+            Historical Data Filters
           </CardTitle>
           <Button
             variant="ghost"
@@ -70,7 +70,7 @@ const HistoricalDataFilter = () => {
       <CardContent className="p-4 space-y-6 overflow-y-auto">
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Rango de Fechas</Label>
+            <Label className="text-sm font-medium">Date Range</Label>
             <CustomDateRangePicker
               value={filters.dateRange || { from: undefined, to: undefined }}
               onChange={(range) => handleFilterChange("dateRange", range)}
@@ -78,23 +78,32 @@ const HistoricalDataFilter = () => {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Estado del Tanque</Label>
+            <Label className="text-sm font-medium">Tank State</Label>
             <Select
               value={filters.selectedStatus}
               onValueChange={(value) => handleFilterChange("selectedStatus", value)}
             >
               <SelectTrigger className="w-full rounded-lg">
-                <SelectValue placeholder="Seleccionar estado" />
+                <SelectValue placeholder="Select state" />
               </SelectTrigger>
               <SelectContent className="rounded-xl">
                 <SelectItem value="all" className="rounded-lg">
-                  Todos
+                  All
                 </SelectItem>
                 <SelectItem value="working" className="rounded-lg">
-                  Operativo
+                  Maintenance
                 </SelectItem>
                 <SelectItem value="maintenance" className="rounded-lg">
-                  Mantenimiento
+                  Cooling
+                </SelectItem>
+                <SelectItem value="empty" className="rounded-lg">
+                  Empty Tank
+                </SelectItem>
+                <SelectItem value="milking" className="rounded-lg">
+                  Milking
+                </SelectItem>
+                <SelectItem value="milking" className="rounded-lg">
+                  Cleaning
                 </SelectItem>
                 <SelectItem value="error" className="rounded-lg">
                   Error
@@ -104,7 +113,7 @@ const HistoricalDataFilter = () => {
           </div>
 
           <div className="flex items-center justify-between p-2 rounded-lg bg-muted/20">
-            <Label className="text-sm font-medium">Mostrar anomalías</Label>
+            <Label className="text-sm font-medium">Show anomalies</Label>
             <Switch
               checked={filters.showAnomalous}
               onCheckedChange={(checked) => handleFilterChange("showAnomalous", checked)}
@@ -115,7 +124,7 @@ const HistoricalDataFilter = () => {
         <div className="sticky bottom-0 bg-background/80 pt-4 border-t">
           <Button variant="outline" onClick={clearFilters} className="w-full gap-2 rounded-lg">
             <Trash2 className="h-4 w-4" />
-            Limpiar Filtros
+            Clear Filters
           </Button>
         </div>
       </CardContent>
