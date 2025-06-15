@@ -1,38 +1,32 @@
-// Header.jsx
-import { useTank } from "@/hooks/useTank";
-import useTankStore from '@/stores/useTankStore';
-import useFarmStore from '@/stores/useFarmStore';
-import FarmSelector from './FarmSelector';
-import TankSelector from './TankSelector';
-import ServerStatus from './ServerStatus';
+import FarmSelector from "./FarmSelector"
+import TankSelector from "./TankSelector"
+import ServerStatus from "./ServerStatus"
+import useSocketStore from "@/stores/useSocketStore"
+import useAppDataStore from "@/stores/useAppDataStore"
 
-const Header = ({ serverStatus, mqttStatus, webSocketServerStatus, farmData }) => {
-  const { changeSelectedTank } = useTank();
-  const { selectedTank } = useTankStore((state) => state);
-  const handleTankChange = (tankId) => {
-    const tank = farmData.equipments.find((tank) => tank._id === tankId);
-    if (tank) changeSelectedTank(tank, farmData._id);
-  };
+const Header = () => {
+  const { webSocketServerStatus, mqttStatus } = useSocketStore((state) => state)
+  const { serverStatus } = useAppDataStore((state) => state)
 
   return (
-    <div className="bg-white p-6 shadow-sm border-b flex justify-between items-center">
-      <FarmSelector/>
-      
-      <div className="flex-1 px-8">
-        <TankSelector
-          selectedTank={selectedTank}
-          handleTankChange={handleTankChange}
-          farmData={farmData}
-        />
+    <div className="bg-white shadow-sm border-b sticky top-0 z-50">
+      <div className="p-3 md:p-4">
+        <div className="w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-6 w-full md:w-auto">
+            <FarmSelector />
+            <TankSelector />
+          </div>
+          <div>
+            <ServerStatus
+              serverStatus={serverStatus}
+              webSocketServerStatus={webSocketServerStatus}
+              mqttStatus={mqttStatus}
+            />
+          </div>
+        </div>
       </div>
-
-      <ServerStatus
-        serverStatus={serverStatus}
-        webSocketServerStatus={webSocketServerStatus}
-        mqttStatus={mqttStatus}
-      />
     </div>
-  );
-};
+  )
+}
 
-export default Header;
+export default Header

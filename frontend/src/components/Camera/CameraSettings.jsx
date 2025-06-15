@@ -1,59 +1,60 @@
 import { useRef, useEffect } from "react";
 import { CameraControls } from "@react-three/drei";
 import { cameraViews } from "./CameraViews";
-import { GizmoHelper, GizmoViewport } from "@react-three/drei";
-import { ca } from "date-fns/locale";
 
-const CameraSettings = ({ view }) => {
+const CameraSettings = ({ view, tankDisplay, isFullscreen }) => {
   const cameraControlsRef = useRef();
 
-  // Efecto para restricciones iniciales y cambios de vista
   useEffect(() => {
     if (cameraControlsRef.current) {
-      const config = cameraViews[view] || cameraViews.default;
-      
-      // Configurar posición y objetivo
+      const config = cameraViews[tankDisplay][view] || cameraViews.default;
+
       cameraControlsRef.current.setLookAt(
         ...config.position,
         ...config.target,
         true
       );
 
-      // Deshabilitar controles de interacción
-      cameraControlsRef.current.mouseButtons.left = 0;
-      cameraControlsRef.current.mouseButtons.right = 0;
-      cameraControlsRef.current.mouseButtons.middle = 0;
-      cameraControlsRef.current.touches.one = 0;
-      cameraControlsRef.current.touches.two = 0;
-      cameraControlsRef.current.touches.three = 0;
-      cameraControlsRef.current.touches.twoFingerDolly = 0;
-      cameraControlsRef.current.touches.enabled = false;
-      
-      // Restricciones de zoom
-      cameraControlsRef.current.dollyEnabled = false;
-      cameraControlsRef.current.infinityDolly = false;
+      if (isFullscreen) {
+        // Permitir solo rotar y hacer zoom limitado en fullscreen, NO mover (truck/dolly)
+        cameraControlsRef.current.dollyEnabled = false;
+        cameraControlsRef.current.truckEnabled = false;
+        cameraControlsRef.current.rotateEnabled = true;
+        cameraControlsRef.current.zoomEnabled = true;
+
+        cameraControlsRef.current.mouseButtons.left = 1;    // Rotar
+        cameraControlsRef.current.mouseButtons.right = 0;   // No mover
+        cameraControlsRef.current.mouseButtons.middle = 0;  // No mover
+        cameraControlsRef.current.mouseButtons.wheel = 8;   // Zoom
+
+        cameraControlsRef.current.touches.one = 1;   // Rotar
+        cameraControlsRef.current.touches.two = 0;   // No mover
+        cameraControlsRef.current.touches.three = 0;
+      } else {
+        // Bloquear todas las interacciones fuera de fullscreen
+        cameraControlsRef.current.dollyEnabled = false;
+        cameraControlsRef.current.zoomEnabled = false;
+        cameraControlsRef.current.rotateEnabled = false;
+        cameraControlsRef.current.truckEnabled = false;
+        cameraControlsRef.current.mouseButtons.left = 0;
+        cameraControlsRef.current.mouseButtons.right = 0;
+        cameraControlsRef.current.mouseButtons.middle = 0;
+        cameraControlsRef.current.mouseButtons.wheel = 0;
+        cameraControlsRef.current.touches.one = 0;
+        cameraControlsRef.current.touches.two = 0;
+        cameraControlsRef.current.touches.three = 0;
+      }
     }
-  }, [view]);
-  
+  }, [view, tankDisplay, isFullscreen]);
+
   return (
     <>
       <CameraControls
         ref={cameraControlsRef}
         makeDefault
-        minDistance={5}
-        maxDistance={5}
+        minDistance={3} 
+        maxDistance={10} 
       />
-      
-      <GizmoHelper
-        alignment="bottom-right"
-        margin={[60, 60]}
-        onUpdate={() => cameraControlsRef.current}
-      >
-        <GizmoViewport
-          axisColors={["#9d4b4b", "#2f7f4f", "#3b5b9d"]}
-          labelColor="white"
-        />
-      </GizmoHelper>
     </>
   );
 };

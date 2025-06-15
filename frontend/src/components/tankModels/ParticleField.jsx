@@ -1,5 +1,3 @@
-'use client';
-
 import { Points, PointMaterial } from '@react-three/drei';
 import { useMemo, useCallback } from 'react';
 import * as THREE from 'three';

@@ -1,24 +1,12 @@
 import { useEffect, useCallback } from "react";
 import { createSocket } from "@/webSockets/Socket";
 import useSocketStore from "@/stores/useSocketStore";
-import useFarmStore from "@/stores/useFarmStore";
-import useDataStore from "@/stores/useDataStore";
-import useTankStore from "@/stores/useTankStore";
+import { createSocketEventHandlers } from "@/webSockets/socketEventHandlers";
 
 export const useSocketInitialization = () => {
-  const { socket, setSocket, setMqttStatus, setWebSocketServerStatus } =
-    useSocketStore((state) => state);
-  const { selectedFarm } = useFarmStore((state) => state);
-  const { selectedTank } = useTankStore((state) => state);
-  const {
-    updateEncoderData,
-    updateGyroscopeData,
-    updateMilkQuantityData,
-    updateTankTemperaturesData,
-    updateSwitchStatus,
-    updateWeightData,
-    updateAirQualityData,
-  } = useDataStore((state) => state);
+  const { setSocket, setMqttStatus, setWebSocketServerStatus } = useSocketStore(
+    (state) => state
+  );
 
   const handleSocketError = useCallback(
     (error) => {
@@ -36,13 +24,16 @@ export const useSocketInitialization = () => {
 
     try {
       socketInstance = createSocket();
+      console.log("Socket instance created:", socketInstance); // Verifica si el socket se crea
       setSocket(socketInstance);
 
       socketInstance.on("connect", () => {
+        console.log("Socket connected"); // Verifica si el socket se conecta
         setWebSocketServerStatus({ status: "connected", error: null });
       });
 
       socketInstance.on("disconnect", (reason) => {
+        console.log("Socket disconnected:", reason); // Verifica si el socket se desconecta
         setWebSocketServerStatus({
           status: "disconnected",
           error:
@@ -53,56 +44,31 @@ export const useSocketInitialization = () => {
         });
       });
 
-      socketInstance.on("connect_error", handleSocketError);
-      socketInstance.on("error", handleSocketError);
-
+      // Escuchar el canal mqttStatus y actualizar el estado
       socketInstance.on("mqttStatus", (status) => {
-        setMqttStatus({
-          status: status.connected ? "connected" : "disconnected",
-          error: status.error || null,
-        });
+        setMqttStatus({ status: status.status, error: status.error || null });
       });
 
       socketInstance.connect();
     } catch (error) {
+      console.error("Error creating socket:", error);
       handleSocketError(error);
     }
+
+    const eventHandlers = createSocketEventHandlers();
+    Object.entries(eventHandlers).forEach(([event, handler]) => {
+      socketInstance.on(event, handler);
+      console.log(`Socket event handler registered for ${event}`); // Verifica si el manejador de eventos se registra
+    });
 
     return () => {
       if (socketInstance) {
         socketInstance.disconnect();
       }
-    };
-  }, [setSocket, setWebSocketServerStatus, setMqttStatus, handleSocketError]);
 
-  useEffect(() => {
-
-    if (!socket?.connected || !selectedFarm?._id) {
-      console.warn("No socket or selected farm");
-      return;
-    }
-
-    const farmId = selectedFarm.broker;
-
-    const eventHandlers = {
-      [`${farmId}/encoder`]: updateEncoderData,
-      [`${farmId}/6_dof_imu`]: updateGyroscopeData,
-      [`${farmId}/tank_distance`]: updateMilkQuantityData,
-      [`${farmId}/tank_temperature_probes`]: updateTankTemperaturesData,
-      [`${farmId}/magnetic_switch`]: updateSwitchStatus,
-      [`${farmId}/weight`]: updateWeightData,
-      [`${farmId}/air_quality`]: updateAirQualityData,
-    };
-    console.log("EventHandlers (farm_broker):", eventHandlers);
-    Object.entries(eventHandlers).forEach(([event, handler]) => {
-      socket.on(event, handler);
-      console.log(`Listening to event: ${event}`);
-    });
-
-    return () => {
       Object.entries(eventHandlers).forEach(([event, handler]) => {
-        socket.off(event, handler);
+        socketInstance.off(event, handler);
       });
     };
-  }, [socket, selectedFarm]);
+  }, [setSocket, setWebSocketServerStatus, setMqttStatus, handleSocketError]);
 };

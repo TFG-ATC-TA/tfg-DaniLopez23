@@ -1,13 +1,14 @@
 import { useEffect } from "react";
 import useFarmStore from "@/stores/useFarmStore";
+import useAppDataStore from "@/stores/useAppDataStore";
 import useTankStore from "@/stores/useTankStore";
 import useSocketStore from "@/stores/useSocketStore";
 import { getFarms } from "@/services/farm";
 
 export const useFarmInitialization = () => {
 
-  const { setFarms, setSelectedFarm, setServerStatus, selectedFarm } = useFarmStore((state) => state);
-
+  const { setFarms, setSelectedFarm } = useFarmStore((state) => state);
+  const { setServerStatus } = useAppDataStore((state) => state);
   const { setSelectedTank } = useTankStore((state) => state);
   const { joinRooms } = useSocketStore((state) => state);
 
@@ -16,8 +17,9 @@ export const useFarmInitialization = () => {
     try {
 
       const farms = await getFarms();
+      console.log("Farms fetched:", farms);
       setFarms(farms);
-      const farmData = farms[1];
+      const farmData = farms[0];
       setSelectedFarm(farmData);
       const firstMilkTank = farmData.equipments.find(
         (tank) => tank.type === "Tanque de leche"
@@ -27,7 +29,7 @@ export const useFarmInitialization = () => {
         const boardIds = firstMilkTank.devices
           .map((device) => device.boardId)
           .filter(Boolean);
-        joinRooms(boardIds, farmData._id);
+        joinRooms(boardIds, farmData.broker);
       }
       setServerStatus({ status: "connected", error: null });
     } catch (error) {

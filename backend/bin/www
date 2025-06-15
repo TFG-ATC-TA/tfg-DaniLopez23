@@ -3,6 +3,6 @@ const config = require('../config/index')
 const debug = require('debug')('app:server')
 const port = config.port
 
-server.listen(port, function() {
-  debug(`Server running at http://localhost:${port}/`)
+server.listen(port, '0.0.0.0', function() {
+  debug(`Server running at http://0.0.0.0:${port}/`);
 });

@@ -1,0 +1,90 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      target: production
+    environment:
+      - PORT=3001
+      - NODE_ENV=production
+      - ML_API_URL=http://ml-api:8000  # asegúrate de usar la URL correcta si depende de ML
+    ports:
+      - "3001:3001"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    networks:
+      - tfg-digital-twin
+    depends_on:
+      - ml-api
+      - influxdb
+      - mongodb
+
+  frontend:
+    build:
+      context: ./frontend
+      target: production
+      args:
+        - VITE_API_URL=http://192.168.138.163:3001
+        - VITE_SOCKET_URL=http://192.168.138.163:3001
+    ports:
+      - "80:80"
+    networks:
+      - tfg-digital-twin
+
+  ml-api:
+    build:
+      context: ./ml-api
+    environment:
+      - ENVIRONMENT=production
+    ports:
+      - "8000:8000"
+    networks:
+      - tfg-digital-twin
+
+  influxdb:
+    image: influxdb:2.7
+    volumes:
+      - influxdb:/var/lib/influxdb
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=user
+      - DOCKER_INFLUXDB_INIT_PASSWORD=pass
+      - DOCKER_INFLUXDB_INIT_ORG=myorg
+      - DOCKER_INFLUXDB_INIT_BUCKET=mybucket
+    ports:
+      - "8086:8086"
+    networks:
+      - tfg-digital-twin
+
+  mongodb:
+      image: mongo:7.0
+      container_name: mongodb_prod
+      restart: unless-stopped
+      command: mongod --auth --bind_ip_all  # ¡Esto es clave!
+      networks:
+        - tfg-digital-twin
+      environment:
+        - MONGO_INITDB_ROOT_USERNAME=admin_prod  # Cambiar por tu usuario
+        - MONGO_INITDB_ROOT_PASSWORD=adminpassword_prod  # Cambiar por tu contraseña
+        - MONGO_INITDB_DATABASE=tfg_prod
+      volumes:
+        - mongodb_data_prod:/data/db  # Volumen manejado por Docker
+        - ./mongo-data/init:/docker-entrypoint-initdb.d  # Monta ambos archivos
+      ports:
+        - "27018:27017"  # Solo para pruebas, quitar después
+      
+      healthcheck:
+        test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+        interval: 30s
+        timeout: 10s
+        retries: 3
+
+networks:
+  tfg-digital-twin:
+    driver: bridge
+
+volumes:
+  influxdb:
+  mongodb_data_prod:  

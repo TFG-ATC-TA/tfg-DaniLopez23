@@ -1,221 +1,164 @@
-const topics = require("./topics");
+const debug = require("debug")("app:dataHandling");
 
-const TANK_HEIGHT = 4000; // 2000 mm ; 2m
-
-const getTankTemperaturesData = (rawData) => {
+const parseCommonData = (rawData) => {
   try {
     const dataObject = JSON.parse(rawData);
+    return dataObject[dataObject.length - 1];
+  } catch (error) {
+    debug("Error parsing JSON:", error);
+    return null;
+  }
+};
 
-    let lastObject = dataObject[dataObject.length - 1];
+const getReadableDate = (timestamp) => {
+  const date = new Date(timestamp * 1000);
 
-    const date = new Date(lastObject.timestamp * 1000);
-    const readableDate = date.toLocaleString();
+  // Convertir a la zona horaria de Madrid y mostrar segundos
+  const options = {
+    timeZone: "Europe/Madrid", // Zona horaria de Madrid
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit", // Incluir segundos
+    hour12: false, // Formato de 24 horas
+  };
 
-    const result = {
-      measurement: lastObject.measurement,
-      tags: lastObject.tags,
-      readableDate: readableDate,
+  const formattedDate = date.toLocaleString("en-GB", options); // Formato DD/MM/YYYY HH:mm:ss
+  return formattedDate;
+};
+
+const baseStructure = (lastObject) => ({
+  measurement: lastObject.measurement,
+  tags: lastObject.tags,
+  readableDate: getReadableDate(lastObject.timestamp),
+  value: {}
+});
+
+const getTankTemperaturesData = (rawData) => {
+  const lastObject = parseCommonData(rawData);
+  if (!lastObject) return null;
+
+  return {
+    ...baseStructure(lastObject),
+    value: {
       submerged_temperature: lastObject.fields.submerged_temperature,
       surface_temperature: lastObject.fields.surface_temperature,
-      over_surface_temperature: lastObject.fields.over_surface_temperature,
-    };
-
-    return result;
-  } catch (error) {
-    console.log(
-      "ERROR WHILE PARSING MESSAGE (STRING) TO JSON (OBJECT) : ",
-      error
-    );
-  }
+      over_surface_temperature: lastObject.fields.over_surface_temperature
+    }
+  };
 };
 
 const getGyroscopeData = (rawData) => {
-  try {
-    const dataObject = JSON.parse(rawData);
+  const lastObject = parseCommonData(rawData);
+  if (!lastObject) return null;
 
-    let lastObject = dataObject[dataObject.length - 1];
-
-    const date = new Date(lastObject.timestamp * 1000);
-    const readableDate = date.toLocaleString();
-
-    const result = {
-      measurement: lastObject.measurement,
-      tags: lastObject.tags,
-      readableDate: readableDate,
-      fields: lastObject.fields,
-    };
-
-    return result;
-  } catch (error) {
-    console.log(
-      "ERROR WHILE PARSING MESSAGE (STRING) TO JSON (OBJECT) : ",
-      error
-    );
-  }
+  return {
+    ...baseStructure(lastObject),
+    value: lastObject.fields
+  };
 };
 
 const getMilkQuantityData = (rawData) => {
-  try {
-    const dataObject = JSON.parse(rawData);
+  const lastObject = parseCommonData(rawData);
+  if (!lastObject) return null;
 
-    let lastObject = dataObject[dataObject.length - 1];
+  return {
+    ...baseStructure(lastObject),
+    value: lastObject.fields.range,
 
-    const date = new Date(lastObject.timestamp * 1000);
-    const readableDate = date.toLocaleString();
-
-    // Calcula el porcentaje de leche en el tanque
-    const milkQuantity = (lastObject.fields.range / TANK_HEIGHT) * 100;
-
-    // Crea el nuevo objeto con readableDate y milkQuantity
-    const result = {
-      measurement: lastObject.measurement,
-      tags: lastObject.tags,
-      readableDate: readableDate,
-      milkQuantity: milkQuantity,
-    };
-
-    return result;
-  } catch (error) {
-    console.log(
-      "ERROR WHILE PARSING MESSAGE (STRING) TO JSON (OBJECT) : ",
-      error
-    );
-  }
+  };
 };
 
 const getAirQualityData = (rawData) => {
-  const dataObject = JSON.parse(rawData);
+  const lastObject = parseCommonData(rawData);
+  if (!lastObject) return null;
 
-  let lastObject = dataObject[dataObject.length - 1];
-
-  const date = new Date(lastObject.timestamp * 1000);
-  const readableDate = date.toLocaleString();
-
-  result = {
-    measurement: lastObject.measurement,  
-    tags: lastObject.tags,
-    readableDate: readableDate,
-    airQuality: lastObject.fields,
+  return {
+    ...baseStructure(lastObject),
+    value: lastObject.fields
   };
-
-  console.log("Air quality data: ", result);
-
-  return result;
 };
 
 const getWeightData = (rawData) => {
-  const dataObject = JSON.parse(rawData);
+  const lastObject = parseCommonData(rawData);
+  if (!lastObject) return null;
 
-  let lastObject = dataObject[dataObject.length - 1];
-
-  const date = new Date(lastObject.timestamp * 1000);
-  const readableDate = date.toLocaleString();
-
-  const result = {
-    measurement: lastObject.measurement,
-    tags: lastObject.tags,
-    readableDate: readableDate,
-    weight: lastObject.fields.value,
+  return {
+    ...baseStructure(lastObject),
+    value: lastObject.fields.value
   };
-
-  return result;
 };
 
 const getMagneticSwitchData = (rawData) => {
-  const dataObject = JSON.parse(rawData);
+  const lastObject = parseCommonData(rawData);
+  if (!lastObject) return null;
 
-  let lastObject = dataObject[dataObject.length - 1];
-
-  const date = new Date(lastObject.timestamp * 1000);
-  const readableDate = date.toLocaleString();
-
-  const result = {
-    measurement: lastObject.measurement,
-    tags: lastObject.tags,
-    readableDate: readableDate,
-    status: lastObject.fields.state,
+  return {
+    ...baseStructure(lastObject),
+    value: lastObject.fields.state
   };
-
-  return result;
 };
 
 const getEncoderData = (rawData) => {
-  const dataObject = JSON.parse(rawData);
+  const lastObject = parseCommonData(rawData);
+  if (!lastObject) return null;
 
-  let lastObject = dataObject[dataObject.length - 1];
-
-  const date = new Date(lastObject.timestamp * 1000);
-  const readableDate = date.toLocaleString();
-
-  const result = {
-    measurement: lastObject.measurement,
-    tags: lastObject.tags,
-    readableDate: readableDate,
-    value: lastObject.fields.rpm,
+  return {
+    ...baseStructure(lastObject),
+    value: lastObject.fields.rpm
   };
-
-  return result;
 };
 
 const getBoardTemperatureData = (rawData) => {
-  const dataObject = JSON.parse(rawData);
+  const lastObject = parseCommonData(rawData);
+  if (!lastObject) return null;
 
-  let lastObject = dataObject[dataObject.length - 1];
-
-  const date = new Date(lastObject.timestamp * 1000);
-  const readableDate = date.toLocaleString();
-
-  const result = {
-    measurement: lastObject.measurement,
-    tags: lastObject.tags,
-    readableDate: readableDate,
-    temperature: lastObject.fields.temperature,
+  return {
+    ...baseStructure(lastObject),
+    value: lastObject.fields.temperature
   };
-
-  return result;
 };
 
 const getBoardStatusData = (rawData) => {
-  const dataObject = JSON.parse(rawData);
+  const lastObject = parseCommonData(rawData);
+  if (!lastObject) return null;
 
-  let lastObject = dataObject[dataObject.length - 1];
-
-  const date = new Date(lastObject.timestamp * 1000);
-  const readableDate = date.toLocaleString();
-
-  const result = {
-    measurement: lastObject.measurement,
-    tags: lastObject.tags,
-    readableDate: readableDate,
-    status: lastObject.fields.status,
+  return {
+    ...baseStructure(lastObject),
+    value: lastObject.fields.status
   };
-
-  return result;
 };
 
 const topicHandlers = {
-  "synthetic-farm-1/6_dof_imu": getGyroscopeData,
-  "synthetic-farm-1/tank_temperature_probes": getTankTemperaturesData,
-  "synthetic-farm-1/tank_distance": getMilkQuantityData,
-  "synthetic-farm-1/air_quality": getAirQualityData,
-  "synthetic-farm-1/weight": getWeightData,
-  "synthetic-farm-1/magnetic_switch": getMagneticSwitchData,
-  "synthetic-farm-1/encoder": getEncoderData,
-  "synthetic-farm-1/board_temperature": getBoardTemperatureData,
-  "synthetic-farm-1/board_status": getBoardStatusData,
+  "6_dof_imu": getGyroscopeData,
+  "tank_temperature_probes": getTankTemperaturesData,
+  "tank_distance": getMilkQuantityData,
+  "air_quality": getAirQualityData,
+  "weight": getWeightData,
+  "magnetic_switch": getMagneticSwitchData,
+  "encoder": getEncoderData,
+  "board_temperature": getBoardTemperatureData,
+  "board_status": getBoardStatusData,
 };
 
 const processData = (topic, rawData) => {
-  if (!topics) {
-    console.log("Topics not initialized yet");
+
+
+  const topicParts = topic.split("/");
+  const topicName = topicParts[topicParts.length - 1];
+  const handler = topicHandlers[topicName];
+
+  if (!handler) {
+    debug(`No handler for topic: ${topicName}`);
     return null;
   }
 
-  const handler = topicHandlers[topic];
-  if (handler) {
+  try {
     return handler(rawData);
-  } else {
-    console.log("Topic not found");
+  } catch (error) {
+    debug(`Error processing ${topicName}:`, error);
     return null;
   }
 };

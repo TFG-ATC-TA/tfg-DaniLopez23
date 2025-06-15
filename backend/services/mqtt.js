@@ -3,6 +3,7 @@ const config = require("../config/index");
 const topics = require("../config/topics");
 const dataHandling = require("../utils/dataHandling");
 const dataCache = require("./cache");
+const { setLastMqttStatus } = require("./mqttStatusStore");
 const webSocketsService = require("./webSockets");
 const debug = require("debug")("app:mqtt");
 
@@ -29,26 +30,29 @@ const connect = () => {
 
   mqttClient.on("connect", () => {
     debug("MQTT client connected %s", url);
+    setLastMqttStatus({ status: "connected" });
     webSocketsService.emitToAll("mqttStatus", { status: "connected" });
     reconnecting = false;
     reconnectAttempts = 0; // Restablecer el contador de intentos al conectar
     isManuallyReconnecting = false;
     mqttClient.subscribe("#", (err) => {
       if (err) {
-        debug("MQTT Subscription Error: %O", err);
+        debug("MQTT Subscription Error: %O", err.message);
         webSocketsService.emitToAll("mqttStatus", {
           status: "subscriptionError",
           error: err.message,
         });
       } else {
         debug("Subscribed to all topics");
-        webSocketsService.emitToAll("mqttStatus", { status: "subscribed" });
       }
     });
   });
 
   mqttClient.on("message", (topic, message) => {
-    try {
+      if (!topic.startsWith("farm-") && !topic.startsWith("synthetic-farm-")) {
+        debug("Ignoring message from topic: %s", topic); 
+        return;
+      }
       const processedData = dataHandling.processData(topic, message);
       const farmId = topic.split("/")[0];
       const boardId = processedData.tags.board_id;
@@ -59,23 +63,16 @@ const connect = () => {
       }
 
       if (messageHandler) {
-        messageHandler(boardId, topic, processedData);
+        messageHandler(farmId, boardId, topic, processedData);
       }
-    } catch (err) {
-      debug("MQTT Message Processing Error: %O", err);
-      webSocketsService.emitToAll("mqttStatus", {
-        status: "messageError",
-        error: err.message,
-      });
-    }
+
   });
 
   mqttClient.on("error", (err) => {
-    debug("MQTT Connection Error: %O", err);
-    webSocketsService.emitToAll("mqttStatus", {
-      status: "error",
-      error: err.message,
-    });
+    debug("MQTT Connection Error: %O", err.message);
+    const status = { status: "error", error: err.message };
+    setLastMqttStatus(status);
+    webSocketsService.emitToAll("mqttStatus", status);
   });
 
   mqttClient.on("reconnect", () => {

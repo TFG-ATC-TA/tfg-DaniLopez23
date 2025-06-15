@@ -1,0 +1,79 @@
+name: tfg-digital-twin
+
+services:
+  backend:
+    build:
+      context: ./backend
+      target: development
+    volumes:
+      - ./backend:/app
+      - backend_node_modules:/app/node_modules
+    environment:
+      - NODE_ENV=development
+      - ML_API_URL="http://ml-api:8000"
+    ports:
+      - "3001:3001"
+    networks:
+      - tfg-digital-twin
+    depends_on:
+      - mongodb
+      
+  frontend:
+    build:
+      context: ./frontend
+      target: development
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "5173:5173"
+    networks:
+      - tfg-digital-twin
+
+  ml-api:
+    build: 
+      context: ./ml-api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    volumes:
+      - ./ml-api:/app
+    networks:
+      - tfg-digital-twin
+    ports:
+      - "8000:8000"
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb:/var/lib/influxdb
+    networks:
+      - tfg-digital-twin
+
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27018:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=adminpassword
+      - MONGO_INITDB_DATABASE=tfg
+    volumes:
+      - mongo-data:/data/db
+      - ./mongo-data/init:/docker-entrypoint-initdb.d  # Monta ambos archivos
+    networks:
+      - tfg-digital-twin
+
+networks:
+  tfg-digital-twin:
+    driver: bridge
+
+volumes:
+  influxdb:
+  mongo-data:
+  backend_node_modules:

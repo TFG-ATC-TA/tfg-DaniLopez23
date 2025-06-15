@@ -3,6 +3,7 @@ import { useSpring, animated } from "@react-spring/three";
 import CallOutText from "../CallOutText";
 import ParticleField from "../ParticleField";
 import { getRotationDuration, getAlcalineAcidCylinders, getVisibleMilkCilinder } from "../Transformations";
+
 export function HorizontalTank2Blades({
   encoderData,
   milkQuantityData,
@@ -20,32 +21,30 @@ export function HorizontalTank2Blades({
     loop: true,
     to: { rotation: [0, Math.PI * 2, 0] },
     from: { rotation: [0, 0, 0] },
-    config: { duration: getRotationDuration(encoderData?.value ?? 0) },
+    config: { duration: getRotationDuration(encoderData?.value["00"] ?? 0) },
   });
 
   const rotationBlade2 = useSpring({
     loop: true,
     to: { rotation: [0, -Math.PI * 2, 0] },
     from: { rotation: [0, 0, 0] },
-    config: { duration: getRotationDuration(encoderData?.value ?? 0) },
+    config: { duration: getRotationDuration(encoderData?.value["01"] ?? 0) },
   });
 
   const { rotation: rotationHatch } = useSpring({
     to: {
       rotation:
-        switchStatus?.status || false ? [-Math.PI / 2, 0, 0] : [0, 0, 0],
+        switchStatus?.value || false ? [-Math.PI / 2, 0, 0] : [0, 0, 0],
     },
     config: { duration: 1000 },
   });
 
   const renderMilkQuantity = () => {
-    const range = getVisibleMilkCilinder(milkQuantityData?.milkQuantity ?? 0);
-
+    const range = getVisibleMilkCilinder(milkQuantityData?.value ?? 0);
     if (!range) return null;
 
     const nodeKey = `MilkCilinder${range.max}`;
     const node = nodes[nodeKey];
-
     return (
       <mesh
         geometry={node.geometry}
@@ -85,20 +84,17 @@ export function HorizontalTank2Blades({
         scale={[0.104, 0.076, 0.104]}
       />
       <CallOutText
-        position={[0, 2.9, 0.92]}
-        value={`${encoderData?.value ?? "No data"}`}
+        position={[0, 2.75, 1.1]}
         title={"Encoder"}
-        radius={0.05}
+        value={`${encoderData?.value["00"] ?? "No data"}`}
       />
       <CallOutText
-        position={[0, 2.9, -0.92]}
+        position={[0, 2.75, -1.1]}
         title={"Encoder"}
-        text={`${encoderData?.value ?? "No data"}`}
-        radius={0.05}
+        value={`${encoderData?.value["01"] ?? "No data"}`}
       />
     </>
   );
-
   const renderMagneticSwitch = () => (
     <>
       <animated.mesh
@@ -108,15 +104,15 @@ export function HorizontalTank2Blades({
         rotation={rotationHatch}
       />
       <CallOutText
-        position={[0, 2.9, 0]}
-        text={`${
-          switchStatus == null
+        position={[0, 2.75, 0]}
+        title={"Magnetic Switch"}
+        value={`${
+          switchStatus === null
             ? "No Data"
-            : switchStatus.status
+            : switchStatus?.value
             ? "Open"
             : "Closed"
         }`}
-        title={"Magnetic Switch"}
       />
     </>
   );
@@ -124,7 +120,7 @@ export function HorizontalTank2Blades({
   const renderWeight = () => {
 
     const { alcalineMorph, acidMorph } = getAlcalineAcidCylinders({
-      quantity: weightData?.weight,
+      quantity: weightData?.value,
       maxValue: 100,
     });
 
@@ -159,21 +155,21 @@ export function HorizontalTank2Blades({
           position={[2, 0.27, 3.19]}
         />
         <CallOutText
-          position={[1.356, 1.05, 2.848]}
+          position={[1.3, 0.95, 2.8]}
           title={"Alcaline"}
-          value={weightData?.weight}
+          value={weightData?.value}
         />
         <CallOutText
-          position={[2.02, 1.05, 2.848]}
+          position={[2, 0.9, 2.9]}
           title={"Acid"}
-          value={weightData?.weight}
+          value={weightData?.value}
         />
       </>
     );
   };
 
   const renderTankTemperatures = () => {
-    const range = getVisibleMilkCilinder(milkQuantityData?.milkQuantity ?? 0);
+    const range = getVisibleMilkCilinder(milkQuantityData?.value ?? 0);
 
     if (!range) return null;
 
@@ -191,7 +187,8 @@ export function HorizontalTank2Blades({
   };
 
   const renderAirQuality = () => (
-    <ParticleField particleCount={1000} humidity={10} temperature={20} />
+    <ParticleField particleCount={1000} humidity={airQualityData?.value.humidity || 0} temperature={airQualityData?.value.temperature || 0} />
+    
   );
 
   return (
@@ -207,7 +204,7 @@ export function HorizontalTank2Blades({
       {(selectedData === "MagneticSwitch" || selectedData == null) &&
         renderMagneticSwitch()}
       {(selectedData === "Weight" || selectedData == null) && renderWeight()}
-      {(selectedData === "TankTemperatures" || selectedData == null) &&
+      {(selectedData === "TankTemperatures") &&
         renderTankTemperatures()}
       {selectedData === "AirQuality" && renderAirQuality()}
     </group>

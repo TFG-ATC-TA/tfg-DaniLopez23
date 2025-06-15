@@ -2,19 +2,16 @@ import { io } from "socket.io-client";
 
 let socket = null;
 
-export const createSocket = (url = "http://localhost:3001", options = {}) => {
+export const createSocket = () => {
   if (socket) {
     console.warn("Socket ya inicializado. Usando la instancia existente.");
     return socket;
   }
 
-  // Crear nueva instancia de Socket.IO
-  socket = io(url, {
+  socket = io('', {  // Sin URL - usa el host actual
+    path: '/socket.io',  // Coincide con el proxy
     autoConnect: false,
-    reconnection: true,
-    reconnectionAttempts: 5,
-    reconnectionDelay: 1000,
-    ...options,
+    transports: ['websocket', 'polling']  // Opcional: prioridad
   });
 
   return socket;
